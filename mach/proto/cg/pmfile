@@ -4,15 +4,15 @@
 local d = ROOTDIR.."mach/proto/cg/"
 
 local make_tables = cgg {
-	CGGINCLUDEDIR = (ROOTDIR.."mach/%PLATFORM%/cg/"),
-	file (ROOTDIR.."mach/%PLATFORM%/cg/table")
+	CGGINCLUDEDIR = (ROOTDIR.."mach/%ARCH%/cg/"),
+	file (ROOTDIR.."mach/%ARCH%/cg/table")
 }
 
 local cfile_with_tables = cfile {
 	class = "cfile_with_tables",
 	dynamicheaders = {
 		make_tables,
-		file (ROOTDIR.."mach/%PLATFORM%/cg/"),
+		file (ROOTDIR.."mach/%ARCH%/cg/"),
 		file (ROOTDIR.."mach/")
 	}
 }
@@ -39,7 +39,7 @@ proto_cg = cprogram {
 	cfile {
 		ith { make_tables, i = 1 },
 		dynamicheaders = {
-			file (ROOTDIR.."mach/%PLATFORM%/cg/"),
+			file (ROOTDIR.."mach/%ARCH%/cg/"),
 			file (d)
 		}
 	},
@@ -47,8 +47,8 @@ proto_cg = cprogram {
 	lib_em_data,
 	lib_flt_arith,
 	
-	outputs = {"%U%/%PLATFORM%-cg"},
-	install = pm.install("%BINDIR%%PLATDEP%/%PLATFORM%/cg")
+	outputs = {"%U%/%ARCH%-cg"},
+	install = pm.install("%BINDIR%%PLATDEP%/%ARCH%/cg")
 }
 
 -- Revision history
