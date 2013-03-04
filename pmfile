@@ -38,7 +38,7 @@ include "util/amisc/pmfile"
 include "util/cmisc/pmfile"
 include "util/ack/pmfile"
 include "util/arch/pmfile"
--- include "util/cpp/pmfile"
+include "util/cpp/pmfile"
 include "lang/cem/cpp.ansi/pmfile"
 include "util/cgg/pmfile"
 include "util/ncgg/pmfile"
@@ -98,6 +98,9 @@ include "plat/linux386/pmfile"         -- Linux executables
 include "mach/i80/pmfile"              -- generic 8080
 include "plat/cpm/pmfile"              -- CP/M
 
+include "mach/6500/pmfile"	            -- generic 6500
+include "plat/nes/pmfile"	            -- NES
+
 default = group {
 	-- Lots of things use LLgen, so we need to build it first.
 	
@@ -127,7 +130,7 @@ default = group {
 	tool_tabgen,
 	tool_aal,
 	tool_ack,
---	tool_cpp,                -- K&R C
+	tool_cpp,                -- K&R C
 	tool_cpp_ansi,           -- ANSI C
 	tool_cgg,
 	tool_ncgg,
@@ -157,8 +160,7 @@ default = group {
 	-- libraries.
 	
 --[[
-	mach_6500,
-	lang_runtimes { ARCH="6500", OPTIMISATION="-O" },
+	mach_6500,     lang_runtimes { ARCH="6500", OPTIMISATION="-O" },
 
 	mach_6800,
 	mach_6805,
@@ -180,7 +182,8 @@ default = group {
 	
 	platform_pc86,
 	platform_linux386,
-	platform_cpm
+	platform_cpm,
+	platform_nes,
 }
 
 -- Ensure that the work directories exist.
