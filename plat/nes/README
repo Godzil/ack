@@ -1,0 +1,15 @@
+# $Source$
+# $State$
+# $Revision$
+
+
+The NES platform
+=================
+
+NES is a platform for the Nintendo Entertainment System.
+
+Example command line
+====================
+
+ack -mnes -O -o nes.img examples/paranoia.c
+
