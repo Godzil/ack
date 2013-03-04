@@ -1,8 +1,7 @@
-                     THE AMSTERDAM COMPILER KIT V6.0pre4
-                     ===================================
+THE AMSTERDAM COMPILER KIT V6.0pre4
+===================================
 
-                  © 1987-2005 Vrije Universiteit, Amsterdam
-                                2010-08-08
+© 1987-2005 Vrije Universiteit, Amsterdam 2010-08-08
 
 
 INTRODUCTION
@@ -165,6 +164,3 @@ David Given (dtrg on Sourceforge)
 dg@cowlark.com
 2010-08-08
 
-# $Source$
-# $State$
-# $Revision$
