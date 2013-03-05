@@ -33,8 +33,8 @@ struct mkey	{
 	{0,		K_UNKNOWN}
 };
 
-char *strcpy();
-char *sprint();
+//char *strcpy();
+//char *sprint();
 
 init_pp()
 {

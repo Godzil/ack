@@ -25,9 +25,9 @@ static string rcsid5 = "$Id$";
 # endif
 
 /* In this file the following routines are defined: */
-extern	UNLINK();
-extern	RENAME();
-extern string	libpath();
+//extern	UNLINK();
+//extern	RENAME();
+//extern string	libpath();
 
 UNLINK(x) string x; {
 	/* Must remove the file "x" */
@@ -57,7 +57,7 @@ libpath(s) string s; {
 	register string p;
 	register length;
 	p_mem alloc();
-	string strcpy(), strcat();
+//	string strcpy(), strcat();
 
 	char* libdir = getenv("LLGEN_LIB_DIR");
 	if (!libdir)
