@@ -25,7 +25,7 @@ CXXPROGRAM = "%CXXCOMPILER% %CBUILDFLAGS% %CLINKFLAGS% %CEXTRAFLAGS% -o %out% %i
 
 CLIBRARY = "rm -f %out% && ar cr %out% %in% && ranlib %out%"
 
-CBUILDFLAGS = {"-g"}
+CBUILDFLAGS = {"-g", "-Werror", "-std=c89"}
 CINCLUDES = EMPTY
 CDEFINES = EMPTY
 CEXTRAFLAGS = EMPTY
