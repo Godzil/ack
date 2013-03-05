@@ -24,6 +24,7 @@
  * [B | C]* becomes X; X: B X | C X | {empty}  etc.
  */
 
+#include <stdlib.h>
 
 # include "types.h"
 # include "extern.h"

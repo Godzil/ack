@@ -7,13 +7,11 @@
 #include "system.h"
 #include <unistd.h>
 
-char *
-sys_break(incr)
-	int incr;
+char *sys_break(int incr)
 {
-	register char *brk = sbrk(incr);
+	char *brk = (char*)sbrk(incr);
 
-	if (brk == (char *) 0 || brk == (char *)-1)
+	if ((brk == (char *) 0) || (brk == (char *)-1))
 		return ILL_BREAK;
 	return brk;
 }

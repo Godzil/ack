@@ -24,29 +24,15 @@
 # include "sets.h"
 # include "assert.h"
 
-# ifndef NORCSID
-static string rcsid1 = "$Id$";
-# endif
+#include "LLgen.h"
 
 static string	c_first = "> firstset   ";
 static string	c_contains = "> containset ";
 static string	c_follow = "> followset  ";
-p_set		setalloc();
 static int	level;
 
 /* In this file are defined : */
-extern conflchecks();
-STATIC prline();
-STATIC printset();
-STATIC int check();
-STATIC moreverbose();
-STATIC prrule();
-STATIC cfcheck();
-STATIC resolve();
-STATIC propagate();
-STATIC spaces();
-
-conflchecks() {
+void conflchecks() {
 	/*
 	 * Check for conflicts, that is,
 	 * in a repeating term, the FIRST and FOLLOW must be disjunct,
@@ -63,7 +49,7 @@ conflchecks() {
 		for (p = nonterms; p < maxnt; p++) p->n_flags |= VERBOSE;
 	}
 	if (verbose) {
-		if ((fout = fopen(f_out,"w")) == NULL) fatal(1,e_noopen,f_out);
+		if ((fout = fopen(f_out,"w")) == NULL) fatal(1,e_noopen,f_out, NULL);
 	}
 	/*
 	 * Check the rules in the order in which they are declared,

@@ -18,6 +18,8 @@
  * This file is a mess, it should be cleaned up some time.
  */
 
+#include <stdlib.h>
+
 # include "types.h"
 # include "io.h"
 # include "extern.h"
@@ -25,18 +27,16 @@
 # include "assert.h"
 # include "cclass.h"
 
-# ifndef NORCSID
-static string rcsid3 = "$Id$";
-#endif /* NORCSID */
+#include "LLgen.h"
 
 /*
- * Some codestrings used more than once
+ * Some codechar *s used more than once
  */
 
-static string	c_arrend =	"0 };\n";
-static string	c_close =	"}\n";
-static string	c_break =	"break;\n";
-static string	c_read =	"LLread();\n";
+static char *	c_arrend =	"0 };\n";
+static char *	c_close =	"}\n";
+static char *	c_break =	"break;\n";
+static char *	c_read =	"LLread();\n";
 
 /* Some constants used for reading from the action file */
 # define ENDDECL	0400
@@ -47,65 +47,28 @@ static int firsts;		/* are there any? */
 static int listcount;
 
 /* In this file the following routines are defined: */
-extern		gencode();
-STATIC		opentemp();
-STATIC		geninclude();
-STATIC		genrecovery();
-#ifdef NON_CORRECTING
-STATIC		genncrecovery();
-#endif
-STATIC string	genname();
-STATIC		generate();
-STATIC		prset();
-STATIC		macro();
-STATIC		controlline();
-STATIC		getparams();
-STATIC		getansiparams();
-STATIC		genprototypes();
-STATIC		gettok();
-STATIC		rulecode();
-STATIC int *	dopush();
-STATIC int *	mk_tokenlist();
-STATIC		getaction();
-STATIC		alternation();
-STATIC		codeforterm();
-STATIC		genswhead();
-STATIC		gencases();
-STATIC		genpush();
-STATIC		genpop();
-STATIC		genincrdecr();
-STATIC		add_cases();
-STATIC int	analyze_switch();
-STATIC		out_list();
-STATIC		genextname();
-STATIC		correct_prefix();
-
 # define NOPOP		-20000
 
-p_mem alloc(), ralloc();
 
-doclose(f)
-	FILE *f;
+void doclose(FILE *f)
 {
 	if (ferror(f) != 0) {
-		fatal(0,"Write error on temporary");
+		fatal(0,"Write error on temporary", NULL, NULL);
 	}
 	fclose(f);
 }
 
-STATIC int *
-mk_tokenlist()
+STATIC int *mk_tokenlist()
 {
-	register int i = ntokens;
-	register int *p = (int *)alloc((unsigned)(i * sizeof(int))) + i;
+	int i = ntokens;
+	int *p = (int *)alloc((unsigned)(i * sizeof(int))) + i;
 
 	while (i--) *--p = -1;
 
 	return p;
 }
 
-STATIC
-genhdr()
+STATIC void genhdr()
 {
 	if (!firsts) fputs("#define LLNOFIRSTS\n", fpars);
 	if (ansi_c) fputs("#define LL_ANSI_C 1\n", fpars);
@@ -119,12 +82,12 @@ genhdr()
 	copyfile(incl_file);
 }
 
-gencode(argc) {
-	register p_file p = files;
+void gencode(int argc) {
+	p_file p = files;
 
 	/* Set up for code generation */
 	if ((fact = fopen(f_temp,"r")) == NULL) {
-		fatal(0,e_noopen,f_temp);
+		fatal(0,e_noopen,f_temp, NULL);
 	}
 
 #ifdef NON_CORRECTING
@@ -157,22 +120,20 @@ gencode(argc) {
 	fclose(fact);
 }
 
-STATIC
-opentemp(str) string str; {
+STATIC void opentemp(char *str) {
 
 	if ((fpars = fopen(f_pars,"w")) == NULL) {
-		fatal(0,e_noopen,f_pars);
+		fatal(0,e_noopen,f_pars, NULL);
 	}
 	if (!str) str = ".";
 	fprintf(fpars,LLgenid,str);
 }
 
-STATIC
-geninclude() {
-	register p_token p;
+STATIC void geninclude() {
+	p_token p;
 	int maxno = 0;
 
-	opentemp((string) 0);
+	opentemp((char *) 0);
 	for (p = tokens; p < maxt; p++) {
 		if (p->t_tokno > maxno) maxno = p->t_tokno;
 		if (p->t_tokno >= 0400) {
@@ -192,18 +153,17 @@ geninclude() {
 	install(f_include, ".");
 }
 
-STATIC
-genrecovery() {
-	register FILE	*f;
-	register p_token t;
-	register int	*q;
-	register p_nont	p;
-	register p_set	*psetl;
+STATIC void genrecovery() {
+	FILE	*f;
+	p_token t;
+	int	*q;
+	p_nont	p;
+	p_set	*psetl;
 	int		*index;
 	int		i;
-	register p_start st;
+	p_start st;
 
-	opentemp((string) 0);
+	opentemp((char *) 0);
 	f = fpars;
 	correct_prefix();
 	genhdr();
@@ -304,16 +264,15 @@ genrecovery() {
 }
 
 #ifdef NON_CORRECTING
-STATIC
-genncrecovery() {
-    register FILE    *f;
-    register p_token  t;
-    register int     *q;
+STATIC void genncrecovery() {
+    FILE    *f;
+    p_token  t;
+    int     *q;
     int		     *index;
 
     /* Generate the non-correcting error recovery file */
 
-    opentemp((string) 0);
+    opentemp((char *) 0);
     f = fpars;
 
     genhdr();
@@ -343,15 +302,14 @@ genncrecovery() {
 }
 #endif
 
-STATIC
-generate(f) p_file f; {
+STATIC void generate(p_file f) {
 	/*
 	 * Generates a parsing routine for every nonterminal
 	 */
-	register int s;
-	register p_nont	p;
+	int s;
+	p_nont	p;
 	int i;
-	register p_first ff;
+	p_first ff;
 	int mustpop;
 	int is_first = 1;
 
@@ -413,10 +371,9 @@ generate(f) p_file f; {
 	}
 }
 
-STATIC
-prset(p) p_set p; {
-	register int k;
-	register unsigned i;
+STATIC void prset(p_set p) {
+	int k;
+	unsigned i;
 	int j;
 
 	j = nbytes;
@@ -434,8 +391,7 @@ prset(p) p_set p; {
 	/* NOTREACHED */
 }
 
-STATIC
-macro(s,n) string s; p_nont n; {
+STATIC void macro(char * s, p_nont n) {
 	int i;
 
 	i = findindex(n->n_first);
@@ -449,29 +405,27 @@ macro(s,n) string s; p_nont n; {
 	fprintf(fpars,"#define %s(x) LLfirst((x), %d)\n", s, i);
 }
 
-STATIC
-controlline() {
+STATIC void controlline() {
 	/* Copy a compiler control line */
-	register int l;
-	register FILE *f1,*f2;
+	int l;
+	FILE *f1,*f2;
 
 	f1 = fact; f2 = fpars;
 	l = getc(f1);
 	assert(l == '\0');
 	do {
 		l = getc(f1);
-		if (l == EOF) fatal(0, "temp file mangled");
+		if (l == EOF) fatal(0, "temp file mangled", NULL, NULL);
 		putc(l,f2);
 	} while ( l != '\n' ) ;
 }
 
-STATIC
-getparams() {
+STATIC void getparams() {
 	/* getparams is called if a nonterminal has parameters. The names
 	 * of the parameters have to be found, and they should be declared
 	 */
 	long off;
-	register int l;
+	int l;
 	long ftell();
 	char first;
 	char add_semi = ' ';
@@ -508,15 +462,13 @@ getparams() {
 	fprintf(fpars, "%c\n",add_semi);
 }
 
-STATIC
-genprototypes(f)
-	register p_file f;
+STATIC void genprototypes(p_file f)
 {
 	/*
 	 * Generate prototypes for all nonterminals
 	 */
-	register int i;
-	register p_nont	p;
+	int i;
+	p_nont	p;
 	long	off = ftell(fact);
 
 	fputs("#if LL_ANSI_C\n", fpars);
@@ -555,13 +507,12 @@ genprototypes(f)
 	fputs("#endif\n", fpars);
 }
 
-STATIC
-getansiparams(mkdef) {
+STATIC void getansiparams(int mkdef) {
 	/* getansiparams is called if a nonterminal has parameters
 	 * and an ANSI C function definition/declaration has to be produced.
 	 * If a definition has to be produced, "mkdef" is set to 1.
 	 */
-	register int l;
+	int l;
 	int delayed = 0;
 
 	ltext[0] = '\0';
@@ -586,12 +537,11 @@ getansiparams(mkdef) {
 	fprintf(fpars, ") %c\n", mkdef ? ' ' : ';');
 }
 
-STATIC
-gettok() {
+STATIC int gettok() {
 	/* Read from the action file. */
-	register int ch;
-	register string	c;
-	register FILE *f;
+	int ch;
+	char *c;
+	FILE *f;
 
 	f = fact;
 	ch = getc(f);
@@ -624,15 +574,14 @@ gettok() {
 	}
 }
 
-STATIC
-rulecode(p,safety,mustscan,mustpop) register p_gram p; {
+STATIC void rulecode(p_gram p, int safety, int mustscan, int mustpop) {
 	/*
 	 * Code for a production rule.
 	 */
 
-	register int	toplevel = 1;
-	register FILE	*f;
-	register int	*ppu;
+	int	toplevel = 1;
+	FILE	*f;
+	int	*ppu;
 	int		*pushlist;
 	int		*ppushlist;
 
@@ -663,8 +612,8 @@ rulecode(p,safety,mustscan,mustpop) register p_gram p; {
 			return;
 		  case LITERAL :
 		  case TERMINAL : {
-			register p_token t;
-			string s;
+			p_token t;
+			char * s;
 
 			t = &tokens[g_getcont(p)];
 			if (toplevel == 0) {
@@ -694,7 +643,7 @@ rulecode(p,safety,mustscan,mustpop) register p_gram p; {
 			safety = NOSCANDONE;
 			break; }
 		  case NONTERM : {
-			register p_nont n = &nonterms[g_getcont(p)];
+			p_nont n = &nonterms[g_getcont(p)];
 
 			if (safety == NOSCANDONE &&
 			    getntsafe(n) < NOSCANDONE) {
@@ -734,13 +683,11 @@ rulecode(p,safety,mustscan,mustpop) register p_gram p; {
 	}
 }
 
-STATIC
-alternation(pp, safety, mustscan, mustpop, lb)
-	p_gram pp;
+STATIC void alternation(p_gram pp, int safety, int mustscan, int mustpop, int lb)
 {
-	register p_gram	p = pp;
-	register FILE	*f = fpars;
-	register p_link	l;
+	p_gram	p = pp;
+	FILE	*f = fpars;
+	p_link	l;
 	int		hulp, hulp1,hulp2;
 	int		haddefault = 0;
 	int		nsafe;
@@ -891,12 +838,12 @@ alternation(pp, safety, mustscan, mustpop, lb)
 }
 
 STATIC int *
-dopush(p,safety,toplevel,pp) register p_gram p; int **pp; {
+dopush(p,safety,toplevel,pp) p_gram p; int **pp; {
 	/*
 	 * The safety only matters if toplevel != 0
 	 */
 	unsigned int i = 100;
-	register int *ip = (int *) alloc(100 * sizeof(int));
+	int *ip = (int *) alloc(100 * sizeof(int));
 
 	*pp = ip;
 
@@ -912,7 +859,7 @@ dopush(p,safety,toplevel,pp) register p_gram p; int **pp; {
 		  case ALTERNATION :
 			return ip;
 		  case TERM : {
-			register p_term q;
+			p_term q;
 			int rep_kind, rep_count;
 
 			q = g_getterm(p);
@@ -934,7 +881,7 @@ dopush(p,safety,toplevel,pp) register p_gram p; int **pp; {
 			if (toplevel == 0) *ip++ = -(g_getcont(p)+1);
 			break;
 		  case NONTERM : {
-			register p_nont n;
+			p_nont n;
 
 			n = &nonterms[g_getcont(p)];
 			if (toplevel == 0 ||
@@ -955,14 +902,13 @@ dopush(p,safety,toplevel,pp) register p_gram p; int **pp; {
 
 # define max(a,b) ((a) < (b) ? (b) : (a))
 
-STATIC
-getaction(flag) {
+STATIC void getaction(int flag) {
 	/* Read an action from the action file.
 	 * flag = 1 if it is an action,
 	 * 0 when reading parameters
 	 */
-	register int ch;
-	register FILE *f;
+	int ch;
+	FILE *f;
 	int mark = 0;
 
 	if (flag == 1) {
@@ -991,14 +937,13 @@ getaction(flag) {
 	if (flag) fputs("\n",f);
 }
 
-STATIC
-codeforterm(q,safety,toplevel) register p_term q; {
+STATIC int codeforterm(p_term q, int safety, int toplevel) {
 	/*
 	 * Generate code for a term
 	 */
-	register FILE	*f = fpars;
-	register int	rep_count = r_getnum(q);
-	register int	rep_kind = r_getkind(q);
+	FILE	*f = fpars;
+	int	rep_count = r_getnum(q);
+	int	rep_kind = r_getkind(q);
 	int		term_is_persistent = (q->t_flags & PERSISTENT);
 	int		ispushed = NOPOP;
 
@@ -1024,7 +969,7 @@ codeforterm(q,safety,toplevel) register p_term q; {
 	}
 	if (rep_count) {
 		/* N > 0, so generate fixed forloop */
-		fputs("{\nregister LL_i;\n", f);
+		fputs("{\nLL_i;\n", f);
 		assert(ispushed != NOPOP);
 		fprintf(f, "for (LL_i = %d; LL_i >= 0; LL_i--) {\n", rep_count - 1);
 		if (rep_kind == FIXED) {
@@ -1075,18 +1020,17 @@ codeforterm(q,safety,toplevel) register p_term q; {
 	if (rep_kind != OPT && (rep_kind != FIXED || rep_count > 0)) {
 		fputs(c_close, f);	/* Close for */
 		if (rep_count > 0) {
-			fputs(c_close, f);/* Close Register ... */
+			fputs(c_close, f);/* Close ... */
 		}
 	}
 	return t_after(rep_kind, rep_count, gettout(q));
 }
 
-STATIC
-genswhead(q, rep_kind, rep_count, safety, ispushed) register p_term q; {
+STATIC void genswhead(p_term q, int rep_kind, int rep_count, int safety, int ispushed) {
 	/*
 	 * Generate switch statement for term q
 	 */
-	register FILE	*f = fpars;
+	FILE	*f = fpars;
 	p_set		p1;
 	p_set		setalloc();
 	int		hulp1 = 0, hulp2;
@@ -1180,9 +1124,7 @@ genswhead(q, rep_kind, rep_count, safety, ispushed) register p_term q; {
 	free((p_mem) tokenlist);
 }
 
-STATIC
-gencases(tokenlist, caseno, compacted)
-	int	*tokenlist;
+STATIC void gencases(int *tokenlist, int caseno, int compacted)
 {
 	/*
 	 * setp points to a bitset indicating which cases must
@@ -1199,32 +1141,33 @@ gencases(tokenlist, caseno, compacted)
 	 *	labeledstatement : labels statement ;
 	 *	labels : labels label | ;
 	 */
-	register p_token p;
-	register int i;
+	p_token p;
+	int i;
 
 	if (compacted) fprintf(fpars, "case %d :\n", caseno);
 	for (i = 0, p = tokens; i < ntokens; i++, p++) {
-		if (tokenlist[i] == caseno) {
-			fprintf(fpars,
-				compacted ?
-				   (p->t_tokno < 0400 ? "/* case '%s' */\n" :
-							"/* case %s */\n") :
-				   p->t_tokno<0400 ? "case /* '%s' */ %d : ;\n"
-						: "case /*  %s  */ %d : ;\n",
-				p->t_string, i);
+		if (tokenlist[i] == caseno)
+		{
+			if (compacted)
+				fprintf(fpars, p->t_tokno < 0400 ? "/* case '%s' */\n" :
+												   "/* case %s */\n",
+						p->t_string);
+			else
+				fprintf(fpars, p->t_tokno<0400 ? "case /* '%s' */ %d : ;\n" :
+												 "case /*  %s  */ %d : ;\n",
+						p->t_string, i);
 		}
 	}
 }
 
 static char namebuf[20];
 
-STATIC string
-genname(s) string s; {
+STATIC char *genname(char * s) {
 	/*
 	 * Generate a target file name from the
 	 * source file name s.
 	 */
-	register string c,d;
+	char *c, *d;
 
 	c = namebuf;
 	while (*s) {
@@ -1238,7 +1181,7 @@ genname(s) string s; {
 	for (d = c; --d > namebuf;) if (*d == '.') break;
 	if (d == namebuf) d = c;
 	if (d >= &namebuf[12]) {
-		fatal(0,"%s : filename too long",namebuf);
+		fatal(0,"%s : filename too long",namebuf, NULL);
 	}
 	*d++ = '.';
 	*d++ = 'c';
@@ -1246,13 +1189,11 @@ genname(s) string s; {
 	return namebuf;
 }
 
-STATIC
-genpush(d) {
+STATIC void genpush(int d) {
 	genincrdecr("incr", d);
 }
 
-STATIC
-genincrdecr(s, d) string s; {
+STATIC void genincrdecr(char *s, int d) {
 	if (d == NOPOP) return;
 	if (d >= 0) {
 		fprintf(fpars, "LLs%s(%d);\n", s,  d / nbytes);
@@ -1261,16 +1202,13 @@ genincrdecr(s, d) string s; {
 	fprintf(fpars, "LLt%s(%d);\n", s, -(d + 1));
 }
 
-STATIC
-genpop(d) {
+STATIC void genpop(int d) {
 	genincrdecr("decr", d);
 }
 
-STATIC int
-analyze_switch(tokenlist)
-	int	*tokenlist;
+STATIC int analyze_switch(int *tokenlist)
 {
-	register int i;
+	int i;
 	int ncases = 0;
 	int percentage;
 	int maxcase = 0, mincase = 0;
@@ -1290,12 +1228,9 @@ analyze_switch(tokenlist)
 	return percentage >= low_percentage && percentage <= high_percentage;
 }
 
-STATIC
-add_cases(s, tokenlist, caseno)
-	p_set	s;
-	int	*tokenlist;
+STATIC void add_cases(p_set s, int *tokenlist, int caseno)
 {
-	register int i;
+	int i;
 
 	for (i = 0; i < ntokens; i++) {
 		if (IN(s, i)) {
@@ -1304,12 +1239,10 @@ add_cases(s, tokenlist, caseno)
 	}
 }
 
-STATIC
-out_list(tokenlist, listno, casecnt)
-	int	*tokenlist;
+STATIC void out_list(int *tokenlist, int listno, int casecnt)
 {
-	register int i;
-	register FILE *f = fpars;
+	int i;
+	FILE *f = fpars;
 
 	fprintf(f, "static %s LL%d_tklist[] = {",
 		casecnt <= 127 ? "char" : "short",
@@ -1322,19 +1255,15 @@ out_list(tokenlist, listno, casecnt)
 	fprintf(f, "switch(LL%d_tklist[LLcsymb]) {\n", listno);
 }
 
-STATIC
-genextname(d, s, f)
-	char *s;
-	FILE *f;
+STATIC void genextname(int d, char *s, FILE *f)
 {
 	fprintf(f, "%s%d_%s", prefix ? prefix : "LL", d, s);
 }
 
-STATIC
-correct_prefix()
+STATIC void correct_prefix()
 {
-	register FILE *f = fpars;
-	register char *s = prefix;
+	FILE *f = fpars;
+	char *s = prefix;
 
 	if (s) {
 		fprintf(f, "#define LLsymb %ssymb\n", s);
