@@ -22,9 +22,7 @@
 # include "assert.h"
 # include "io.h"
 
-# ifndef NORCSID
-static string rcsid7 = "$Id$";
-# endif
+#include "LLgen.h"
 
 # define HASHSIZE 128
 # define NMSIZ 2048	/* Room for names allocated NMSIZ bytes at a time */
@@ -36,16 +34,8 @@ static p_entry	entries, maxentries;
 static t_info	token_info, nont_info;
 
 /* Defined in this file are: */
-extern string	store();
-extern		name_init();
-STATIC int	hash();
-STATIC p_entry	newentry();
-extern p_gram	search();
 
-p_mem alloc();
-p_mem new_mem();
-
-name_init() {
+void name_init() {
 	token_info.i_esize = sizeof (t_token);
 	token_info.i_incr = 50;
 	nont_info.i_esize = sizeof (t_nont);
@@ -56,8 +46,7 @@ name_init() {
 #endif
 }
 
-STATIC p_entry
-newentry(str, next) string str; p_entry next; {
+STATIC p_entry newentry(char *str, p_entry next) {
 	register p_entry p;
 
 	if ((p = entries) == maxentries) {
@@ -74,8 +63,7 @@ newentry(str, next) string str; p_entry next; {
 	return p;
 }
 
-string
-store(s) string s; {
+char *store(char *s) {
 	/*
 	 * Store a string s in the name table
 	 */
@@ -97,8 +85,7 @@ store(s) string s; {
 	return s1;
 }
 
-STATIC int
-hash(str) string str; {
+STATIC int hash(char *str) {
 	/*
 	 * Compute the hash for string str
 	 */

@@ -133,7 +133,7 @@ int hash(char * str);
 p_gram search(int type, char * str, int option);
 
 /* reach.c */
-int co_reach(void);
+void co_reach(void);
 void reachable(p_nont p);
 void reachwalk(p_gram p);
 
@@ -147,6 +147,7 @@ int setminus(p_set a, p_set b);
 int setempty(p_set p);
 int findindex(p_set set);
 int setcount(p_set set, int *saved);
+
 /* tokens.c */
 void copyact(int ch1, int ch2, int flag, int level);
 int scanner(void);

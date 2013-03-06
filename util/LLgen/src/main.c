@@ -27,15 +27,6 @@
 #include <string.h>
 #include <unistd.h>
 
-
-void *sbrk(void *addr);
-char *mktemp(char *template);
-
-#ifndef NORCSID
-static string rcsid6 = "$Id$";
-#endif
-
-
 int main(int argc, char *argv[]) {
 	register string arg;
 	string libpath();
@@ -126,7 +117,7 @@ int main(int argc, char *argv[]) {
 		argc--;
 	}
 
-	if (verbose) beg_sbrk = sbrk(NULL);
+	if (verbose) beg_sbrk = (char *)sbrk(0);
 
 #ifdef NON_CORRECTING
 	if ((subpars_sim) && (!non_corr)) {
