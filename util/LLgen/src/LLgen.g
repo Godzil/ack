@@ -20,6 +20,7 @@
 {
 # include <stdlib.h>
 # include <string.h>
+
 # include "types.h"
 # include "io.h"
 # include "extern.h"
@@ -120,9 +121,9 @@ def			{	register string p; }
 				ff->ff_name = p;
 				ff->ff_next = start;
 				start = ff;
-				while (ff = ff->ff_next) {
+				while ((ff = ff->ff_next)) {
 					if (! strcmp(p, ff->ff_name)) {
-						error(linecount, "\"%s\" already used in a %%start", p);
+						error(linecount, "\"%s\" already used in a %%start", p, NULL);
 						break;
 					}
 				}
@@ -136,7 +137,7 @@ def			{	register string p; }
 			{	if (!lexical) {
 					lexical = store(lextoken.t_string);
 				}
-				else	error(linecount,"Duplicate %%lexical");
+				else	error(linecount,"Duplicate %%lexical", NULL, NULL);
 			}
 	  ';'
 	| C_PREFIX C_IDENT
@@ -147,25 +148,25 @@ def			{	register string p; }
 					prefix = store(lextoken.t_string);
 					if (strlen(prefix) > 6) {
 						error(linecount,
-							"%%prefix too long");
+							"%%prefix too long", NULL, NULL);
 						prefix[6] = 0;
 					}
 				}
-				else	error(linecount,"Duplicate %%prefix");
+				else	error(linecount,"Duplicate %%prefix", NULL, NULL);
 			}
 	  ';'
 	| C_ONERROR C_IDENT
 			{
 #ifdef NON_CORRECTING
 				if (non_corr) {
-					warning(linecount, "%%onerror conflicts with -n option");
+					warning(linecount, "%%onerror conflicts with -n option", NULL, NULL);
 				}
 				else
 #endif
 				  if (! onerror) {
 					onerror = store(lextoken.t_string);
 				}
-				else	error(linecount,"Duplicate %%onerror");
+				else	error(linecount,"Duplicate %%onerror", NULL, NULL);
 			}
 	  ';'
 	| C_ACTION	{	acount++; }
@@ -194,8 +195,7 @@ rule			{	register p_nont p;
 	  C_IDENT	{	temp = search(NONTERM,lextoken.t_string,BOTH);
 				p = &nonterms[g_getcont(temp)];
 				if (p->n_rule) {
-					error(linecount,
-"Nonterminal %s already defined", lextoken.t_string);
+					error(linecount, "Nonterminal %s already defined", lextoken.t_string, NULL);
 				}
 				/*
 				 * Remember the order in which the nonterminals
@@ -212,7 +212,7 @@ rule			{	register p_nont p;
 	  [ C_PARAMS	{	if (lextoken.t_num > 0) {
 					p->n_flags |= PARAMS;
 					if (lextoken.t_num > 15) {
-						error(linecount,"Too many parameters");
+						error(linecount,"Too many parameters", NULL, NULL);
 					}
 					else	setntparams(p,lextoken.t_num);
 				}
@@ -255,7 +255,7 @@ productions(p_gram *p;)
 				if (t & DEF) {
 					if (haddefault) {
 						error(n_lc,
-		"More than one %%default in alternation");
+		"More than one %%default in alternation", NULL, NULL);
 					}
 					haddefault = 1;
 				}
@@ -268,7 +268,7 @@ productions(p_gram *p;)
 			}
 	    ]+		{	if (conflres & (COND|PREFERING|AVOIDING)) {
 					error(n_lc,
-		"Resolver on last alternative not allowed");
+		"Resolver on last alternative not allowed", NULL, NULL);
 				}
 				mkalt(*p,conflres,n_lc,&alt_table[n_alts++]);
 				altcnt++;
@@ -278,12 +278,12 @@ productions(p_gram *p;)
 	  |
 			{	if (conflres & (COND|PREFERING|AVOIDING)) {
 					error(o_lc,
-		"No alternation conflict resolver allowed here");
+		"No alternation conflict resolver allowed here", NULL, NULL);
 				}
 				/*
 				if (conflres & DEF) {
 					error(o_lc,
-		"No %%default allowed here");
+		"No %%default allowed here", NULL, NULL);
 				}
 				*/
 			}
@@ -292,8 +292,7 @@ productions(p_gram *p;)
 	;
 {
 
-STATIC
-mkalt(prod,condition,lc,res) p_gram prod; register p_gram res; {
+STATIC void mkalt(p_gram prod, int condition, int lc, p_gram res) {
 	/*
 	 * Create an alternation and initialise it.
 	 */
@@ -343,7 +342,7 @@ simpleproduction(p_gram *p; register int *conflres;)
 				rule_table[n_rules++] =
 				    *search(TERMINAL, "LLILLEGAL", BOTH);
 				if (*conflres & DEF) {
-					error(linecount, "%%illegal not allowed in %%default rule");
+					error(linecount, "%%illegal not allowed in %%default rule", NULL, NULL);
 				}
 #endif
 			}
@@ -404,7 +403,7 @@ simpleproduction(p_gram *p; register int *conflres;)
 					if ((q->t_flags & RESOLVER) &&
 					    (kind == PLUS || kind == FIXED)) {
 						error(linecount,
-		"%%while not allowed in this term");
+		"%%while not allowed in this term", NULL, NULL);
 					}
 					/*
 					 * A persistent fixed term is the same
@@ -413,7 +412,7 @@ simpleproduction(p_gram *p; register int *conflres;)
 					if ((q->t_flags & PERSISTENT) &&
 					    kind == FIXED) {
 						error(linecount,
-							"Illegal %%persistent");
+							"Illegal %%persistent", NULL, NULL);
 					}
 					*/
 				}
@@ -440,8 +439,7 @@ simpleproduction(p_gram *p; register int *conflres;)
 	;
 {
 
-STATIC
-mkterm(prod,flags,lc,result) p_gram prod; register p_gram result; {
+STATIC void mkterm(p_gram prod, int flags, int lc, p_gram result) {
 	/*
 	 * Create a term, initialise it and return
 	 * a grammar element containing it
@@ -497,7 +495,7 @@ elem (register p_gram pres;)
 				if (erroneous) {
 					if (g_gettype(pres) != TERMINAL){
 						warning(linecount,
-							"Erroneous only allowed on terminal");
+							"Erroneous only allowed on terminal", NULL, NULL);
 						erroneous = 0;
 					}
 					else
@@ -507,11 +505,11 @@ elem (register p_gram pres;)
 
 			}
 	  [ C_PARAMS	{	if (lextoken.t_num > 15) {
-					error(linecount,"Too many parameters");
+					error(linecount,"Too many parameters", NULL, NULL);
 				} else	g_setnpar(pres,lextoken.t_num);
 				if (g_gettype(pres) == TERMINAL) {
 					error(linecount,
-						"Terminal with parameters");
+						"Terminal with parameters", NULL, NULL);
 				}
 			}
 	  ]?
@@ -565,7 +563,7 @@ elem (register p_gram pres;)
 				ff = g_getsubparse(pres);
 				while (ff) {
 					if (ff->ff_nont == g_getcont(temp)) {
-						warning(linecount, "\"%s\" used twice in %%substart", lextoken.t_string);
+						warning(linecount, "\"%s\" used twice in %%substart", lextoken.t_string, NULL);
 						break;
 					}
 					ff = ff->ff_next;
@@ -607,7 +605,7 @@ number(int *t;)
 	: C_NUMBER
 			{	*t = lextoken.t_num;
 				if (*t <= 0 || *t >= 8192) {
-					error(linecount,"Illegal number");
+					error(linecount,"Illegal number", NULL, NULL);
 				}
 			}
 	;
