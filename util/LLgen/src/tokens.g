@@ -24,23 +24,6 @@
 # include "assert.h"
 # include "cclass.h"
 
-# ifndef NORCSID
-static string	rcsidc = "$Id$";
-# endif
-
-/* Here are defined : */
-extern int	scanner();
-extern		LLmessage();
-extern int	input();
-extern		unput();
-extern		skipcomment();
-# ifdef LINE_DIRECTIVE
-STATIC		linedirective();
-# endif
-STATIC string	cpy();
-STATIC string	vallookup();
-STATIC		copyact();
-
 static int	nparams;
 }
 /* Classes */
@@ -114,8 +97,7 @@ static t_token	savedtok;	/* to save lextoken in case of an insertion */
 static	int	nostartline;	/* = 0 if at the start of a line */
 # endif
 
-STATIC
-copyact(ch1,ch2,flag,level) char ch1,ch2; {
+STATIC void copyact(char ch1, char ch2, int flag, int level) {
 	/*
 	 * Copy an action to file f. Opening bracket is ch1, closing bracket
 	 * is ch2.
@@ -226,7 +208,7 @@ copyact(ch1,ch2,flag,level) char ch1,ch2; {
 	}
 }
 
-scanner() {
+int scanner() {
 	/*
 	 * Lexical analyser, what else
 	 */
@@ -351,11 +333,11 @@ scanner() {
 static int	backupc;	/* for unput() */
 static int	nonline;	/* = 1 if last char read was a newline */
 
-input() {
+int input() {
 	/*
 	 * Low level input routine, used by all other input routines
 	 */
-	register	c;
+	int	c;
 
 	if (c = backupc) {
 			/* Last char was "unput()". Deliver it again
@@ -382,14 +364,14 @@ input() {
 	return c;
 }
 
-unput(c) {
+void unput(c) {
 	/*
 	 * "unread" c
 	 */
 	backupc = c;
 }
 
-skipcomment(flag) {
+void skipcomment(flag) {
 	/*
 	 * Skip comment. If flag != 0, the comment is inside a fragment
 	 * of C-code, so keep it.
@@ -413,8 +395,7 @@ skipcomment(flag) {
 }
 
 # ifdef LINE_DIRECTIVE
-STATIC
-linedirective() {
+STATIC void linedirective() {
 	/*
 	 * Read a line directive
 	 */
@@ -462,8 +443,7 @@ linedirective() {
 }
 # endif
 
-STATIC string
-vallookup(s) {
+STATIC string vallookup(s) {
 	/*
 	 * Look up the keyword that has token number s
 	 */
@@ -476,8 +456,7 @@ vallookup(s) {
 	return 0;
 }
 
-STATIC string
-cpy(s,p,inserted) register string p; {
+STATIC string cpy(int s,string p, int inserted) {
 	/*
 	 * Create a piece of error message for token s and put it at p.
 	 * inserted = 0 if the token s was deleted (in which case we have
@@ -547,9 +526,7 @@ cpy(s,p,inserted) register string p; {
 	return p;
 }
 
-string strcpy();
-
-LLmessage(d) {
+void LLmessage(int d) {
 	/*
 	 * d is either 0, in which case the current token has been deleted,
 	 * or non-zero, in which case it represents a token that is inserted

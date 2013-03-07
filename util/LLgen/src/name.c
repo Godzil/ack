@@ -17,6 +17,9 @@
  * initialising routine.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 # include "types.h"
 # include "extern.h"
 # include "assert.h"
@@ -125,19 +128,19 @@ search(type,str,option) register string str; {
 				if (type == TERMINAL) {
 					error(linecount,
 						"%s: is already a nonterminal",
-						str);
+						str, NULL);
 					continue;
 				}
 				else if (type == NONTERM) {
 					error(linecount,
 						"%s : is already a token",
-						str);
+						str, NULL);
 					continue;
 				}
 			}
 			if (option==ENTERING)  {
 				error(linecount,
-					"%s : is already defined",str);
+					"%s : is already defined",str, NULL);
 			}
 			p->h_type.g_lineno = linecount;
 			return &(p->h_type);
@@ -180,7 +183,7 @@ search(type,str,option) register string str; {
 						val = '\\';
 						break;
 					  default  :
-						error(linecount,e_literal);
+						error(linecount,e_literal, NULL, NULL);
 					}
 				} else {
 					/*
@@ -189,7 +192,7 @@ search(type,str,option) register string str; {
 					if (str[1] > '3' || str[1] < '0' ||
 					    str[2] > '7' || str[2] < '0' ||
 					    str[3] > '7' || str[3] < '0' ||
-					    str[4] != '\0') error(linecount,e_literal);
+					    str[4] != '\0') error(linecount,e_literal, NULL, NULL);
 					val = 64*str[1] - 73*'0' +
 					      8*str[2] + str[3];
 				}
@@ -198,7 +201,7 @@ search(type,str,option) register string str; {
 				 * No escape in literal
 				 */
 				if (str[1] == '\0') val = str[0];
-				else error(linecount,e_literal);
+				else error(linecount,e_literal, NULL, NULL);
 			}
 			pt->t_tokno = val;
 			g_settype(&(p->h_type), LITERAL);

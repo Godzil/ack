@@ -15,6 +15,9 @@
 #define LL_assert(x)	/* nothing */
 #endif
 
+#include <stdio.h>
+#include <string.h>
+
 extern int LLsymb;
 
 #define LL_SAFE(x)	/* Nothing */
@@ -83,23 +86,9 @@ extern LLnc_recover();
 # include "assert.h"
 # include "cclass.h"
 
-# ifndef NORCSID
-static string	rcsidc = "$Id$";
-# endif
+#include "LLgen.h"
 
 /* Here are defined : */
-extern int	scanner();
-extern		LLmessage();
-extern int	input();
-extern		unput();
-extern		skipcomment();
-# ifdef LINE_DIRECTIVE
-STATIC		linedirective();
-# endif
-STATIC string	cpy();
-STATIC string	vallookup();
-STATIC		copyact();
-
 static int	nparams;
 # line 75 "tokens.g"
 
@@ -144,8 +133,7 @@ static t_token	savedtok;	/* to save lextoken in case of an insertion */
 static	int	nostartline;	/* = 0 if at the start of a line */
 # endif
 
-STATIC
-copyact(ch1,ch2,flag,level) char ch1,ch2; {
+STATIC void copyact(char ch1, char ch2, int flag, int level) {
 	/*
 	 * Copy an action to file f. Opening bracket is ch1, closing bracket
 	 * is ch2.
@@ -186,7 +174,7 @@ copyact(ch1,ch2,flag,level) char ch1,ch2; {
 		  case ')':
 		  case '}':
 		  case ']':
-			error(linecount,"Parentheses mismatch");
+			error(linecount,"Parentheses mismatch", NULL, NULL);
 			break;
 		  case '(':
 			text_seen = 1;
@@ -217,7 +205,7 @@ copyact(ch1,ch2,flag,level) char ch1,ch2; {
 				text_seen = 0;
 				nparams++;
 				if (ch == ',' && (flag & 2)) {
-					warning(linecount, "Parameters may not be separated with a ','");
+					warning(linecount, "Parameters may not be separated with a ','", NULL, NULL);
 					ch = ';';
 				}
 			}
@@ -238,7 +226,7 @@ copyact(ch1,ch2,flag,level) char ch1,ch2; {
 					ch = input();
 				}
 				if (ch == '\n') {
-					error(linecount,"Newline in string");
+					error(linecount,"Newline in string", NULL, NULL);
 					unput(match);
 				}
 				putc(ch,f);
@@ -246,7 +234,7 @@ copyact(ch1,ch2,flag,level) char ch1,ch2; {
 			if (ch == match) break;
 			/* Fall through */
 		    case EOF :
-			if (!level) error(saved,"Action does not terminate");
+			if (!level) error(saved,"Action does not terminate", NULL, NULL);
 			strip_grammar = sav_strip;
 			return;
 		    default:
@@ -256,7 +244,7 @@ copyact(ch1,ch2,flag,level) char ch1,ch2; {
 	}
 }
 
-scanner() {
+int scanner() {
 	/*
 	 * Lexical analyser, what else
 	 */
@@ -306,7 +294,7 @@ scanner() {
 			for (;;) {
 				ch = input();
 				if (ch == '\n' || ch == EOF) {
-					error(linecount,"Missing '");
+					error(linecount,"Missing '", NULL, NULL);
 					break;
 				}
 				if (ch == '\'') break;
@@ -370,7 +358,7 @@ scanner() {
 					}
 					w++;
 				}
-				error(linecount,"Illegal reserved word");
+				error(linecount,"Illegal reserved word", NULL, NULL);
 			}
 			lextoken.t_string = ltext;
 			return C_IDENT;
@@ -381,13 +369,13 @@ scanner() {
 static int	backupc;	/* for unput() */
 static int	nonline;	/* = 1 if last char read was a newline */
 
-input() {
+int input() {
 	/*
 	 * Low level input routine, used by all other input routines
 	 */
 	register	c;
 
-	if (c = backupc) {
+	if ((c = backupc)) {
 			/* Last char was "unput()". Deliver it again
 			 */
 		backupc = 0;
@@ -412,14 +400,14 @@ input() {
 	return c;
 }
 
-unput(c) {
+void unput(int c) {
 	/*
 	 * "unread" c
 	 */
 	backupc = c;
 }
 
-skipcomment(flag) {
+void skipcomment(int flag) {
 	/*
 	 * Skip comment. If flag != 0, the comment is inside a fragment
 	 * of C-code, so keep it.
@@ -428,7 +416,7 @@ skipcomment(flag) {
 	int		saved;	/* line count on which comment starts */
 
 	saved = linecount;
-	if (input() != '*') error(linecount,"Illegal comment");
+	if (input() != '*') error(linecount,"Illegal comment", NULL, NULL);
 	if (flag) putc('*', fact);
 	do {
 		ch = input();
@@ -439,12 +427,11 @@ skipcomment(flag) {
 			if (ch == '/') return;
 		}
 	} while (ch != EOF);
-	error(saved,"Comment does not terminate");
+	error(saved,"Comment does not terminate", NULL, NULL);
 }
 
 # ifdef LINE_DIRECTIVE
-STATIC
-linedirective() {
+STATIC void linedirective() {
 	/*
 	 * Read a line directive
 	 */
@@ -461,7 +448,7 @@ linedirective() {
 		ch = input();
 	} while (ch != '\n' && c_class[ch] != ISDIG);
 	if (ch == '\n') {
-		error(linecount,s_error);
+		error(linecount, s_error, NULL, NULL);
 		return;
 	}
 	i = 0;
@@ -476,7 +463,7 @@ linedirective() {
 			*c++ = ch = input();
 		} while (ch != '"' && ch != '\n');
 		if (ch == '\n') {
-			error(linecount,s_error);
+			error(linecount, s_error, NULL, NULL);
 			return;
 		}
 		*--c = '\0';
@@ -492,8 +479,7 @@ linedirective() {
 }
 # endif
 
-STATIC string
-vallookup(s) {
+STATIC string vallookup(int s) {
 	/*
 	 * Look up the keyword that has token number s
 	 */
@@ -506,8 +492,7 @@ vallookup(s) {
 	return 0;
 }
 
-STATIC string
-cpy(s,p,inserted) register string p; {
+STATIC string cpy(int s, char *p, int inserted) {
 	/*
 	 * Create a piece of error message for token s and put it at p.
 	 * inserted = 0 if the token s was deleted (in which case we have
@@ -577,9 +562,7 @@ cpy(s,p,inserted) register string p; {
 	return p;
 }
 
-string strcpy();
-
-LLmessage(d) {
+void LLmessage(int d) {
 	/*
 	 * d is either 0, in which case the current token has been deleted,
 	 * or non-zero, in which case it represents a token that is inserted
@@ -621,7 +604,7 @@ LLmessage(d) {
 #ifdef LLNONCORR
 	else
 #endif
-	error(linecount, "%s", buf);
+	error(linecount, "%s", buf, NULL);
 			/* Don't change this line to 
 			 * error(linecount, buf).
 			 * The string in "buf" might contain '%' ...

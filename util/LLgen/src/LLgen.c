@@ -84,13 +84,7 @@ extern LLnc_recover();
 # include "assert.h"
 # include "cclass.h"
 
-# ifndef NORCSID
-static string	rcsid = "$Id$";
-# endif
-p_mem		alloc(), ralloc();
-string		store();
-p_gram		search();
-long		ftell();
+#include "LLgen.h"
 
 static int	acount;			/* count #of global actions */
 static p_term t_list;
@@ -106,15 +100,9 @@ static int	max_rules;
 #define RULEINCR	32
 
 /* Here are defined : */
-STATIC		newnorder();
-STATIC		newtorder();
-STATIC		mkalt();
-STATIC		mkterm();
-STATIC p_gram	copyrule();
 /* and of course LLparse() */
 
-STATIC
-newnorder(index) {
+STATIC void newnorder(int index) {
 	static int porder;
 
 	if (norder != -1) {
@@ -125,8 +113,7 @@ newnorder(index) {
 	nonterms[porder].n_next = -1;
 }
 
-STATIC
-newtorder(index) {
+STATIC void newtorder(int index) {
 	static int porder;
 
 	if (torder != -1) {
@@ -137,7 +124,7 @@ newtorder(index) {
 	tokens[porder].t_next = -1;
 }
 
-p_init()
+void p_init()
 {
 	alt_table = (p_gram )alloc(ALTINCR*sizeof(t_gram));
 	n_alts = 0;
@@ -295,9 +282,9 @@ LL_NOSCANDONE(C_IDENT);
 				ff->ff_name = p;
 				ff->ff_next = start;
 				start = ff;
-				while (ff = ff->ff_next) {
+				while ((ff = ff->ff_next)) {
 					if (! strcmp(p, ff->ff_name)) {
-						error(linecount, "\"%s\" already used in a %%start", p);
+						error(linecount, "\"%s\" already used in a %%start", p, NULL);
 						break;
 					}
 				}
@@ -313,7 +300,7 @@ LL_NOSCANDONE(C_IDENT);
 {	if (!lexical) {
 					lexical = store(lextoken.t_string);
 				}
-				else	error(linecount,"Duplicate %%lexical");
+				else	error(linecount,"Duplicate %%lexical", NULL, NULL);
 			}
 LLtdecr(24);
 LL_NOSCANDONE(';');
@@ -327,11 +314,11 @@ LL_NOSCANDONE(C_IDENT);
 					prefix = store(lextoken.t_string);
 					if (strlen(prefix) > 6) {
 						error(linecount,
-							"%%prefix too long");
+							"%%prefix too long", NULL, NULL);
 						prefix[6] = 0;
 					}
 				}
-				else	error(linecount,"Duplicate %%prefix");
+				else	error(linecount,"Duplicate %%prefix", NULL, NULL);
 			}
 LLtdecr(24);
 LL_NOSCANDONE(';');
@@ -344,14 +331,14 @@ LL_NOSCANDONE(C_IDENT);
 {
 #ifdef NON_CORRECTING
 				if (non_corr) {
-					warning(linecount, "%%onerror conflicts with -n option");
+					warning(linecount, "%%onerror conflicts with -n option", NULL, NULL);
 				}
 				else
 #endif
 				  if (! onerror) {
 					onerror = store(lextoken.t_string);
 				}
-				else	error(linecount,"Duplicate %%onerror");
+				else	error(linecount,"Duplicate %%onerror", NULL, NULL);
 			}
 LLtdecr(24);
 LL_NOSCANDONE(';');
@@ -407,7 +394,7 @@ LL_SAFE(C_IDENT);
 				p = &nonterms[g_getcont(temp)];
 				if (p->n_rule) {
 					error(linecount,
-"Nonterminal %s already defined", lextoken.t_string);
+"Nonterminal %s already defined", lextoken.t_string, NULL);
 				}
 				/*
 				 * Remember the order in which the nonterminals
@@ -441,7 +428,7 @@ LL_SAFE(C_PARAMS);
 {	if (lextoken.t_num > 0) {
 					p->n_flags |= PARAMS;
 					if (lextoken.t_num > 15) {
-						error(linecount,"Too many parameters");
+						error(linecount,"Too many parameters", NULL, NULL);
 					}
 					else	setntparams(p,lextoken.t_num);
 				}
@@ -538,7 +525,7 @@ LL6_simpleproduction(
 				if (t & DEF) {
 					if (haddefault) {
 						error(n_lc,
-		"More than one %%default in alternation");
+		"More than one %%default in alternation", NULL, NULL);
 					}
 					haddefault = 1;
 				}
@@ -569,7 +556,7 @@ break;
 # line 282 "LLgen.g"
 {	if (conflres & (COND|PREFERING|AVOIDING)) {
 					error(n_lc,
-		"Resolver on last alternative not allowed");
+		"Resolver on last alternative not allowed", NULL, NULL);
 				}
 				mkalt(*p,conflres,n_lc,&alt_table[n_alts++]);
 				altcnt++;
@@ -585,7 +572,7 @@ LLtdecr(26);
 # line 292 "LLgen.g"
 {	if (conflres & (COND|PREFERING|AVOIDING)) {
 					error(o_lc,
-		"No alternation conflict resolver allowed here");
+		"No alternation conflict resolver allowed here", NULL, NULL);
 				}
 				/*
 				if (conflres & DEF) {
@@ -604,8 +591,7 @@ goto L_3;
 # line 306 "LLgen.g"
 
 
-STATIC
-mkalt(prod,condition,lc,res) p_gram prod; register p_gram res; {
+STATIC void mkalt(p_gram prod, int condition, int lc, p_gram res) {
 	/*
 	 * Create an alternation and initialise it.
 	 */
@@ -759,7 +745,7 @@ LL_SAFE(C_ILLEGAL);
 				rule_table[n_rules++] =
 				    *search(TERMINAL, "LLILLEGAL", BOTH);
 				if (*conflres & DEF) {
-					error(linecount, "%%illegal not allowed in %%default rule");
+					error(linecount, "%%illegal not allowed in %%default rule", NULL, NULL);
 				}
 #endif
 			}
@@ -877,7 +863,7 @@ goto L_10;
 					if ((q->t_flags & RESOLVER) &&
 					    (kind == PLUS || kind == FIXED)) {
 						error(linecount,
-		"%%while not allowed in this term");
+		"%%while not allowed in this term", NULL, NULL);
 					}
 					/*
 					 * A persistent fixed term is the same
@@ -921,8 +907,7 @@ break;
 # line 454 "LLgen.g"
 
 
-STATIC
-mkterm(prod,flags,lc,result) p_gram prod; register p_gram result; {
+STATIC void mkterm(p_gram prod, int flags, int lc, p_gram result) {
 	/*
 	 * Create a term, initialise it and return
 	 * a grammar element containing it
@@ -1086,7 +1071,7 @@ LL_SSCANDONE(C_IDENT);
 				if (erroneous) {
 					if (g_gettype(pres) != TERMINAL){
 						warning(linecount,
-							"Erroneous only allowed on terminal");
+							"Erroneous only allowed on terminal", NULL, NULL);
 						erroneous = 0;
 					}
 					else
@@ -1124,11 +1109,11 @@ LLtdecr(6);
 LL_SAFE(C_PARAMS);
 # line 522 "LLgen.g"
 {	if (lextoken.t_num > 15) {
-					error(linecount,"Too many parameters");
+					error(linecount,"Too many parameters", NULL, NULL);
 				} else	g_setnpar(pres,lextoken.t_num);
 				if (g_gettype(pres) == TERMINAL) {
 					error(linecount,
-						"Terminal with parameters");
+						"Terminal with parameters", NULL, NULL);
 				}
 			}
 LLread();
@@ -1216,7 +1201,7 @@ LL_NOSCANDONE(C_IDENT);
 				ff = g_getsubparse(pres);
 				while (ff) {
 					if (ff->ff_nont == g_getcont(temp)) {
-						warning(linecount, "\"%s\" used twice in %%substart", lextoken.t_string);
+						warning(linecount, "\"%s\" used twice in %%substart", lextoken.t_string, NULL);
 						break;
 					}
 					ff = ff->ff_next;
@@ -1348,7 +1333,7 @@ LL_SAFE(C_NUMBER);
 # line 621 "LLgen.g"
 {	*t = lextoken.t_num;
 				if (*t <= 0 || *t >= 8192) {
-					error(linecount,"Illegal number");
+					error(linecount,"Illegal number", NULL, NULL);
 				}
 			}
 }

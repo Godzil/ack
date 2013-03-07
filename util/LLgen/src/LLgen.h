@@ -92,7 +92,7 @@ void correct_prefix(void);
 /* LLgen.c */
 void newnorder(int index);
 void newtorder(int index);
-int p_init(void);
+void p_init(void);
 void LL0_spec(void);
 void mkalt(p_gram prod, int condition, int lc, p_gram res);
 void mkterm(p_gram prod, int flags, int lc, p_gram result);
@@ -126,7 +126,7 @@ void copyfile(char *file);
 void install(char *target, char *source);
 
 /* name.c */
-int name_init(void);
+void name_init(void);
 p_entry newentry(char * str, p_entry next);
 char * store(char * s);
 int hash(char * str);
@@ -138,24 +138,24 @@ void reachable(p_nont p);
 void reachwalk(p_gram p);
 
 /* sets.c */
-int setinit(int nt_needed);
+void setinit(int nt_needed);
 p_set get_set(void);
 p_set setalloc(void);
 int setunion(p_set a, p_set b);
 int setintersect(p_set a, p_set b);
-int setminus(p_set a, p_set b);
+void setminus(p_set a, p_set b);
 int setempty(p_set p);
 int findindex(p_set set);
 int setcount(p_set set, int *saved);
 
 /* tokens.c */
-void copyact(int ch1, int ch2, int flag, int level);
+void copyact(char ch1, char ch2, int flag, int level);
 int scanner(void);
 int input(void);
-int unput(int c);
-int skipcomment(int flag);
+void unput(int c);
+void skipcomment(int flag);
 char * vallookup(int s);
 char * cpy(int s, char * p, int inserted);
-int LLmessage(int d);
+void LLmessage(int d);
 
 #endif /* LLGEN_H */

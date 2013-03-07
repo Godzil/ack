@@ -26,13 +26,7 @@
 # include "assert.h"
 # include "cclass.h"
 
-# ifndef NORCSID
-static string	rcsid = "$Id$";
-# endif
-p_mem		alloc(), ralloc();
-string		store();
-p_gram		search();
-long		ftell();
+#include "LLgen.h"
 
 static int	acount;			/* count #of global actions */
 static p_term t_list;
@@ -48,15 +42,9 @@ static int	max_rules;
 #define RULEINCR	32
 
 /* Here are defined : */
-STATIC		newnorder();
-STATIC		newtorder();
-STATIC		mkalt();
-STATIC		mkterm();
-STATIC p_gram	copyrule();
 /* and of course LLparse() */
 
-STATIC
-newnorder(index) {
+STATIC void newnorder(int index) {
 	static int porder;
 
 	if (norder != -1) {
@@ -67,8 +55,7 @@ newnorder(index) {
 	nonterms[porder].n_next = -1;
 }
 
-STATIC
-newtorder(index) {
+STATIC void newtorder(int index) {
 	static int porder;
 
 	if (torder != -1) {
@@ -79,7 +66,7 @@ newtorder(index) {
 	tokens[porder].t_next = -1;
 }
 
-p_init()
+void p_init()
 {
 	alt_table = (p_gram )alloc(ALTINCR*sizeof(t_gram));
 	n_alts = 0;

@@ -32,17 +32,15 @@
 # include "assert.h"
 # include "sets.h"
 
+#include "LLgen.h"
+
 #define LLALT 9999
 
 static int nt_highest;
 extern int nbytes;
-extern p_mem alloc();
-extern p_set start_firsts;
-extern p_set setalloc();
-extern p_gram search();
 
-STATIC save_rule();
-STATIC save_set();
+STATIC void save_rule(p_gram p, int tail);
+STATIC void save_set(p_set p);
 
 /* t_list will contain terms to be `flattened' */
 static struct t_list {
@@ -69,7 +67,7 @@ static FILE *fgram;
    used when LLgen called with -n -s options */
 int act_nt;
 
-save_grammar(f) FILE *f; {
+void save_grammar(FILE *f) {
 	/*
 	 * Save the grammar
 	 */
@@ -131,7 +129,7 @@ save_grammar(f) FILE *f; {
 		if (! p->n_rule) {	/* undefined */
 			f_input = p->n_string;
 			error(p->n_lineno,"Nonterminal %s not defined",
-				p->n_name);
+				p->n_name, NULL);
 		}
 
 		/* Save the first_set and follow set */
@@ -244,7 +242,7 @@ save_grammar(f) FILE *f; {
 			if (check == 0)
 			warning((sub_list + i)->sub_action->g_lineno,
 					"\"%s\" is not a startsymbol",
-					(&nonterms[ff->ff_nont])->n_name);
+					(&nonterms[ff->ff_nont])->n_name, NULL);
 		}
 		save_set(temp_set);
 		save_set(temp_set);
@@ -267,8 +265,7 @@ save_grammar(f) FILE *f; {
 	fprintf(fgram, "#define LLNNONTERMINALS %d\n", nt_highest - assval + 1);
 }
 
-STATIC
-save_rule(p, tail) register p_gram p; int tail; {
+STATIC void save_rule(p_gram p, int tail) {
 /*
  Walk through rule p, saving it. The non-terminal tail is
  appended to the rule. It needs to be appended in this function
@@ -363,8 +360,7 @@ save_rule(p, tail) register p_gram p; int tail; {
 	}
 }
 
-STATIC
-save_set(p) p_set p; {
+STATIC void save_set(p_set p) {
 	register int k;
 	register unsigned i;
 	int j;

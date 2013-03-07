@@ -16,34 +16,24 @@
  * Set manipulation and allocation routines.
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+
 # include "types.h"
 # include "extern.h"
 # include "sets.h"
 # include "assert.h"
 
-# ifndef NORCSID
-static string rcsid9 = "$Id$";
-# endif
+#include "LLgen.h"
 
 /* In this file the following routines are defined: */
-extern		setinit();
-extern p_set	setalloc();
-extern p_set	get_set();
-extern int	setunion();
-extern int	setintersect();
-extern		setminus();
-extern int	setempty();
-extern int	findindex();
-extern int	setcount();
-
 int		nbytes;
 static int	setsize;
 int		tsetsize;
 p_set		*setptr, *maxptr;
 static t_info	set_info;
-p_mem		alloc();
 
-setinit(nt_needed) {
+void setinit(int nt_needed) {
 	/*
 	 * Initialises some variables needed for setcomputations
 	 */
@@ -61,8 +51,7 @@ setinit(nt_needed) {
 	set_info.i_incr = 20;
 }
 
-p_set
-get_set() {
+p_set get_set() {
 	/*
 	 * Allocate a set that cannot be freed
 	 */
@@ -80,8 +69,7 @@ get_set() {
 	return p;
 }
 
-p_set
-setalloc() {
+p_set setalloc() {
 	/*
 	 * Allocate a set which can later be freed.
 	 */
@@ -95,8 +83,7 @@ setalloc() {
 	return p;
 }
 
-int
-setunion(a,b) register p_set a,b; {
+int setunion(p_set a, p_set b) {
 	/*
 	 * a = a union b.
 	 * Return 1 if the set a changed
@@ -115,8 +102,7 @@ setunion(a,b) register p_set a,b; {
 	return nsub;
 }
 
-int
-setintersect(a,b) register p_set a,b; {
+int setintersect(p_set a, p_set b) {
 	/*
 	 * a = a intersect b.
 	 * return 1 if the result is empty
@@ -132,7 +118,7 @@ setintersect(a,b) register p_set a,b; {
 	return nempty;
 }
 
-setminus(a,b) register p_set a,b; {
+void setminus(p_set a, p_set b) {
 	/*
 	 * a = a setminus b
 	 */
@@ -144,8 +130,7 @@ setminus(a,b) register p_set a,b; {
 	} while (--i);
 }
 
-int
-setempty(p) register p_set p; {
+int setempty(p_set p) {
 	/*
 	 * Return 1 if the set p is empty
 	 */
@@ -158,8 +143,7 @@ setempty(p) register p_set p; {
 	return 1;
 }
 
-int
-findindex(set) p_set set; {
+int findindex(p_set set) {
 	/*
 	 * The set "set" will serve as a recovery set.
 	 * Search for it in the table. If not present, enter it.
@@ -204,8 +188,7 @@ findindex(set) p_set set; {
 	return nbytes * (maxptr++ - setptr);
 }
 
-int
-setcount(set, saved) register p_set set; int *saved; {
+int setcount(p_set set, int *saved) {
 	register int i, j;
 
 	for (j = 0, i = 0; i < ntokens; i++) {
