@@ -22,9 +22,7 @@ static char	*C_old_opp;
 #ifndef INCORE
 static File	*C_old_ofp;
 
-static int
-getbyte(b)
-	long b;
+static int getbyte(long b)
 {
 	/*	Get the byte at offset "b" from the start of the
 		temporary file, and try to do so in an efficient way.
@@ -56,12 +54,10 @@ getbyte(b)
 }
 #endif
 
-static C_out_parts();
-static Part *C_findpart();
+static void C_out_parts(PartOfPart *pp);
+static Part *C_findpart(int part);
 
-static
-outpart(id)
-	int id;
+static void outpart(int id)
 {
 	/*	Output part "id", if present.
 	*/
@@ -73,9 +69,7 @@ outpart(id)
 	}
 }
 
-static
-C_out_parts(pp)
-	register PartOfPart *pp;
+static void C_out_parts(PartOfPart *pp)
 {
 	/*	Output the list of chunks started by "pp".
 		The list is build in reverse order, so this routine is
@@ -118,9 +112,7 @@ C_out_parts(pp)
 	}
 }
 
-static Part *
-C_findpart(part)
-	int part;
+static Part *C_findpart(int part)
 {
 	/*	Look for part "part" in the table.
 		Return 0 if not present,
@@ -133,10 +125,7 @@ C_findpart(part)
 	return p;
 }
 
-extern char	*strcpy(), *strcat(), *mktemp();
-
-static
-swttmp()
+static void swttmp()
 {
 #ifndef INCORE
 	if (C_tmpfile == 0) {
@@ -177,8 +166,7 @@ swttmp()
 #endif
 }
 
-static
-swtout()
+static void swtout()
 {
 #ifndef INCORE
 	if (C_ontmpfile) {
@@ -205,9 +193,7 @@ swtout()
 #endif
 }
 
-static int
-available(part)
-	int part;
+static int available(int part)
 {
 	/*	See if part "part", and all the parts it consists of,
 		are available. Return 1 if they are, 0 otherwize
@@ -240,9 +226,7 @@ available(part)
 	return retval;
 }
 
-static Part *
-mkpart(part)
-	int part;
+static Part *mkpart(int part)
 {
 	/*	Create a Part structure with id "part", and return a
 		pointer to it, after checking that is does not exist
@@ -266,9 +250,7 @@ mkpart(part)
 	return p;
 }
 
-static
-end_partofpart(p)
-	register Part *p;
+static void end_partofpart(Part *p)
 {
 	/*	End the current chunk of part *p.
 	*/
@@ -285,9 +267,7 @@ end_partofpart(p)
 	}
 }
 
-static
-resume(p)
-	register Part *p;
+static void resume(Part *p)
 {
 	/*	Resume part "p", by creating a new PartOfPart structure
 		for it.
@@ -302,9 +282,7 @@ resume(p)
 	pp->pp_begin = C_current_out - C_BASE;
 }
 
-void
-C_insertpart(part)
-	int part;
+void C_insertpart(int part)
 {
 	/*	Insert part "part" in the current part. If C_sequential is
 		still set and the part to be inserted is available now,
@@ -341,9 +319,7 @@ C_insertpart(part)
 	resume(p);
 }
 
-void
-C_beginpart(part)
-	int part;
+void C_beginpart(int part)
 {
 	/*	Now follows the definition for part "part".
 		Suspend the current part, and add part "part" to the
@@ -361,9 +337,7 @@ C_beginpart(part)
 	resume(p);
 }
 
-void
-C_endpart(part)
-	int part;
+void C_endpart(int part)
 {
 	/*	End the current part. The parameter "part" is just there
 		for the checking. Do we really need it ???

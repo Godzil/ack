@@ -54,7 +54,7 @@ extern long
 extern char	*C_opp;
 #define C_BASE 0
 #endif
-extern int (*C_outpart)(), (*C_swtout)(), (*C_swttmp)();
+extern void (*C_outpart)(int), (*C_swtout)(void), (*C_swttmp)(void);
 
 extern File	*C_ofp;
 
