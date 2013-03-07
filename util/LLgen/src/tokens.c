@@ -15,9 +15,6 @@
 #define LL_assert(x)	/* nothing */
 #endif
 
-#include <stdio.h>
-#include <string.h>
-
 extern int LLsymb;
 
 #define LL_SAFE(x)	/* Nothing */
@@ -80,6 +77,9 @@ extern LLnc_recover();
 
 # line 20 "tokens.g"
 
+#include <stdio.h>
+#include <string.h>
+
 # include "types.h"
 # include "io.h"
 # include "extern.h"
@@ -88,9 +88,8 @@ extern LLnc_recover();
 
 #include "LLgen.h"
 
-/* Here are defined : */
 static int	nparams;
-# line 75 "tokens.g"
+# line 63 "tokens.g"
 
 
 /*
@@ -373,7 +372,7 @@ int input() {
 	/*
 	 * Low level input routine, used by all other input routines
 	 */
-	register	c;
+	int	c;
 
 	if ((c = backupc)) {
 			/* Last char was "unput()". Deliver it again
@@ -400,14 +399,14 @@ int input() {
 	return c;
 }
 
-void unput(int c) {
+void unput(c) {
 	/*
 	 * "unread" c
 	 */
 	backupc = c;
 }
 
-void skipcomment(int flag) {
+void skipcomment(flag) {
 	/*
 	 * Skip comment. If flag != 0, the comment is inside a fragment
 	 * of C-code, so keep it.
@@ -448,7 +447,7 @@ STATIC void linedirective() {
 		ch = input();
 	} while (ch != '\n' && c_class[ch] != ISDIG);
 	if (ch == '\n') {
-		error(linecount, s_error, NULL, NULL);
+		error(linecount,s_error, NULL, NULL);
 		return;
 	}
 	i = 0;
@@ -463,7 +462,7 @@ STATIC void linedirective() {
 			*c++ = ch = input();
 		} while (ch != '"' && ch != '\n');
 		if (ch == '\n') {
-			error(linecount, s_error, NULL, NULL);
+			error(linecount,s_error, NULL, NULL);
 			return;
 		}
 		*--c = '\0';
@@ -479,7 +478,7 @@ STATIC void linedirective() {
 }
 # endif
 
-STATIC string vallookup(int s) {
+STATIC string vallookup(s) {
 	/*
 	 * Look up the keyword that has token number s
 	 */
@@ -492,7 +491,7 @@ STATIC string vallookup(int s) {
 	return 0;
 }
 
-STATIC string cpy(int s, char *p, int inserted) {
+STATIC string cpy(int s,string p, int inserted) {
 	/*
 	 * Create a piece of error message for token s and put it at p.
 	 * inserted = 0 if the token s was deleted (in which case we have

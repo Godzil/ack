@@ -18,11 +18,16 @@
  */
 
 {
+#include <stdio.h>
+#include <string.h>
+
 # include "types.h"
 # include "io.h"
 # include "extern.h"
 # include "assert.h"
 # include "cclass.h"
+
+#include "LLgen.h"
 
 static int	nparams;
 }
@@ -138,7 +143,7 @@ STATIC void copyact(char ch1, char ch2, int flag, int level) {
 		  case ')':
 		  case '}':
 		  case ']':
-			error(linecount,"Parentheses mismatch");
+			error(linecount,"Parentheses mismatch", NULL, NULL);
 			break;
 		  case '(':
 			text_seen = 1;
@@ -169,7 +174,7 @@ STATIC void copyact(char ch1, char ch2, int flag, int level) {
 				text_seen = 0;
 				nparams++;
 				if (ch == ',' && (flag & 2)) {
-					warning(linecount, "Parameters may not be separated with a ','");
+					warning(linecount, "Parameters may not be separated with a ','", NULL, NULL);
 					ch = ';';
 				}
 			}
@@ -190,7 +195,7 @@ STATIC void copyact(char ch1, char ch2, int flag, int level) {
 					ch = input();
 				}
 				if (ch == '\n') {
-					error(linecount,"Newline in string");
+					error(linecount,"Newline in string", NULL, NULL);
 					unput(match);
 				}
 				putc(ch,f);
@@ -198,7 +203,7 @@ STATIC void copyact(char ch1, char ch2, int flag, int level) {
 			if (ch == match) break;
 			/* Fall through */
 		    case EOF :
-			if (!level) error(saved,"Action does not terminate");
+			if (!level) error(saved,"Action does not terminate", NULL, NULL);
 			strip_grammar = sav_strip;
 			return;
 		    default:
@@ -258,7 +263,7 @@ int scanner() {
 			for (;;) {
 				ch = input();
 				if (ch == '\n' || ch == EOF) {
-					error(linecount,"Missing '");
+					error(linecount,"Missing '", NULL, NULL);
 					break;
 				}
 				if (ch == '\'') break;
@@ -322,7 +327,7 @@ int scanner() {
 					}
 					w++;
 				}
-				error(linecount,"Illegal reserved word");
+				error(linecount,"Illegal reserved word", NULL, NULL);
 			}
 			lextoken.t_string = ltext;
 			return C_IDENT;
@@ -339,7 +344,7 @@ int input() {
 	 */
 	int	c;
 
-	if (c = backupc) {
+	if ((c = backupc)) {
 			/* Last char was "unput()". Deliver it again
 			 */
 		backupc = 0;
@@ -380,7 +385,7 @@ void skipcomment(flag) {
 	int		saved;	/* line count on which comment starts */
 
 	saved = linecount;
-	if (input() != '*') error(linecount,"Illegal comment");
+	if (input() != '*') error(linecount,"Illegal comment", NULL, NULL);
 	if (flag) putc('*', fact);
 	do {
 		ch = input();
@@ -391,7 +396,7 @@ void skipcomment(flag) {
 			if (ch == '/') return;
 		}
 	} while (ch != EOF);
-	error(saved,"Comment does not terminate");
+	error(saved,"Comment does not terminate", NULL, NULL);
 }
 
 # ifdef LINE_DIRECTIVE
@@ -412,7 +417,7 @@ STATIC void linedirective() {
 		ch = input();
 	} while (ch != '\n' && c_class[ch] != ISDIG);
 	if (ch == '\n') {
-		error(linecount,s_error);
+		error(linecount,s_error, NULL, NULL);
 		return;
 	}
 	i = 0;
@@ -427,7 +432,7 @@ STATIC void linedirective() {
 			*c++ = ch = input();
 		} while (ch != '"' && ch != '\n');
 		if (ch == '\n') {
-			error(linecount,s_error);
+			error(linecount,s_error, NULL, NULL);
 			return;
 		}
 		*--c = '\0';
@@ -568,7 +573,7 @@ void LLmessage(int d) {
 #ifdef LLNONCORR
 	else
 #endif
-	error(linecount, "%s", buf);
+	error(linecount, "%s", buf, NULL);
 			/* Don't change this line to 
 			 * error(linecount, buf).
 			 * The string in "buf" might contain '%' ...
