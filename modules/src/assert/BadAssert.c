@@ -7,13 +7,11 @@
 	indicated by the parameters, and then give a core dump
 */
 
+#include <stdio.h>
 #include <string.h>
 #include <system.h>
 
-static
-wr_num(fd, n)
-	File *fd;
-	int n;
+static void wr_num(File *fd, int n)
 {
 	char s[2];
 
@@ -25,10 +23,7 @@ wr_num(fd, n)
 	sys_write(fd, s, 1);
 }
 
-int
-_BadAssertion(file, lineno, assertion)
-	char *file, *assertion;
-	int lineno;
+int _BadAssertion(char *file, int lineno, char *assertion)
 {
 
 	sys_write(STDERR, file, strlen(file));
