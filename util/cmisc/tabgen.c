@@ -13,10 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifndef NORCSID
-static char *RcsId = "$Id$";
-#endif
-
 #define MAXBUF	256
 #define MAXTAB 10000
 #define COMCOM	'-'
@@ -30,8 +26,18 @@ char *ProgCall;		/* callname of this program */
 int TabSize = 128;	/* default size of generated table */
 char *InitialValue;	/* initial value of all table entries */
 
-main(argc, argv)
-	char *argv[];
+/* Some protypes */
+void option(char *str);
+void InitTable(char *ival);
+void PrintTable();
+int process(char *str, int format);
+int c_proc(char *str, char *Name);
+int setval(int ch, char *nm);
+int quoted(char **pstr);
+void DoFile(char *name);
+char *getln(char *s, int n, FILE *fp);
+
+int main(int argc, char *argv[])
 {
 
 	ProgCall = *argv++;
@@ -48,11 +54,10 @@ main(argc, argv)
 	}
 	exit(0);
 	/*NOTREACHED*/
+	return 0;
 }
 
-char *
-Salloc(s)
-	char *s;
+char *Salloc(char *s)
 {
 	char *ns = malloc((unsigned)strlen(s) + 1);
 
@@ -66,8 +71,7 @@ Salloc(s)
 	return ns;
 }
 
-option(str)
-	char *str;
+void option(char *str)
 {
 	/*	note that *str indicates the source of the option:
 		either COMCOM (from command line) or FILECOM (from a file).
@@ -124,8 +128,7 @@ option(str)
 	}
 }
 
-InitTable(ival)
-	char *ival;
+void InitTable(char *ival)
 {
 	int i;
 
@@ -138,7 +141,7 @@ InitTable(ival)
 	}
 }
 
-PrintTable()
+void PrintTable()
 {
 	int i;
 
@@ -155,9 +158,7 @@ PrintTable()
 	}
 }
 
-int
-process(str, format)
-	char *str;
+int process(char *str, int format)
 {
 	char *cstr = str;
 	char *Name = cstr;	/* overwrite original string!	*/
@@ -189,9 +190,7 @@ process(str, format)
 	return 0;
 }
 
-c_proc(str, Name)
-	char *str;
-	char *Name;
+int c_proc(char *str, char *Name)
 {
 	int ch, ch2;
 	int quoted();
@@ -209,8 +208,8 @@ c_proc(str, Name)
 				ch2 = quoted(&str);
 			}
 			else	{
-				if (ch2 = (*str++ & 0377));
-				else str--;
+				if (!(ch2 = (*str++ & 0377)))
+					str--;
 			}
 			if (ch > ch2) {
 				fprintf(stderr, "%s: bad range\n", ProgCall);
@@ -228,9 +227,7 @@ c_proc(str, Name)
 	return 1;
 }
 
-int
-setval(ch, nm)
-	char *nm;
+int setval(int ch, char *nm)
 {
 	char **p = &Table[ch];
 
@@ -245,9 +242,7 @@ setval(ch, nm)
 	return 1;
 }
 
-int
-quoted(pstr)
-	char **pstr;
+int quoted(char **pstr)
 {
 	int ch;
 	int i;
@@ -290,10 +285,7 @@ quoted(pstr)
 	return ch & 0377;
 }
 
-char *
-getln(s, n, fp)
-	char *s;
-	FILE *fp;
+char *getln(char *s, int n, FILE *fp)
 {
 	int c = getc(fp);
 	char *str = s;
@@ -316,8 +308,7 @@ getln(s, n, fp)
 
 #define BUFSIZE 1024
 
-DoFile(name)
-	char *name;
+void DoFile(char *name)
 {
 	char text[BUFSIZE];
 	FILE *fp;

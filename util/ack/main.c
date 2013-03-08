@@ -22,9 +22,18 @@ static char rcs_ack[] = RCS_ACK ;
 static int sigs[] = { SIGINT, SIGHUP, SIGTERM, 0 } ;
 static int arg_count;
 
-extern  char    *getenv();
+void varinit();
+void vieuwargs(int argc, char *argv[]);
+void firstarg(char *argp);
+void block(trf *first);
+void keephead(char *suffix);
+void keeptail(char *suffix);
+void scanneeds();
+void setneeds(char *suffix, int tail);
 
-main(argc,argv) char **argv ; {
+
+int main(int argc, char *argv[])
+{
 	register list_elem *elem ;
 	register char *frontend ;
 	register int *n_sig ;
@@ -113,20 +122,23 @@ main(argc,argv) char **argv ; {
 	exit(0) ;
 }
 
-char *srcvar() {
+char *srcvar()
+{
 	return orig.p_path ;
 }
 
-char *getsuffix() {
+char *getsuffix()
+{
 	return strrchr(orig.p_path, SUFCHAR) ;
 }
 
-varinit() {
+void varinit()
+{
 	/* initialize the string variables */
 	register char *envstr ;
 	extern char *em_dir;
 
-	if ( envstr=getenv("ACKDIR") ) {
+	if ( (envstr=getenv("ACKDIR")) ) {
 		em_dir = keeps(envstr);
 	}
 	setsvar(keeps(HOME),em_dir) ;
@@ -136,7 +148,8 @@ varinit() {
 
 /************************* flag processing ***********************/
 
-vieuwargs(argc,argv) char **argv ; {
+void vieuwargs(int argc, char *argv[])
+{
 	register char *argp;
 	register int nextarg ;
 	register int eaten ;
@@ -248,7 +261,8 @@ vieuwargs(argc,argv) char **argv ; {
 	return ;
 }
 
-firstarg(argp) register char *argp ; {
+void firstarg(char *argp)
+{
 	register char *name ;
 
 	name=strrchr(argp,'/') ;
@@ -262,7 +276,8 @@ firstarg(argp) register char *argp ; {
 
 /************************* argument processing ***********************/
 
-process(arg) char *arg ; {
+int process(char *arg)
+{
 	/* Process files & library arguments */
 	trf *phase ;
 	register trf *tmp ;
@@ -322,7 +337,8 @@ process(arg) char *arg ; {
 	return startrf(phase) ;
 }
 
-int startrf(first) trf *first ; {
+int startrf(trf *first)
+{
 	/* Start the transformations at the indicated phase */
 	register trf *phase ;
 
@@ -394,7 +410,8 @@ if ( debug ) vprint("Transformation sequence complete for %s\n",
 	return 1 ;
 }
 
-block(first) trf *first ; {
+void block(trf *first)
+{
 	/* One of the input files of this phase could not be produced,
 	   block all combiners taking their input from this one.
 	*/
@@ -403,7 +420,9 @@ block(first) trf *first ; {
 		if ( phase->t_combine ) phase->t_blocked=YES ;
 	}
 }
-mayprep() {
+
+int mayprep()
+{
 	int file ;
 	char fc ;
 	file=open(in.p_path,0);
@@ -413,15 +432,18 @@ mayprep() {
 	return fc=='#' ;
 }
 
-keephead(suffix) char *suffix ; {
+void keephead(char *suffix)
+{
 	l_add(&head_list, suffix) ;
 }
 
-keeptail(suffix) char *suffix ; {
+void keeptail(char *suffix)
+{
 	l_add(&tail_list, suffix) ;
 }
 
-scanneeds() {
+void scanneeds()
+{
 	register list_elem *elem ;
 	scanlist(l_first(head_list), elem) { setneeds(l_content(*elem),0) ; }
 	l_clear(&head_list) ;
@@ -429,7 +451,8 @@ scanneeds() {
 	l_clear(&tail_list) ;
 }
 
-setneeds(suffix,tail) char *suffix ; {
+void setneeds(char *suffix, int tail)
+{
 	trf *phase ;
 
 	p_suffix= suffix ;

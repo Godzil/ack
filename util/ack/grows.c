@@ -18,7 +18,8 @@ static char rcs_id[] = "$Id$" ;
 static char rcs_grows[] = RCS_GROWS ;
 #endif
 
-gr_add(id,c) register growstring *id ; char c ; {
+void gr_add(growstring *id, char c)
+{
 	if ( id->gr_size==id->gr_max) {
 		if ( id->gr_size==0 ) { /* The first time */
 			id->gr_max= 2*GR_MORE ;
@@ -31,7 +32,8 @@ gr_add(id,c) register growstring *id ; char c ; {
 	*(id->gr_string+id->gr_size++)= c ;
 }
 
-gr_cat(id,string) growstring *id ; char *string ; {
+void gr_cat(growstring *id, char *string)
+{
 	register char *ptr ;
 
 #ifdef DEBUG
@@ -49,7 +51,8 @@ gr_cat(id,string) growstring *id ; char *string ; {
 	}
 }
 
-gr_throw(id) register growstring *id ; {
+void gr_throw(growstring *id)
+{
 	/* Throw the string away */
 	if ( id->gr_max==0 ) return ;
 	freecore(id->gr_string) ;
@@ -58,11 +61,13 @@ gr_throw(id) register growstring *id ; {
 	id->gr_size=0 ;
 }
 
-gr_init(id) growstring *id ; {
+void gr_init(growstring *id)
+{
 	id->gr_size=0 ; id->gr_max=0 ;
 }
 
-char *gr_final(id) growstring *id ; {
+char *gr_final(growstring *id)
+{
 	/* Throw away the bookkeeping, adjust the string to its final
 	   length and return a pointer to a string to be get rid of with
 	   throws

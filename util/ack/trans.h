@@ -2,6 +2,11 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
+#ifndef UTILS_ACK_TRF_H
+#define UTILS_ACK_TRF_H
+
+#include "list.h"
+
 #ifndef NORCSID
 #define RCS_TRANS "$Id$"
 #endif
@@ -21,18 +26,18 @@ struct transform {
 	char    *t_argd ;       /* Argument descriptor, uses varrep */
 	char    *t_needed ;     /* Suffix indicating the libraries needed */
 	char    *t_rts ;        /* Suffix indicating the major language used*/
-	int     t_stdin:1 ;     /* The input is taken on stdin */
-	int     t_stdout:1 ;    /* The output comes on stdout */
-	int     t_combine:1 ;   /* Transform several files to one result */
-	int     t_visited:1 ;   /* NO before setup, YES after */
-	int     t_prep:2 ;      /* Needs preprocessor YES/NO/MAYBE */
-	int     t_isprep:1 ;    /* Is preprocessor */
-	int     t_keep:1 ;      /* Keep the output file */
-	int     t_scan:1 ;      /* Used while finding path's */
-	int	t_bscan:1 ;	/* Best scan so far, while finding path's */
-	int	t_linker:1 ;	/* The linker usurps all unrecognized flags */
-	int	t_do:1 ;	/* Is in a path to execute */
-	int	t_blocked:1 ;	/* An input file could not be produced */
+	unsigned int     t_stdin:1 ;     /* The input is taken on stdin */
+	unsigned int     t_stdout:1 ;    /* The output comes on stdout */
+	unsigned int     t_combine:1 ;   /* Transform several files to one result */
+	unsigned int     t_visited:1 ;   /* NO before setup, YES after */
+	unsigned int     t_prep:2 ;      /* Needs preprocessor YES/NO/MAYBE */
+	unsigned int     t_isprep:1 ;    /* Is preprocessor */
+	unsigned int     t_keep:1 ;      /* Keep the output file */
+	unsigned int     t_scan:1 ;      /* Used while finding path's */
+	unsigned int	t_bscan:1 ;	/* Best scan so far, while finding path's */
+	unsigned int	t_linker:1 ;	/* The linker usurps all unrecognized flags */
+	unsigned int	t_do:1 ;	/* Is in a path to execute */
+	unsigned int	t_blocked:1 ;	/* An input file could not be produced */
 	short   t_optim ;       /* Is optimizer, + optimizer level */
 	short	t_priority ;	/* Importance of including phase in scan */
 	list_head t_inputs ;	/* The input 'path's of a combiner */
@@ -44,3 +49,5 @@ struct transform {
 } ;
 
 #define t_cont(elem) ((trf *)l_content(elem))
+
+#endif

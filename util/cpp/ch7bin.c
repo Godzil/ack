@@ -8,9 +8,7 @@
 #include	"Lpars.h"
 #include	<em_arith.h>
 
-ch7bin(pval, oper, val)
-	register arith *pval, val;
-	int oper;
+void ch7bin(arith *pval, int oper, arith val)
 {
 	switch (oper)	{
 	case '%':

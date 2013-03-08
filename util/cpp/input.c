@@ -15,9 +15,7 @@ struct file_info	finfo;
 #include <inp_pkg.body>
 #include <alloc.h>
 
-char *
-getwdir(fn)
-	char *fn;
+char * getwdir(char *fn)
 {
 	register char *p;
 	char *strrchr();

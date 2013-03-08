@@ -4,6 +4,8 @@
  *
  */
 
+#include <string.h>
+
 #include "ack.h"
 #include <em_path.h>
 #include "list.h"
@@ -46,18 +48,16 @@ static char rcs_dmach[] = RCS_DMACH ;
 #define CALL	"callname"
 #define END     "end"
 
-extern growstring scanb();
-extern growstring scanvars();
-
-int getln() ;
-int getinchar() ;
 static char *ty_name ;
 static char *bol ;
-
-
 static char *inname ;
 
-setlist(name) char *name ; {
+void intrf();
+void open_in(char *name);
+void close_in();
+
+void setlist(char *name)
+{
 	/* Name is sought in the internal tables,
 	   if not present, the a file of that name is sought
 	   in first the current and then the EM Lib directory
@@ -90,8 +90,7 @@ setlist(name) char *name ; {
 #endif
 }
 
-static int inoptlist(nm)
-	char *nm ;
+static int inoptlist(char *nm)
 {
 	register char *p=Optlist ;
 
@@ -105,7 +104,8 @@ static int inoptlist(nm)
 	return 0;
 }
 
-intrf() {
+void intrf()
+{
 	register trf *new ;
 	growstring bline ;
 	int twice ;
@@ -128,8 +128,8 @@ intrf() {
 		} else
 		if ( strcmp(ty_name,PROG)==0 ) {
 			if ( new->t_prog ) twice=YES ;
-			bline= scanb(bol);                /* Scan for \ */
-                      new->t_prog= gr_final(&bline);
+			bline= scanb(bol); /* Scan for \ */
+			new->t_prog= gr_final(&bline);
 		} else
 		if ( strcmp(ty_name,MAPF)==0 ) {
 			/* First read the mapflags line
@@ -262,7 +262,8 @@ static  FILE            *infile ;
 static  char            *inptr ;
 char			*em_dir = EM_DIR;
 
-open_in(name) register char *name ; {
+void open_in(char *name)
+{
 	register dmach *cmac ;
 
 	gr_init(&rline) ;
@@ -295,12 +296,14 @@ open_in(name) register char *name ; {
 	}
 }
 
-close_in() {
+void close_in()
+{
 	if ( !incore ) fclose(infile) ;
 	gr_throw(&rline) ;
 }
 
-char *readline() {
+char *readline()
+{
 	/* Get a line from the input,
 	   return 0 if at end,
 	   The line is stored in a volatile buffer,
@@ -352,8 +355,9 @@ char *readline() {
 	}
 }
 
-int getinchar() {
-	register int token ;
+int getinchar()
+{
+	int token ;
 
 	if ( incore ) {
 		if ( *inptr==0 ) return EOF ;
@@ -366,8 +370,9 @@ int getinchar() {
 	return token ;
 }
 
-int getln() {
-	register char *c_ptr ;
+int getln()
+{
+	char *c_ptr ;
 
 	do {
 		if ( (c_ptr=readline())==(char *)0 ) return 0 ;

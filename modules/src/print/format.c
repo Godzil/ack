@@ -8,10 +8,7 @@
 #include <system.h>
 #include "print.h"
 
-extern char *long2str();
-
-static int
-integral(c)
+static int integral(int c)
 {
 	switch (c) {
 	case 'b':
@@ -35,10 +32,7 @@ integral(c)
 	%[uxbo] = unsigned int
 	%d = int
 $ */
-int
-_format(buf, fmt, argp)
-	char *buf, *fmt;
-	register va_list argp;
+int _format(char *buf, char *fmt, va_list argp)
 {
 	register char *pf = fmt;
 	register char *pb = buf;
@@ -75,7 +69,7 @@ _format(buf, fmt, argp)
 			else
 			if (*pf == 'l') {
 				/* alignment ??? */
-				if (base = integral(*++pf)) {
+				if ((base = integral(*++pf))) {
 					arg = long2str(va_arg(argp,long), base);
 				}
 				else {
@@ -84,7 +78,7 @@ _format(buf, fmt, argp)
 				}
 			}
 			else
-			if (base = integral(*pf)) {
+			if ((base = integral(*pf))) {
 				arg = long2str((long)va_arg(argp,int), base);
 			}
 			else
@@ -98,7 +92,7 @@ _format(buf, fmt, argp)
 			while (npad-- > 0)
 				*pb++ = pad;
 			
-			while (*pb++ = *arg++);
+			while (((*pb++) = (*arg++)));
 			pb--;
 			pf++;
 		}

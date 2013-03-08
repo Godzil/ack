@@ -2,6 +2,9 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
+#ifndef UTILS_ACK_GROWS_H
+#define UTILS_ACK_GROWS_H
+
 #ifndef NORCSID
 #define RCS_GROWS "$Id$"
 #endif
@@ -20,8 +23,10 @@ typedef struct {
 
 /* Routines used */
 
-extern  int     gr_throw() ;    /* To free the core */
-extern  int     gr_add() ;      /* To add one character */
-extern  int     gr_cat() ;      /* concatenate the contents and the string */
-extern  int     gr_init() ;     /* Initialize the bookkeeping */
-extern  char    *gr_final() ;   /* Transform to a stable storage string */
+void gr_throw(growstring *id);             /* To free the core */
+void gr_add(growstring *id, char c);       /* To add one character */
+void gr_cat(growstring *id, char *string); /* concatenate the contents and the string */
+void gr_init(growstring *id);              /* Initialize the bookkeeping */
+char *gr_final(growstring *id);            /* Transform to a stable storage string */
+
+#endif /* UTILS_ACK_GROWS_H */

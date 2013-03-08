@@ -2,6 +2,12 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
+#ifndef UTILS_ACK_ACK_H
+#define UTILS_ACK_ACK_H
+
+#include "trans.h"
+#include "grows.h"
+
 #ifndef NORCSID
 #define RCS_ACK "$Id$"
 #endif
@@ -29,9 +35,9 @@
 
 /* Intended for flags, possibly in bit fields */
 
-#define YES     1
-#define NO      0
-#define MAYBE   2
+#define YES     (1)
+#define NO      (0)
+#define MAYBE   (2)
 
 #define EXTERN  extern
 
@@ -65,17 +71,19 @@ typedef struct {
 enum f_path { F_OK, F_NOMATCH, F_NOPATH } ;
 
 /* Own routines */
-enum f_path getpath();
-enum f_path scan_end();
-extern void noodstop();
-extern char *getvar();
-extern char *keeps();
-extern char *basename();
-extern char *skipblank();
-extern char *firstblank();
-extern char *getcore();
-extern char *changecore();
+enum f_path getpath(trf **first);
+enum f_path scan_end(trf **first);
+void noodstop();
+char *getvar(char *name);
+char *keeps(char *str);
+char *basename(char *string);
+char *skipblank(char *str);
+char *firstblank(char *str);
+char *getcore(unsigned size);
+char *changecore(char *ptr, unsigned int size);
 #define freecore(area)  free(area)
+growstring scanb(char *line);
+growstring scanvars(char *line);
 
 #define DEBUG	1	/* Allow debugging of Ack */
 
@@ -84,3 +92,5 @@ extern char *changecore();
 #else
 extern  int debug ;
 #endif
+
+#endif /* UTILS_ACK_ACK_H */

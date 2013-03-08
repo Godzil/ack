@@ -5,6 +5,8 @@
 /* $Id$ */
 /*		    L E X I C A L   A N A L Y Z E R			*/
 
+#include <string.h>
+
 #include	"idfsize.h"
 #include	"numsize.h"
 #include	"strsize.h"
@@ -25,28 +27,25 @@ int AccFileSpecifier = 0;	/* return filespecifier <...>		*/
 int AccDefined = 0;		/* accept "defined(...)"		*/
 int UnknownIdIsZero = 0;	/* interpret unknown id as integer 0	*/
 
-char *string_token();
-char *strcpy();
+char *string_token(char *nm, int stop_char);
+void skipcomment();
 
-PushLex()
+void PushLex()
 {
 	DOT = 0;
 }
 
-PopLex()
+void PopLex()
 {}
 
-int
-LLlex()
+int LLlex()
 {
 	return (DOT != EOF) ? GetToken(&dot) : EOF;
 }
 
 #define BUFSIZ 1024
 
-int
-GetToken(ptok)
-	register struct token *ptok;
+int GetToken(struct token *ptok)
 {
 	char buf[BUFSIZ];
 	register int c, nch;
@@ -258,9 +257,10 @@ again:	/* rescan the input after an error or replacement	*/
 		crash("Impossible character class");
 	}
 	/*NOTREACHED*/
+	return 0;
 }
 
-skipcomment()
+void skipcomment()
 {
 	register int c;
 
@@ -283,9 +283,7 @@ skipcomment()
 	NoUnstack--;
 }
 
-char *
-string_token(nm, stop_char)
-	char *nm;
+char *string_token(char *nm, int stop_char)
 {
 	register int c;
 	register unsigned int str_size;
@@ -322,10 +320,8 @@ string_token(nm, stop_char)
 	return str;
 }
 
-int
-quoted(c)
-	register int c;
-{	
+int quoted(int c)
+{
 	/*	quoted() replaces an escaped character sequence by the
 		character meant.
 	*/
@@ -363,9 +359,7 @@ quoted(c)
 }
 
 /* provisional */
-int
-val_in_base(c, base)
-	register int c;
+int val_in_base(int c, int base)
 {
 	return
 		is_dig(c) ? c - '0' :

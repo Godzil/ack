@@ -32,7 +32,13 @@ extern  int     n_error;
 # define STDOUT stderr
 #endif
 
-char *basename(string) char *string ; {
+void fuerror(const char *fmt, ...);
+void werror(const char *fmt, ...);
+void quit(int code);
+
+
+char *basename(char *string)
+{
 	static char retval[256] ;
 	char *last_dot, *last_start ;
 	register char *store;
@@ -62,21 +68,24 @@ out:
 	return retval ;
 }
 
-clr_noscan(str) char *str ; {
+void clr_noscan(char *str)
+{
 	register char *ptr ;
 	for ( ptr=str ; *ptr ; ptr++ ) {
 		*ptr&= ~NO_SCAN ;
 	}
 }
 
-char *skipblank(str) char *str ; {
+char *skipblank(char *str)
+{
 	register char *ptr ;
 
 	for ( ptr=str ; *ptr==SPACE || *ptr==TAB ; ptr++ ) ;
 	return ptr ;
 }
 
-char *firstblank(str) char *str ; {
+char *firstblank(char *str)
+{
 	register char *ptr ;
 
 	for ( ptr=str ; *ptr && *ptr!=SPACE && *ptr!=TAB ; ptr++ ) ;
@@ -107,7 +116,8 @@ void vprint(const char* fmt, ...)
 }
 
 #ifdef DEBUG
-prns(s) register char *s ; {
+void prns(char *s)
+{
 	for ( ; *s ; s++ ) {
 		putc((*s&0377)&~NO_SCAN,STDOUT) ;
 	}
@@ -116,7 +126,8 @@ prns(s) register char *s ; {
 #endif
 
 /* VARARGS1 */
-void fuerror(const char *fmt, ...) {
+void fuerror(const char *fmt, ...)
+{
 	/* Fatal user error */
 	va_list ap;
 	va_start(ap, fmt);
@@ -127,7 +138,8 @@ void fuerror(const char *fmt, ...) {
 }
 
 /* VARARGS1 */
-void werror(const char *fmt, ...) {
+void werror(const char *fmt, ...)
+{
 	/* Warning user error, w_flag */
 	va_list ap;
 	if ( w_flag ) return ;
@@ -139,7 +151,8 @@ void werror(const char *fmt, ...) {
 }
 
 /* VARARGS1 */
-void error(const char *fmt, ...) {
+void error(const char *fmt, ...)
+{
 	/* User error, it is the callers responsibility to quit */
 	va_list ap;
 	va_start(ap, fmt);
@@ -150,17 +163,19 @@ void error(const char *fmt, ...) {
 	va_end(ap);
 }
 
-do_flush() {
+void do_flush()
+{
 	fflush(stdout) ;
 	fflush(stderr) ;
 }
 
-void
-noodstop() {
+void noodstop()
+{
 	quit(-3) ;
 }
 
-quit(code) {
+void quit(int code)
+{
 	rmtemps();
 	exit(code);
 }
@@ -172,28 +187,31 @@ quit(code) {
 ***********/
 
 char *keeps(str) char *str ; {
-	register char *result ;
+	char *result ;
 	result= getcore( (unsigned)(strlen(str)+1) ) ;
 	if ( !result ) fatal("Out of core") ;
 	return strcpy(result,str) ;
 }
 
-throws(str) char *str ; {
+void throws(char *str)
+{
 	freecore(str) ;
 }
 
-char *getcore(size) unsigned size ; {
-	register char *retptr ;
+char *getcore(unsigned size)
+{
+	char *retptr ;
 
 	retptr= calloc(1,size) ;
 	if ( !retptr ) fatal("Out of memory") ;
 	return retptr ;
 }
 
-char *changecore(ptr,size) char *ptr ; unsigned size ; {
-	register char *retptr ;
+char *changecore(char *ptr, unsigned int size)
+{
+	char *retptr;
 
-	retptr= realloc(ptr,size) ;
+	retptr = realloc(ptr,size) ;
 	if ( !retptr ) fatal("Out of memory") ;
 	return retptr ;
 }

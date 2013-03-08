@@ -34,11 +34,11 @@
 
 
 !File: botch_free.h
-/*#define BOTCH_FREE	1	/* botch freed memory, as a check	*/
+/*#define BOTCH_FREE	1*/	/* botch freed memory, as a check	*/
 
 
 !File: debug.h
-/*#define DEBUG		1	/* perform various self-tests		*/
+/*#define DEBUG		1*/	/* perform various self-tests		*/
 #define NDEBUG		1	/* disable assertions			*/
 
 
@@ -51,7 +51,7 @@
 
 
 !File: inputtype.h
-/*#define INP_READ_IN_ONE	1	/* read input file in one.  */
+/*#define INP_READ_IN_ONE	1*/	/* read input file in one.  */
 				/* If defined, we cannot read from a pipe */
 
 

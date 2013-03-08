@@ -5,6 +5,8 @@
 /* $Id$ */
 /* PREPROCESSOR: CONTROLLINE INTERPRETER */
 
+#include <string.h>
+
 #include	"interface.h"
 #include	"LLlex.h"
 #include	"Lpars.h"
@@ -12,21 +14,20 @@
 #include	"idf.h"
 #include	"input.h"
 
-#include	"ifdepth.h"	
-#include	"botch_free.h"	
-#include	"nparams.h"	
-#include	"parbufsize.h"	
-#include	"textsize.h"	
-#include	"idfsize.h"	
+#include	"ifdepth.h"
+#include	"botch_free.h"
+#include	"nparams.h"
+#include	"parbufsize.h"
+#include	"textsize.h"
+#include	"idfsize.h"
 #include	<assert.h>
 #include	<alloc.h>
 #include	"class.h"
 #include	"macro.h"
 #include	"bits.h"
 
-IMPORT char **inctable;		/* list of include directories		*/
-IMPORT char *getwdir();
-PRIVATE char ifstack[IFDEPTH];	/* if-stack: the content of an entry is	*/
+extern char **inctable;		/* list of include directories		*/
+static char ifstack[IFDEPTH];	/* if-stack: the content of an entry is	*/
 				/* 1 if a corresponding ELSE has been	*/
 				/* encountered.				*/
 
@@ -35,8 +36,26 @@ int svnestlevel[30] = {-1};
 int nestcount;
 extern int do_preprocess;
 
-char *
-GetIdentifier()
+/* Prototypes */
+static int ifexpr();
+static void do_include();
+static void do_define();
+static void push_if();
+static void do_elif();
+static void do_else();
+static void do_if();
+static void do_endif();
+static void do_ifdef(int how);
+static void do_undef();
+static void do_line(unsigned int l);
+static int getparams(char *buf[], char parbuf[]);
+static int macroeq(char *s, char *t);
+void macro_def(struct idf *id, char *text, int nformals, int length, int flags);
+
+/* Externel dependency */
+char * getwdir(char *fn);
+
+char *GetIdentifier()
 {
 	/*	returns a pointer to the descriptor of the identifier that is
 		read from the input stream. A null-pointer is returned if
@@ -60,8 +79,7 @@ GetIdentifier()
 	An error message is produced when the token is not recognized,
 	i.e. it is not one of "define" .. "undef" , integer or newline.
 */
-EXPORT
-domacro()
+void domacro()
 {
 	struct token tk;	/* the token itself			*/
 	register struct idf *id;
@@ -139,8 +157,7 @@ domacro()
 	}
 }
 
-PRIVATE
-skip_block(to_endif)
+static void skip_block(int to_endif)
 {
 	/*	skip_block() skips the input from
 		1)	a false #if, #ifdef, #ifndef or #elif until the
@@ -228,8 +245,7 @@ skip_block(to_endif)
 	}
 }
 
-PRIVATE
-ifexpr()
+static int ifexpr()
 {
 	/*	ifexpr() returns whether the restricted constant
 		expression following #if or #elif evaluates to true.  This
@@ -237,7 +253,7 @@ ifexpr()
 		constant expressions.  The result of this expression will
 		be given in the extern long variable "ifval".
 	*/
-	IMPORT arith ifval;
+	extern arith ifval;
 	int errors = err_occurred;
 
 	ifval = (arith)0;
@@ -251,8 +267,7 @@ ifexpr()
 	return (errors == err_occurred) && (ifval != (arith)0);
 }
 
-PRIVATE
-do_include()
+static void do_include()
 {
 	/*	do_include() performs the inclusion of a file.
 	*/
@@ -288,8 +303,7 @@ do_include()
 	}
 }
 
-PRIVATE
-do_define()
+static void do_define()
 {
 	/*	do_define() interprets a #define control line.
 	*/
@@ -339,8 +353,7 @@ do_define()
 	LineNumber++;
 }
 
-PRIVATE
-push_if()
+static void push_if()
 {
 	if (nestlevel >= IFDEPTH)
 		fatal("too many nested #if/#ifdef/#ifndef");
@@ -348,8 +361,7 @@ push_if()
 		ifstack[++nestlevel] = 0;
 }
 
-PRIVATE
-do_elif()
+static void do_elif()
 {
 	if (nestlevel <= svnestlevel[nestcount] || (ifstack[nestlevel])) {
 		error("#elif without corresponding #if");
@@ -362,8 +374,7 @@ do_elif()
 	}
 }
 
-PRIVATE
-do_else()
+static void do_else()
 {
 	skipline();
 	if (nestlevel <= svnestlevel[nestcount] || (ifstack[nestlevel]))
@@ -374,8 +385,7 @@ do_else()
 	}
 }
 
-PRIVATE
-do_endif()
+static void do_endif()
 {
 	skipline();
 	if (nestlevel <= svnestlevel[nestcount])
@@ -383,16 +393,14 @@ do_endif()
 	else nestlevel--;
 }
 
-PRIVATE
-do_if()
+static void do_if()
 {
 	push_if();
 	if (!ifexpr())	/* a false #if/#elif expression */
 		skip_block(0);
 }
 
-PRIVATE
-do_ifdef(how)
+static void do_ifdef(int how)
 {
 	register struct idf *id;
 	char *str;
@@ -421,15 +429,14 @@ do_ifdef(how)
 	}
 }
 
-PRIVATE
-do_undef()
+static void do_undef()
 {
 	register struct idf *id;
 	register char *str = GetIdentifier();
 
 	/* Forget a macro definition.	*/
 	if (str) {
-		if (id = findidf(str)) {
+		if ((id = findidf(str))) {
 			if (id->id_macro) { /* forget the macro */
 				free_macro(id->id_macro);
 				id->id_macro = (struct macro *) 0;
@@ -443,9 +450,7 @@ do_undef()
 	skipline();
 }
 
-PRIVATE
-do_line(l)
-	unsigned int l;
+static void do_line(unsigned int l)
 {
 	struct token tk;
 	int t = GetToken(&tk);
@@ -457,10 +462,7 @@ do_line(l)
 		FileName = tk.tk_str;
 }
 
-PRIVATE int
-getparams(buf, parbuf)
-	char *buf[];
-	char parbuf[];
+static int getparams(char *buf[], char parbuf[])
 {
 	/*	getparams() reads the formal parameter list of a macro
 		definition.
@@ -526,10 +528,7 @@ getparams(buf, parbuf)
 	/*NOTREACHED*/
 }
 
-EXPORT
-macro_def(id, text, nformals, length, flags)
-	register struct idf *id;
-	char *text;
+void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 {
 	/*	macro_def() puts the contents and information of a macro
 		definition into a structure and stores it into the symbol
@@ -567,9 +566,7 @@ macro_def(id, text, nformals, length, flags)
 	newdef->mc_count = 0;
 }
 
-PRIVATE int
-find_name(nm, index)
-	char *nm, *index[];
+static int find_name(char *nm, char *index[])
 {
 	/*	find_name() returns the index of "nm" in the namelist
 		"index" if it can be found there.  0 is returned if it is
@@ -584,10 +581,7 @@ find_name(nm, index)
 	return 0;
 }
 
-PRIVATE char *
-get_text(formals, length)
-	char *formals[];
-	int *length;
+static char *get_text(char *formals[], int *length)
 {
 	/*	get_text() copies the replacement text of a macro
 		definition with zero, one or more parameters, thereby
@@ -655,7 +649,7 @@ get_text(formals, length)
 					*idp++ = c;
 			} while (in_idf(c));
 			*--idp = '\0';
-			if (n = find_name(id_buf, formals)) {
+			if ((n = find_name(id_buf, formals))) {
 				/* construct the formal parameter mark	*/
 				text[pos++] = FORMALP | (char) n;
 				if (pos == text_size)
@@ -669,7 +663,7 @@ get_text(formals, length)
 
 				while (pos + sz >= text_size) text_size <<= 1;
 				text = Realloc(text, text_size);
-				while (text[pos++] = *idp++) ;
+				while ((text[pos++] = *idp++)) ;
 				pos--;
 			}
 		}
@@ -693,9 +687,7 @@ get_text(formals, length)
 	as strings, without taking care of the leading and trailing
 	blanks (spaces and tabs).
 */
-PRIVATE
-macroeq(s, t)
-	register char *s, *t;
+static int macroeq(char *s, char *t)
 {
 	
 	/* skip leading spaces	*/

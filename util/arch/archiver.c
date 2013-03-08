@@ -31,6 +31,7 @@ static char RcsId[] = "$Id$";
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <time.h>
 #include <arch.h>
 #include <ranlib.h>
 #include <unistd.h>
@@ -106,20 +107,30 @@ char *progname;
 
 char temp_buf[32];
 char *temp_arch = &temp_buf[0];
-extern char *mktemp();
-extern char *ctime();
 
-usage()
-{
-	error(TRUE, "usage: %s [qdprtxl][vlc] archive [file] ...\n",
-		progname
-		);
-}
+/* Prototypings...*/
+void error(BOOL quit, char *str1, char *str2, char *str3, char *str4);
+void usage(void);
+char *basename(char *path);
+int open_archive(char *name, int mode);
+int main(int argc, char *argv[]);
+struct ar_hdr *get_member(void);
+void get(int argc, char *argv[]);
+void add(char *name, int fd, char *mess);
+void extract(struct ar_hdr *member);
+void copy_member(MEMBER *member, int from, int to, int extracting);
+char *get_mode(int mode);
+void wr_fatal(void);
+void rd_fatal(void);
+void mwrite(int fd, char *address, int bytes);
+void show(char *s, char *name);
+void write_symdef();
+void do_names(struct outhead *headp);
+void enter_name(struct outname *namep);
+void do_object(int f, long size);
 
 /*VARARGS2*/
-error(quit, str1, str2, str3, str4)
-BOOL quit;
-char *str1, *str2, *str3, *str4;
+void error(BOOL quit, char *str1, char *str2, char *str3, char *str4)
 {
 	char errbuf[256];
 
@@ -131,8 +142,14 @@ char *str1, *str2, *str3, *str4;
   	}
 }
 
-char *basename(path)
-char *path;
+void usage()
+{
+	error(TRUE, "usage: %s [qdprtxl][vlc] archive [file] ...\n",
+		progname,
+		NULL, NULL);
+}
+
+char *basename(char *path)
 {
   register char *ptr = path;
   register char *last = NIL_PTR;
@@ -151,18 +168,14 @@ char *path;
   return last + 1;
 }
 
-extern unsigned int rd_unsigned2();
-
-open_archive(name, mode)
-register char *name;
-register int mode;
+int open_archive(char *name, int mode)
 {
   unsigned short magic = 0;
   int fd;
 
   if (mode == CREATE) {
 	if ((fd = creat(name, 0666)) < 0)
-		error(TRUE, "cannot creat %s\n", name);
+		error(TRUE, "cannot creat %s\n", name, NULL, NULL);
 	magic = MAGIC_NUMBER;
 	wr_int2(fd, magic);
 	return fd;
@@ -171,29 +184,26 @@ register int mode;
   if ((fd = open(name, mode)) < 0) {
 	if (mode == APPEND) {
 		close(open_archive(name, CREATE));
-		if (!nocr_fl) error(FALSE, "%s: creating %s\n", progname, name);
+		if (!nocr_fl) error(FALSE, "%s: creating %s\n", progname, name, NULL);
 		return open_archive(name, APPEND);
 	}
-	error(TRUE, "cannot open %s\n", name);
+	error(TRUE, "cannot open %s\n", name, NULL, NULL);
   }
   lseek(fd, 0L, 0);
   magic = rd_unsigned2(fd);
   if (magic != AALMAG && magic != ARMAG)
-	error(TRUE, "%s is not in ar format\n", name);
+	error(TRUE, "%s is not in ar format\n", name, NULL, NULL);
   
   return fd;
 }
 
-void
-catch()
+void catch(int sig)
 {
 	unlink(temp_arch);
 	_exit (2);
 }
 
-main(argc, argv)
-int argc;
-char *argv[];
+int main(int argc, char *argv[])
 {
   register char *ptr;
   int needs_arg = 0;
@@ -278,7 +288,7 @@ char *argv[];
 #ifdef AAL
   tab = (struct ranlib *) malloc(512 * sizeof(struct ranlib));
   tstrtab = malloc(4096);
-  if (!tab || !tstrtab) error(TRUE,"Out of core\n");
+  if (!tab || !tstrtab) error(TRUE,"Out of core\n", NULL, NULL, NULL);
   tabsz = 512;
   strtabsz = 4096;
 #endif
@@ -289,8 +299,7 @@ char *argv[];
   return 0;
 }
 
-MEMBER *
-get_member()
+MEMBER *get_member()
 {
   static MEMBER member;
 
@@ -298,7 +307,7 @@ again:
   if (rd_arhdr(ar_fd, &member) == 0)
 	return NIL_MEM;
   if (member.ar_size < 0) {
-	error(TRUE, "archive has member with negative size\n");
+	error(TRUE, "archive has member with negative size\n", NULL, NULL, NULL);
   }
   if (equal(SYMDEF, member.ar_name)) {
 	lseek(ar_fd, member.ar_size, 1);
@@ -307,11 +316,7 @@ again:
   return &member;
 }
 
-char *get_mode();
-
-get(argc, argv)
-int argc;
-register char *argv[];
+void get(int argc, char *argv[])
 {
   register MEMBER *member;
   int i = 0;
@@ -437,10 +442,7 @@ register char *argv[];
   close(ar_fd);
 }
 
-add(name, fd, mess)
-char *name;
-int fd;
-char *mess;
+void add(char *name, int fd, char *mess)
 {
   static MEMBER member;
   register int read_chars;
@@ -448,20 +450,20 @@ char *mess;
   int src_fd;
 
   if (stat(name, &status) < 0) {
-	error(FALSE, "cannot find %s\n", name);
+	error(FALSE, "cannot find %s\n", name, NULL, NULL);
 	return;
   }
   else if (S_ISDIR(status.st_mode)) {
-	error(FALSE, "%s is a directory (ignored)\n", name);
+	error(FALSE, "%s is a directory (ignored)\n", name, NULL, NULL);
 	return;
   }
   else if (u_fl && status.st_mtime <= member.ar_date) {
 	wr_arhdr(fd, member);
-	copy_member(member, ar_fd, fd, 0);
+	copy_member(&member, ar_fd, fd, 0);
 	return;
   }
   else if ((src_fd = open(name, 0)) < 0) {
-	error(FALSE, "cannot open %s\n", name);
+	error(FALSE, "cannot open %s\n", name, NULL, NULL);
 	return;
   }
 
@@ -497,7 +499,7 @@ char *mess;
 	}
 	else	status.st_size -= x;
   	if (read(src_fd, io_buffer, read_chars) != read_chars) {
-		error(FALSE,"%s seems to shrink\n", name);
+		error(FALSE,"%s seems to shrink\n", name, NULL, NULL);
 		break;
 	}
 	mwrite(fd, io_buffer, x);
@@ -508,8 +510,7 @@ char *mess;
   close(src_fd);
 }
 
-extract(member)
-register MEMBER *member;
+void extract(MEMBER *member)
 {
   int fd = 1;
   char buf[sizeof(member->ar_name) + 1];
@@ -517,7 +518,7 @@ register MEMBER *member;
   strncpy(buf, member->ar_name, sizeof(member->ar_name));
   buf[sizeof(member->ar_name)] = 0;
   if (pr_fl == FALSE && (fd = creat(buf, 0666)) < 0) {
-	error(FALSE, "cannot create %s\n", buf);
+	error(FALSE, "cannot create %s\n", buf, NULL, NULL);
 	fd = -1;
   }
 
@@ -533,9 +534,7 @@ register MEMBER *member;
   if (pr_fl == FALSE) chmod(buf, member->ar_mode);
 }
 
-copy_member(member, from, to, extracting)
-register MEMBER *member;
-int from, to;
+void copy_member(MEMBER *member, int from, int to, int extracting)
 {
   register int rest;
   long mem_size = member->ar_size;
@@ -557,7 +556,7 @@ int from, to;
 
 		strncpy(buf, member->ar_name, sizeof(member->ar_name));
 		buf[sizeof(member->ar_name)] = 0;
-		error(TRUE, "read error on %s\n", buf);
+		error(TRUE, "read error on %s\n", buf, NULL, NULL);
 	}
 	if (to >= 0) mwrite(to, io_buffer, rest);
 	mem_size -= (long) rest;
@@ -570,9 +569,7 @@ int from, to;
   }
 }
 
-char *
-get_mode(mode)
-register int mode;
+char *get_mode(int mode)
 {
   static char mode_buf[11];
   register int tmp = mode;
@@ -592,27 +589,23 @@ register int mode;
   return mode_buf;
 }
 
-wr_fatal()
+void wr_fatal()
 {
-	error(TRUE, "write error\n");
+	error(TRUE, "write error\n", NULL, NULL, NULL);
 }
 
-rd_fatal()
+void rd_fatal()
 {
-	error(TRUE, "read error\n");
+	error(TRUE, "read error\n", NULL, NULL, NULL);
 }
 
-mwrite(fd, address, bytes)
-int fd;
-register char *address;
-register int bytes;
+void mwrite(int fd, char *address, int bytes)
 {
   if (write(fd, address, bytes) != bytes)
-	error(TRUE, "write error\n");
+	error(TRUE, "write error\n", NULL, NULL, NULL);
 }
 
-show(s, name)
-char *s, *name;
+void show(char *s, char *name)
 {
   MEMBER x;
   char buf[sizeof(x.ar_name)+1];
@@ -630,7 +623,7 @@ char *s, *name;
  * then 4 bytes giving the size of the string table, followed by the string
  * table itself.
  */
-write_symdef()
+void write_symdef()
 {
 	register struct ranlib	*ran;
 	register int	i;
@@ -675,16 +668,13 @@ write_symdef()
  * Return whether the bytes in `buf' form a good object header. 
  * The header is put in `headp'.
  */
-int
-is_outhead(headp)
-	register struct outhead	*headp;
+int is_outhead(struct outhead	*headp)
 {
 
 	return !BADMAGIC(*headp) && headp->oh_nname != 0;
 }
 
-do_object(f, size)
-	long size;
+void do_object(int f, long size)
 {
 	struct outhead	headbuf;
 
@@ -710,8 +700,7 @@ do_object(f, size)
  * name table and read and write the names one by one. Update the ranlib table
  * accordingly.
  */
-do_names(headp)
-	struct outhead	*headp;
+void do_names(struct outhead	*headp)
 {
 	register char	*strings;
 	register int	nnames = headp->oh_nname;
@@ -722,7 +711,7 @@ do_names(headp)
 	if (	headp->oh_nchar != (unsigned int)headp->oh_nchar ||
 		(strings = malloc((unsigned int)headp->oh_nchar)) == (char *)0
 	   ) {
-		error(TRUE, "string table too big\n");
+		error(TRUE, "string table too big\n", NULL, NULL, NULL);
 	}
 	rd_string(strings, headp->oh_nchar);
 	while (nnames) {
@@ -756,15 +745,14 @@ do_names(headp)
 	free(strings);
 }
 
-enter_name(namep)
-	struct outname *namep;
+void enter_name(struct outname *namep)
 {
 	register char	*cp;
 
 	if (tnum >= tabsz) {
 		tab = (struct ranlib *)
 			realloc((char *) tab, (tabsz += 512) * sizeof(struct ranlib));
-		if (! tab) error(TRUE, "Out of core\n");
+		if (! tab) error(TRUE, "Out of core\n", NULL, NULL, NULL);
 	}
 	tab[tnum].ran_off = tssiz;
 	tab[tnum].ran_pos = offset;
@@ -772,7 +760,7 @@ enter_name(namep)
 	for (cp = namep->on_mptr;; cp++) {
 		if (tssiz >= strtabsz) {
 			tstrtab = realloc(tstrtab, (strtabsz += 4096));
-			if (! tstrtab) error(TRUE, "string table overflow\n");
+			if (! tstrtab) error(TRUE, "string table overflow\n", NULL, NULL, NULL);
 		}
 		tstrtab[tssiz++]  = *cp;
 		if (!*cp) break;

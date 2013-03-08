@@ -20,4 +20,6 @@ _PROTOTYPE(void doprnt, (File *f, char *fmt, va_list ap));
 _PROTOTYPE(int _format, (char *buf, char *fmt, va_list ap));
 _PROTOTYPE(char *sprint, (char *buf, char *fmt, ...));
 
+char *long2str(long val, int base);
+
 #endif /* __PRINT_INCLUDED__ */

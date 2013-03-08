@@ -14,10 +14,7 @@
 
 #define MAXWIDTH 32
 
-char *
-long2str(val, base)
-	register long val;
-	register base;
+char *long2str(long val, int base)
 {
 	static char numbuf[MAXWIDTH];
 	static char vec[] = "0123456789ABCDEF";

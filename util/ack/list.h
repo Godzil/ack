@@ -2,6 +2,9 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
+#ifndef UTILS_ACK_LIST_H
+#define UTILS_ACK_LIST_H
+
 #ifndef NORCSID
 #define RCS_LIST "$Id$"
 #endif
@@ -29,3 +32,6 @@ typedef struct ca_elem list_elem ;         /* The decl. for elements */
 /* To be used for scanning lists, ptr is the running variable */
 #define scanlist(elem,ptr) \
 	for ( ptr= elem ; ptr; ptr= l_next(*ptr) )
+
+
+#endif /* UTILS_ACK_LIST_H */

@@ -12,6 +12,9 @@
 #include	"LLlex.h"
 #include	<em_arith.h>
 
+void ch7bin(arith *pval, int oper, arith val);
+void ch7mon(int oper, arith *pval);
+
 extern arith ifval;
 }
 

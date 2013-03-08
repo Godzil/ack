@@ -26,9 +26,14 @@ static int        touch_head= NO ;
 static growstring tail ;
 static int        touch_tail= NO ;
 
-char *headvar(),*tailvar() ;
+void set_Rflag(char *argp);
+void condit(growstring *line, list_head *fsuff, list_head *lsuff, char *tailval);
+void doassign(char *line, char *star, int length);
+void getcallargs(trf *phase);
+void discardargs(trf *phase);
 
-int transform(phase) register trf *phase ; {
+int transform(trf *phase)
+{
 	int ok ;
 
 	if ( !setfiles(phase) ) {
@@ -46,7 +51,8 @@ int transform(phase) register trf *phase ; {
 	return ok ;
 }
 
-getmapflags(phase) register trf *phase ; {
+void getmapflags(trf *phase)
+{
 	register path *l_in ;
 	register list_elem *elem ;
 	int scanned ;
@@ -106,16 +112,19 @@ getmapflags(phase) register trf *phase ; {
 }
 
 
-do_Rflag(argp) char *argp ; {
+void do_Rflag(char *argp)
+{
 	l_add(&R_list,argp) ;
 }
 
-char *headvar() {
+char *headvar()
+{
 	if ( !touch_head) return "" ;
 	return gr_start(head) ;
 }
 
-add_head(str) char *str; {
+void add_head(char *str)
+{
 	if ( !touch_head) {
 		gr_init(&head) ;
 		touch_head=YES ;
@@ -123,12 +132,14 @@ add_head(str) char *str; {
 	gr_cat(&head,str) ;
 }
 
-char *tailvar() {
+char *tailvar()
+{
 	if ( !touch_tail ) return "" ;
 	return gr_start(tail) ;
 }
 
-add_tail(str) char *str ; {
+void add_tail(char *str)
+{
 	if ( !touch_tail ) {
 		gr_init(&tail) ;
 		touch_tail=YES ;
@@ -137,7 +148,8 @@ add_tail(str) char *str ; {
 }
 
 
-transini() {
+void transini()
+{
 	register list_elem *elem ;
 	register trf *phase ;
 
@@ -153,7 +165,8 @@ transini() {
 	setpvar(keeps(TAIL),tailvar) ;
 }
 
-set_Rflag(argp) register char *argp ; {
+void set_Rflag(char *argp)
+{
 	register char *eos ;
 	register list_elem *prog ;
 	register int length ;
@@ -201,7 +214,8 @@ set_Rflag(argp) register char *argp ; {
 /*                                                                        */
 /**************************************************************************/
 
-growstring scanb(line) char *line ; {
+growstring scanb(char *line)
+{
 	/* Scan a line for backslashes, setting the NO_SCAN bit in characters
 	   preceded by a backslash.
 	*/
@@ -232,7 +246,8 @@ growstring scanb(line) char *line ; {
 	return result ;
 }
 
-growstring scanvars(line) char *line ; {
+growstring scanvars(char *line)
+{
 	/* Scan a line variable replacements started by S_VAR.
 	   Two sequences exist: S_VAR name E_VAR, S_VAR name A_VAR text E_VAR.
 	   neither name nor text may contain further replacements.
@@ -280,7 +295,7 @@ growstring scanvars(line) char *line ; {
 			switch ( token ) {
 			case A_VAR :
 				gr_add(&name,0) ;
-				if ( tr=getvar(gr_start(name)) ) {
+				if ( (tr=getvar(gr_start(name))) ) {
 					while ( *tr ) {
 						gr_add(&result,*tr++) ;
 					}
@@ -292,7 +307,7 @@ growstring scanvars(line) char *line ; {
 				break ;
 			case C_VAR :
 				gr_add(&name,0) ;
-				if ( tr=getvar(gr_start(name)) ) {
+				if ( (tr=getvar(gr_start(name))) ) {
 					while ( *tr ) {
 					   gr_add(&result,*tr++);
 					}
@@ -326,7 +341,8 @@ growstring scanvars(line) char *line ; {
 	return result ;
 }
 
-growstring scanexpr(line) char *line ; {
+growstring scanexpr(char *line)
+{
 	/* Scan a line for conditional or flag expressions,
 	   dependent on the type. The format is
 	   S_EXPR suflist M_EXPR suflist T_EXPR tail C_EXPR
@@ -413,9 +429,7 @@ growstring scanexpr(line) char *line ; {
 	return result ;
 }
 
-condit(line,fsuff,lsuff,tailval) growstring *line ;
-	list_head *fsuff, *lsuff;
-	char *tailval ;
+void condit(growstring *line, list_head *fsuff, list_head *lsuff, char *tailval)
 {
 	register list_elem *first ;
 	register list_elem *last ;
@@ -440,7 +454,8 @@ condit(line,fsuff,lsuff,tailval) growstring *line ;
 #endif
 }
 
-int mapflag(maplist,cflag) list_head *maplist ; char *cflag ; {
+int mapflag(list_head *maplist, char *cflag)
+{
 	/* Expand a flag expression */
 	/* The flag "cflag" is checked for each of the mapflags.
 	   A mapflag entry has the form
@@ -462,8 +477,7 @@ int mapflag(maplist,cflag) list_head *maplist ; char *cflag ; {
 	return 0 ;
 }
 
-int mapexpand(mapentry,cflag)
-	char *mapentry, *cflag ;
+int mapexpand(char *mapentry, char *cflag)
 {
 	register char *star ;
 	register char *ptr ;
@@ -504,7 +518,8 @@ int mapexpand(mapentry,cflag)
 	return 1 ;
 }
 
-doassign(line,star,length) char *line, *star ; {
+void doassign(char *line, char *star, int length)
+{
 	growstring varval, name, temp ;
 	register char *ptr ;
 
@@ -537,7 +552,8 @@ doassign(line,star,length) char *line, *star ; {
 
 #define ISBLANK(c) ( (c)==SPACE || (c)==TAB )
 
-unravel(line,action) char *line ; int (*action)() ; {
+void unravel(char *line, void (*action)(char *))
+{
 	/* Unravel the line, get arguments a la shell */
 	/* each argument is handled to action */
 	/* The input string is left intact */
@@ -574,7 +590,8 @@ unravel(line,action) char *line ; int (*action)() ; {
 	}
 }
 
-char *c_rep(string,place,rep) char *string, *place, *rep ; {
+char *c_rep(char *string, char *place, char *rep)
+{
 	/* Produce a string in stable storage produced from 'string'
 	   with the character at place replaced by rep
 	*/
@@ -598,7 +615,8 @@ char *c_rep(string,place,rep) char *string, *place, *rep ; {
 static list_head *curargs ;
 static list_head *comb_args ;
 
-addargs(string) char *string ; {
+void addargs(char *string)
+{
 	register char *temp, *repc ;
 	register list_elem *elem ;
 
@@ -645,7 +663,8 @@ addargs(string) char *string ; {
 	l_add(curargs,temp) ;
 }
 
-getcallargs(phase) register trf *phase ; {
+void getcallargs(trf *phase)
+{
 	growstring arg1, arg2 ;
 
 	arg1= scanvars(phase->t_argd) ;
@@ -663,6 +682,7 @@ getcallargs(phase) register trf *phase ; {
 	gr_throw(&arg2) ;
 }
 
-discardargs(phase) register trf *phase ; {
+void discardargs(trf *phase)
+{
 	l_throw(&phase->t_args) ;
 }

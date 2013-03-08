@@ -8,14 +8,19 @@
 #include <string.h>
 #include "ack.h"
 #include "list.h"
-#include "trans.h"
 #include "data.h"
 
 #ifndef NORCSID
 static char rcs_id[] = "$Id$" ;
 #endif
 
-enum f_path getpath(first) register trf **first ; {
+void start_scan();
+void scan_found();
+void find_cpp();
+void try(list_elem *f_scan, char *suffix);
+
+enum f_path getpath(trf **first)
+{
 	/* Try to find a transformation path */
 
 	start_scan();
@@ -47,7 +52,8 @@ static  int     suf_found;      /* Was the suffix at least recognized ? */
 
 /********************       The hard work          ********************/
 
-start_scan() {
+void start_scan()
+{
 	register list_elem *scan ;
 
 	scanlist(l_first(tr_list),scan) {
@@ -61,7 +67,8 @@ start_scan() {
 	last_ocount= 0 ;
 }
 
-try(f_scan,suffix) list_elem *f_scan; char *suffix; {
+void try(list_elem *f_scan, char *suffix)
+{
 	register list_elem *scan ;
 	register trf  *trafo ;
 	/* Try to find a transformation path starting at f_scan for a
@@ -106,12 +113,12 @@ try(f_scan,suffix) list_elem *f_scan; char *suffix; {
 				*/
 				register trf *sneak ;
 				sneak= trafo ;
-				while( sneak=sneak->t_next ) {
+				while( (sneak=sneak->t_next) ) {
 					sneak->t_scan=YES ;
 				}
 				scan_found() ;
 				sneak= trafo ;
-				while( sneak=sneak->t_next ) {
+				while( (sneak=sneak->t_next) ) {
 					sneak->t_scan=NO ;
 				}
 				return ;
@@ -131,7 +138,8 @@ try(f_scan,suffix) list_elem *f_scan; char *suffix; {
 	}
 }
 
-scan_found() {
+void scan_found()
+{
 	register list_elem *scan;
 	int ncount, ocount, pcount ;
 
@@ -179,7 +187,8 @@ scan_found() {
 	}
 }
 
-int satisfy(trafo,suffix) register trf *trafo; char *suffix ; {
+int satisfy(trf *trafo, char *suffix)
+{
 	register char *f_char, *l_char ;
 	/* Check whether this transformation is present for
 	   the current machine and the parameter suffix is among
@@ -204,7 +213,8 @@ int satisfy(trafo,suffix) register trf *trafo; char *suffix ; {
 	return 0 ;
 }
 
-enum f_path scan_end(first) trf **first ; {    /* Finalization */
+enum f_path scan_end(trf **first)
+{    /* Finalization */
 	/* Return value indicating whether a transformation was found */
 	/* Set the flags for the transformation up to, but not including,
 	   the combiner
@@ -245,7 +255,8 @@ enum f_path scan_end(first) trf **first ; {    /* Finalization */
 	return F_OK ;
 }
 
-find_cpp() {
+void find_cpp()
+{
 	register list_elem *elem ;
 	scanlist( l_first(tr_list), elem ) {
 		if ( t_cont(*elem)->t_isprep ) {

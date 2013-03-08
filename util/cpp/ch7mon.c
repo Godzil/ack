@@ -8,8 +8,7 @@
 #include	"Lpars.h"
 #include	<em_arith.h>
 
-ch7mon(oper, pval)
-	register arith *pval;
+void ch7mon(int oper, arith *pval)
 {
 	switch (oper)	{
 	case '~':
