@@ -20,10 +20,11 @@ static char rcsid[] = "$Id$";
  */
 
 
-cleanup() {
+void cleanup()
+{
 	FILE *infile;
-	register c;
-	register sym_p *spp,sp;
+	int c;
+	sym_p *spp,sp;
 
  	for (spp=symhash;spp< &symhash[NSYMHASH];spp++)
  		for (sp = *spp; sp != (sym_p) 0; sp = sp->s_next)

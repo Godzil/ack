@@ -4,6 +4,7 @@ static char rcsid[] = "$Id$";
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "param.h"
 #include "types.h"
 #include "tes.h"
@@ -22,7 +23,7 @@ static char rcsid[] = "$Id$";
 
 #ifdef USEMALLOC
 
-short * myalloc();
+short *myalloc(int size);
 
 #define newcore(size) myalloc(size)
 #define oldcore(p,size) free(p)
@@ -34,8 +35,8 @@ short * myalloc();
 
 #define CCHUNK	1024	/* number of shorts asked from system */
 
-short *newcore(),*freshcore();
-extern char *sbrk();
+short *newcore(int size);
+//short *freshcore();
 
 #ifdef COREDEBUG
 int shortsasked=0;
@@ -83,6 +84,10 @@ int asizetab[] = {
 	ABASE+sizeof(s_a_con),
 };
 
+void oldline(line_p lnp);
+void oldargb(argb_p abp);
+void oldreg(reg_p rp);
+
 /*
  * alloc routines:
  * Two parts:
@@ -94,9 +99,10 @@ int asizetab[] = {
  * PART 1
  */
 
-line_p	newline(optyp) int optyp; {
-	register line_p lnp;
-	register kind=optyp;
+line_p newline(int optyp)
+{
+	line_p lnp;
+	int kind=optyp;
 
 	if (kind>OPMINI)
 		kind = OPMINI;
@@ -105,8 +111,9 @@ line_p	newline(optyp) int optyp; {
 	return(lnp);
 }
 
-oldline(lnp) register line_p lnp; {
-	register kind=lnp->l_optyp&BMASK;
+void oldline(line_p lnp)
+{
+	int kind=lnp->l_optyp&BMASK;
 
 	if (kind>OPMINI)
 		kind = OPMINI;
@@ -115,16 +122,18 @@ oldline(lnp) register line_p lnp; {
 	oldcore((short *) lnp,lsizetab[kind]);
 }
 
-arg_p newarg(kind) int kind; {
-	register arg_p ap;
+arg_p newarg(int kind)
+{
+	arg_p ap;
 
 	ap = (arg_p) newcore(asizetab[kind]);
 	ap->a_typ = kind;
 	return(ap);
 }
 
-oldargs(ap) register arg_p ap; {
-	register arg_p	next;
+void ldargs(arg_p ap)
+{
+	arg_p	next;
 
 	while (ap != (arg_p) 0) {
 		next = ap->a_next;
@@ -143,8 +152,9 @@ oldargs(ap) register arg_p ap; {
 	}
 }
 
-oldargb(abp) register argb_p abp; {
-	register argb_p next;
+void oldargb(argb_p abp)
+{
+	argb_p next;
 
 	while (abp != (argb_p) 0) {
 		next = abp->ab_next;
@@ -153,13 +163,13 @@ oldargb(abp) register argb_p abp; {
 	}
 }
 
-reg_p newreg() {
-
+reg_p newreg()
+{
 	return((reg_p) newcore(sizeof(reg_t)));
 }
 
-oldreg(rp) reg_p rp; {
-
+void oldreg(reg_p rp)
+{
 	oldcore((short *) rp,sizeof(reg_t));
 }
 
@@ -168,17 +178,18 @@ num_p newnum() {
 	return((num_p) newcore(sizeof(num_t)));
 }
 
-oldnum(lp) num_p lp; {
-
+void oldnum(num_p lp)
+{
 	oldcore((short *) lp,sizeof(num_t));
 }
 
-offset *newrom() {
-
+offset *newrom()
+{
 	return((offset *) newcore(MAXROM*sizeof(offset)));
 }
 
-sym_p newsym(len) int len; {
+sym_p newsym(int len)
+{
 	/*
 	 * sym_t includes a 2 character s_name at the end
 	 * extend this structure with len-2 characters
@@ -186,8 +197,8 @@ sym_p newsym(len) int len; {
 	return((sym_p) newcore(sizeof(sym_t) - 2 + len));
 }
 
-argb_p newargb() {
-
+argb_p newargb()
+{
 	return((argb_p) newcore(sizeof(argb_t)));
 }
 
@@ -208,10 +219,11 @@ typedef struct coreblock {
 
 #define SINC	(sizeof(core_t)/sizeof(short))
 #ifdef COREDEBUG
-coreverbose() {
-	register size;
-	register short *p;
-	register sum;
+void coreverbose()
+{
+	int size;
+	short *p;
+	int sum;
 
 	sum = 0;
 	for(size=1;size<MAXSHORT;size++)
@@ -223,8 +235,9 @@ coreverbose() {
 
 #ifdef SEPID
 
-compactcore() {
-	register core_p corelist=0,tp,cl;
+void compactcore()
+{
+	core_p corelist=0,tp,cl;
 	int size;
 
 #ifdef COREDEBUG
@@ -271,9 +284,10 @@ compactcore() {
 	}
 }
 
-short *grabcore(size) int size; {
-	register short *p;
-	register trysize;
+short *grabcore(int size)
+{
+	short *p;
+	int trysize;
 
 	/*
 	 * Desperate situation, can't get more core from system.
@@ -320,7 +334,8 @@ short *grabcore(size) int size; {
 }
 #endif	/* SEPID */
 
-short *newcore(size) int size; {
+short *newcore(int size)
+{
 	register short *p,*q;
 
 	size = (size + sizeof(int) - 1) & ~(sizeof(int) - 1);
@@ -350,8 +365,8 @@ short *newcore(size) int size; {
  * you can use these as substitutes
  */
 
-char *malloc(size) int size; {
-
+char *malloc(int size) 
+{
 	/*
 	 * malloc(III) is called by stdio,
 	 * this routine is a substitute.
@@ -360,14 +375,16 @@ char *malloc(size) int size; {
 	return( (char *) newcore(size));
 }
 
-free() {
+void free(void *ptr)
+{
 
 }
 #endif
 
-oldcore(p,size) short *p; int size; {
+void oldcore(short *p, int size)
+{
 #ifdef CORECHECK
-	register short *cp;
+	short *cp;
 #endif
 
 	assert(size<2*MAXSHORT);
@@ -382,8 +399,8 @@ oldcore(p,size) short *p; int size; {
 
 short *ccur,*cend;
 
-coreinit(p1,p2) short *p1,*p2; {
-
+void coreinit(short *p1, short *p2)
+{
 	/*
 	 * coreinit is called with the boundaries of a piece of
 	 * memory that can be used for starters.
@@ -393,8 +410,9 @@ coreinit(p1,p2) short *p1,*p2; {
 	cend = p2;
 }
 
-short *freshcore(size) int size; {
-	register short *temp;
+short *freshcore(int size)
+{
+	short *temp;
 	static int cchunk=CCHUNK;
 	
 	while(&ccur[size/sizeof(short)] >= cend && cchunk>0) {
@@ -419,19 +437,20 @@ short *freshcore(size) int size; {
 
 #else	/* USEMALLOC */
 
-coreinit() {
+void coreinit() {
 
 	/*
 	 * Empty function, no initialization needed
 	 */
 }
 
-short *myalloc(size) register size; {
+short *myalloc(int size)
+{
 	register short *p,*q;
 
 	p = (short *)malloc(size);
 	if (p == 0)
-		error("out of memory");
+		error("out of memory", NULL);
 	for(q=p;size>0;size -= sizeof(short))
 		*q++ = 0;
 	return(p);

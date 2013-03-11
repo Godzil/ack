@@ -44,8 +44,12 @@ static  char    string[IDL+1];  /* temp store for names */
 
 #define readbyte getchar
 
-short readshort() {
-	register int l_byte, h_byte;
+int inpseudo(short n);
+void tstinpro();
+
+short readshort()
+{
+	int l_byte, h_byte;
 
 	l_byte = readbyte();
 	h_byte = readbyte();
@@ -54,9 +58,10 @@ short readshort() {
 }
 
 #ifdef LONGOFF
-offset readoffset() {
-	register long l;
-	register int h_byte;
+offset readoffset()
+{
+	long l;
+	int h_byte;
 
 	l = readbyte();
 	l |= ((unsigned) readbyte())*256 ;
@@ -67,8 +72,8 @@ offset readoffset() {
 }
 #endif
 
-draininput() {
-
+void draininput()
+{
 	/*
 	 * called when MES ERR is encountered.
 	 * Drain input in case it is a pipe.
@@ -78,8 +83,8 @@ draininput() {
 		;
 }
 
-short getint() {
-
+short getint()
+{
 	switch(table2()) {
 	default: error("int expected");
 	case CSTX1:
@@ -87,8 +92,8 @@ short getint() {
 	}
 }
 
-sym_p getsym(status) int status; {
-
+sym_p getsym(int status)
+{
 	switch(table2()) {
 	default:
 		error("symbol expected");
@@ -99,8 +104,8 @@ sym_p getsym(status) int status; {
 	}
 }
 
-offset getoff() {
-
+offset getoff()
+{
 	switch (table2()) {
 	default: error("offset expected");
 	case CSTX1:
@@ -112,15 +117,16 @@ offset getoff() {
 	}
 }
 
-make_string(n) int n; {
-
+void make_string(int n)
+{
 	sprintf(string,".%u",n);
 }
 
-inident() {
-	register n;
-	register char *p = string;
-	register c;
+void inident()
+{
+	int n;
+	char *p = string;
+	int c;
 
 	n = getint();
 	while (n--) {
@@ -131,8 +137,8 @@ inident() {
 	*p++ = 0;
 }
 
-int table3(n) int n; {
-
+int table3(int n)
+{
 	switch (n) {
 	case sp_ilb1:   tabval = readbyte(); return(ILBX);
 	case sp_ilb2:   tabval = readshort(); return(ILBX);
@@ -156,8 +162,9 @@ int table3(n) int n; {
 	}
 }
 
-int table1() {
-	register n;
+int table1()
+{
+	int n;
 
 	n = readbyte();
 	if (n == EOF)
@@ -177,8 +184,9 @@ int table1() {
 	return(table3(n));
 }
 
-int table2() {
-	register n;
+int table2()
+{
+	int n;
 
 	n = readbyte();
 	if ((n < sp_fcst0 + sp_ncst0) && (n >= sp_fcst0)) {
@@ -188,9 +196,10 @@ int table2() {
 	return(table3(n));
 }
 
-getlines() {
-	register line_p lnp;
-	register instr;
+void getlines()
+{
+	line_p lnp;
+	int instr;
 
     for(;;) {
 	linecount++;
@@ -296,8 +305,8 @@ getlines() {
     }
 }
 
-argstring(length,abp) offset length; register argb_p abp; {
-
+void argstring(offset length, argb_p abp)
+{
 	while (length--) {
 		if (abp->ab_index == NARGBYTES)
 			abp = abp->ab_next = newargb();
@@ -305,12 +314,12 @@ argstring(length,abp) offset length; register argb_p abp; {
 	}
 }
 
-line_p  arglist(n) int n; {
+line_p arglist(int n)
+{
 	line_p  lnp;
-	register arg_p ap,*app;
+	arg_p ap,*app;
 	bool moretocome;
 	offset length;
-
 
 	/*
 	 * creates an arglist with n elements
@@ -385,8 +394,8 @@ line_p  arglist(n) int n; {
 	return(lnp);
 }
 
-offset aoff(ap,n) register arg_p ap; {
-
+offset aoff(arg_p ap, int n)
+{
 	while (n>0) {
 		if (ap != (arg_p) 0)
 			ap = ap->a_next;
@@ -399,7 +408,8 @@ offset aoff(ap,n) register arg_p ap; {
 	return(ap->a_a.a_offset);
 }
 
-int inpseudo(n) short n; {
+int inpseudo(short n)
+{
 	register line_p lnp,head,tail;
 	short           n1,n2;
 	proinf savearea;
@@ -542,8 +552,8 @@ int inpseudo(n) short n; {
 	return(0);
 }
 
-tstinpro() {
-
+void tstinpro()
+{
 	if (prodepth==0)
 		error("This is not allowed outside a procedure");
 }

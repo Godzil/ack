@@ -17,9 +17,10 @@ static char rcsid[]= "$Id$";
 
 extern set_t l_sets[];
 
-setlookup(s) set_t s; {
-	register set_p p;
-	register i;
+int setlookup(set_t s)
+{
+	set_p p;
+	int i;
 	int setno;
 
 	for(p=l_sets;p<&l_sets[nsets];p++) {
@@ -36,9 +37,10 @@ setlookup(s) set_t s; {
 	return(setno);
 }
 
-make_std_sets() {
+void make_std_sets()
+{
 	set_t s;
-	register i;
+	int i;
 
 	for(i=0;i<SETSIZE;i++)
 		s.set_val[i]=0;
@@ -51,10 +53,11 @@ make_std_sets() {
 
 set_t emptyset;
 
-set_t ident_to_set(name) char *name; {
-	register symbol *sy_p;
-	register i;
-	register struct propinfo *pp;
+set_t ident_to_set(char *name)
+{
+	symbol *sy_p;
+	int i;
+	struct propinfo *pp;
 	int bitno;
 	set_t result;
 
@@ -85,17 +88,15 @@ set_t ident_to_set(name) char *name; {
 	return(result);
 }
 
-static
-checksize(s)
-	register set_p s;
+static void checksize(set_p s)
 {
-	register int i;
-	register int size = -1;
+	int i;
+	int size = -1;
 
 	s->set_size = 0;
 	for (i = 1; i <= nregs; i++) {
 		if (BIT(s->set_val, i)) {
-			register int sz = l_regs[i].ri_size;
+			int sz = l_regs[i].ri_size;
 
 			if (size == -1) size = sz;
 			else if (size != sz) return;
@@ -103,7 +104,7 @@ checksize(s)
 	}
 	for (i = 1; i <= ntokens; i++) {
 		if (BIT(s->set_val, i+nregs)) {
-			register int sz = l_tokens[i]->tk_size;
+			int sz = l_tokens[i]->tk_size;
 			if (size == -1) size = sz;
 			else if (size != sz) return;
 		}
@@ -111,9 +112,10 @@ checksize(s)
 	if (size != -1) s->set_size = size;
 }
 
-set_t setproduct(s1,s2) set_t s1,s2; {
+set_t setproduct(set_t s1, set_t s2)
+{
 	set_t result;
-	register i;
+	int i;
 
 	for(i=0;i<SETSIZE;i++)
 		result.set_val[i] = s1.set_val[i] & s2.set_val[i];
@@ -121,9 +123,10 @@ set_t setproduct(s1,s2) set_t s1,s2; {
 	return(result);
 }
 
-set_t setsum(s1,s2) set_t s1,s2; {
+set_t setsum(set_t s1, set_t s2)
+{
 	set_t result;
-	register i;
+	int i;
 
 	if (s1.set_size == s2.set_size)
 		result.set_size = s1.set_size;
@@ -134,9 +137,10 @@ set_t setsum(s1,s2) set_t s1,s2; {
 	return(result);
 }
 
-set_t setdiff(s1,s2) set_t s1,s2; {
+set_t setdiff(set_t s1, set_t s2)
+{
 	set_t result;
-	register i;
+	int i;
 
 	for(i=0;i<SETSIZE;i++)
 		result.set_val[i] = s1.set_val[i] & ~ s2.set_val[i];

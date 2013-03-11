@@ -6,14 +6,16 @@
 static char rcsid[]= "$Id$";
 #endif
 
+#include <string.h>
 #include "param.h"
+#include "extern.h"
 
 int nstrings=0;
 char *l_strings[MAXSTRINGS];
 
-strlookup(str) char *str; {
-	register i;
-	extern char *mystrcpy();
+int strlookup(char *str)
+{
+	int i;
 
 	for(i=0;i<nstrings;i++)
 		if (strcmp(str,l_strings[i])==0)

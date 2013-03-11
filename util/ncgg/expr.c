@@ -6,6 +6,7 @@
 static char rcsid[]= "$Id$";
 #endif
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "assert.h"
@@ -22,20 +23,24 @@ static char rcsid[]= "$Id$";
 
 extern set_t l_sets[];
 
-i_expr(e) expr_t e; {
+void subregset(short *sp, int subreg, short *regset);
 
+int i_expr(expr_t e)
+{
 	if (e.ex_typ != TYPINT)
 		error("Expression should be integer");
 	return(e.ex_index);
 }
 
-b_expr(e) expr_t e; {
+int b_expr(expr_t e)
+{
 	if (e.ex_typ != TYPBOOL)
 		error("Expression should be boolean");
 	return(e.ex_index);
 }
 
-expr_t make_expr(type,operator,op1,op2) {
+expr_t make_expr(int type, int operator, int op1, int op2)
+{
 	expr_t result;
 
 	result.ex_typ=type;
@@ -43,9 +48,10 @@ expr_t make_expr(type,operator,op1,op2) {
 	return(result);
 }
 
-expr_t regno_expr(regno) {
+expr_t regno_expr(int regno)
+{
 	expr_t result;
-	register i;
+	int i;
 
 	result.ex_typ = TYPREG;
 	result.ex_index = ex_lookup(EX_REG,regno,0);
@@ -55,8 +61,9 @@ expr_t regno_expr(regno) {
 	return(result);
 }
 
-expr_t ident_expr(name) char *name; {
-	register symbol *sy_p;
+expr_t ident_expr(char *name)
+{
+	symbol *sy_p;
 
 	sy_p = lookup(name,symany,mustexist);
 	if (sy_p->sy_type==symconst)
@@ -70,7 +77,8 @@ expr_t ident_expr(name) char *name; {
 	return(regno_expr(sy_p->sy_value.syv_regno));
 }
 
-expr_t subreg_expr(tokarg,subreg) {
+expr_t subreg_expr(int tokarg, int subreg)
+{
 	expr_t result;
 
 	result.ex_typ = TYPREG;
@@ -80,9 +88,10 @@ expr_t subreg_expr(tokarg,subreg) {
 	return(result);
 }
 
-subregset(sp,subreg,regset) register short *sp; register short *regset; {
-	register i;
-	register reginfo *rp;
+void subregset(short *sp, int subreg, short *regset)
+{
+	int i;
+	reginfo *rp;
 
 	for (i=0;i<SZOFSET(MAXREGS);i++)
 		regset[i]=0;
@@ -101,10 +110,7 @@ subregset(sp,subreg,regset) register short *sp; register short *regset; {
 			l_tokens[i-nregs]->tk_name);
 }
 
-membset(setno,name,regset,appearance,restyp,typp)
-char *name,*appearance;
-short *regset;
-int *typp;
+int membset(int setno, char *name, short *regset, char *appearance, int restyp, int *typp)
 {
 	register short *sp;
 	register token_p tp;
@@ -164,7 +170,8 @@ int *typp;
 	return(res_j == -1 ? 0 : res_j);
 }
 
-expr_t memb_expr(setno,name,appearance,tokarg) char *name,*appearance; {
+expr_t memb_expr(int setno, char *name, char *appearance, int tokarg)
+{
 	expr_t result;
 	int res_j;
 
@@ -173,7 +180,8 @@ expr_t memb_expr(setno,name,appearance,tokarg) char *name,*appearance; {
 	return(result);
 }
 
-expr_t tokm_expr(tokarg,name) char *name; {
+expr_t tokm_expr(int tokarg, char *name)
+{
 	char app[100];
 	int tokarg1 = tokarg > 0 ? tokarg : 1;
 
@@ -181,17 +189,19 @@ expr_t tokm_expr(tokarg,name) char *name; {
 	return(memb_expr(tokpatset[tokarg1-1],name,app,tokarg));
 }
 
-expr_t perc_ident_expr(name) char *name; {
+expr_t perc_ident_expr(char *name)
+{
 	char app[100];
 
 	sprintf(app,"%%%s",name);
 	return(memb_expr(cursetno,name,app,0));
 }
 
-expr_t all_expr(all_no,subreg) {
+expr_t all_expr(int all_no, int subreg)
+{
 	set_t localset;
-	register i;
-	register short *sp;
+	int i;
+	short *sp;
 	expr_t result;
 
 	sp = l_props[allreg[all_no]].pr_regset;
@@ -203,8 +213,8 @@ expr_t all_expr(all_no,subreg) {
 	return(result);
 }
 
-eq2expr(e1,e2) expr_t e1,e2; {
-
+int eq2expr(expr_t e1, expr_t e2)
+{
 	if (e1.ex_typ != e2.ex_typ)
 		error("Expressions around == should have equal type");
 	switch (e1.ex_typ) {
@@ -220,8 +230,8 @@ eq2expr(e1,e2) expr_t e1,e2; {
 	}
 }
 
-ne2expr(e1,e2) expr_t e1,e2; {
-
+int ne2expr(expr_t e1, expr_t e2)
+{
 	if (e1.ex_typ != e2.ex_typ)
 		error("Expressions around != should have equal type");
 	switch (e1.ex_typ) {
@@ -237,7 +247,8 @@ ne2expr(e1,e2) expr_t e1,e2; {
 	}
 }
 
-expr_t sum_expr(e1,e2) expr_t e1,e2; {
+expr_t sum_expr(expr_t e1, expr_t e2)
+{
 	int operator,op1,op2;
 	expr_t result;
 
@@ -265,7 +276,8 @@ expr_t sum_expr(e1,e2) expr_t e1,e2; {
 	return(result);
 }
 
-expr_t iextoaddr(e) expr_t e; {
+expr_t iextoaddr(expr_t e)
+{
 	expr_t result;
 
 	result.ex_typ = TYPADDR;
@@ -273,9 +285,10 @@ expr_t iextoaddr(e) expr_t e; {
 	return(result);
 }
 
-expr_t regvar_expr(e,regtyp) expr_t e; {
+expr_t regvar_expr(expr_t e, int regtyp)
+{
 	expr_t result;
-	register i;
+	int i;
 	
 	result = make_expr(TYPREG,EX_REGVAR,i_expr(e),0);
 	for(i=0;i<SZOFSET(MAXREGS);i++)
@@ -284,7 +297,7 @@ expr_t regvar_expr(e,regtyp) expr_t e; {
 		BIS(result.ex_regset,rvnumbers[regtyp][i]);
 	return(result);
 }
-		
+
 /*
  * Node table lookup part
  */
@@ -292,15 +305,16 @@ expr_t regvar_expr(e,regtyp) expr_t e; {
 node_t nodes[MAXNODES];
 int nnodes=0;
 
-initnodes() {
-
+void initnodes()
+{
 	nodes[0].ex_operator = EX_CON;
 	nodes[0].ex_lnode = 0;
 	nodes[0].ex_rnode = 0;
 	nnodes++;
 }
 
-ex_lookup(operator,lnode,rnode) {
+int ex_lookup(int operator, int lnode, int rnode)
+{
 	register node_p p;
 
 	for(p=nodes+1;p< &nodes[nnodes];p++) {

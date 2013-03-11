@@ -6,19 +6,17 @@
 static char rcsid[]= "$Id$";
 #endif
 
+#include <string.h>
 #include "assert.h"
 #include "param.h"
 #include "lookup.h"
+#include "extern.h"
 
-char *myalloc();
-char *mystrcpy();
+unsigned int hashvalue(char *s);
 
 symbol dumsym;	/* dummy to return in case of error */
 
-symbol *lookup(name,type,style)
-char *name;
-symtype type;
-lookupstyle style;
+symbol *lookup(char *name, symtype type, lookupstyle style)
 {
 	symbol *sy_p,**sy_pp;
 
@@ -59,9 +57,10 @@ lookupstyle style;
 	}
 }
 
-hashvalue(s) register char *s; {
-	register unsigned sum=0;
-	register i;
+unsigned int hashvalue(char *s)
+{
+	unsigned int sum=0;
+	int i;
 
 	for(i=0;*s;s++,i=(i+3)&07)
 		sum += *s<<i;

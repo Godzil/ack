@@ -21,8 +21,15 @@ static char rcsid[] = "$Id$";
  * Author: Hans van Staveren
  */
 
-process() {
+void relabel();
+void symknown();
+void cleanlocals();
+void checklocs();
+void symvalue();
+void do_tes();
 
+void process()
+{
 	if (wordsize == 0 || pointersize == 0)
 		error("No MES EMX encountered");
 	backward();			/* reverse and cleanup list */
@@ -59,9 +66,10 @@ process() {
 #endif
 }
 
-relabel() {
-	register num_p *npp,np,tp;
-	register num_p repl,ttp;
+void relabel()
+{
+	num_p *npp,np,tp;
+	num_p repl,ttp;
 
 	/*
 	 * For each label find its final destination after crossjumping.
@@ -92,8 +100,9 @@ relabel() {
 		}
 }
 
-symknown() {
-	register sym_p *spp,sp;
+void symknown()
+{
+	sym_p *spp,sp;
 
 	for (spp = symhash; spp < &symhash[NSYMHASH]; spp++)
 		for (sp = *spp; sp != (sym_p) 0; sp = sp->s_next)
@@ -101,8 +110,9 @@ symknown() {
 				sp->s_flags |= SYMKNOWN;
 }
 
-cleanlocals() {
-	register num_p *npp,np,tp;
+void cleanlocals()
+{
+	num_p *npp,np,tp;
 
 	for (npp = curpro.numhash; npp < &curpro.numhash[NNUMHASH]; npp++) {
 		np = *npp;
@@ -115,8 +125,9 @@ cleanlocals() {
 	}
 }
 
-checklocs() {
-	register num_p *npp,np;
+void checklocs()
+{
+	num_p *npp,np;
 
 	for (npp=curpro.numhash; npp < & curpro.numhash[NNUMHASH]; npp++)
 		for (np = *npp; np != (num_p) 0; np=np->n_next)
@@ -125,17 +136,18 @@ checklocs() {
 					(unsigned) np->n_number);
 }
 
-offset align(count,alignment) offset count,alignment; {
-
+offset align(offset count, offset alignment)
+{
 	assert(alignment==1||alignment==2||alignment==4);
 	return((count+alignment-1)&~(alignment-1));
 }
 
-symvalue() {
-	register line_p lp;
-	register sym_p sp;
-	register arg_p ap;
-	register argb_p abp;
+void symvalue()
+{
+	line_p lp;
+	sym_p sp;
+	arg_p ap;
+	argb_p abp;
 	short curfrag = 0;
 	offset count;
 
@@ -189,9 +201,9 @@ symvalue() {
 	}
 }
 
-do_tes()
+void do_tes()
 {
-	register line_p insptr = instrs, oldlin = NULL, oldlin2 = NULL;
+	line_p insptr = instrs, oldlin = NULL, oldlin2 = NULL;
 
 	init_state();
 	tes_pseudos();

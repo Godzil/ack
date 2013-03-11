@@ -23,13 +23,25 @@ static char rcsid[] = "$Id$";
  *
  * Author: Hans van Staveren
  */
+void putargs(arg_p ap);
+void putstr(argb_p abp);
+void outdef(sym_p sp);
+void outocc(sym_p sp);
+void outinst(int m);
+void outoff(offset off);
+void outint(short i);
+void outshort(short i);
+void numlab(num_p np);
+void outnum(num_p np);
+void outsym(sym_p sp);
 
 #define outbyte(b) putc(b,outfile)
 
-putlines(lnp) register line_p lnp; {
-	register arg_p ap;
+void putlines(line_p lnp)
+{
+	arg_p ap;
 	line_p temp;
-	register instr;
+	int instr;
 	short curlin= -2;
 	short thislin;
 
@@ -187,8 +199,8 @@ processoperand:
 	}
 }
 
-putargs(ap) register arg_p ap; {
-
+void putargs(arg_p ap)
+{
 	while (ap != (arg_p) 0) {
 		switch(ap->a_typ) {
 		default:
@@ -228,9 +240,10 @@ putargs(ap) register arg_p ap; {
 	}
 }
 
-putstr(abp) register argb_p abp; {
-	register argb_p tbp;
-	register length;
+void putstr(argb_p abp)
+{
+	argb_p tbp;
+	int length;
 
 	length = 0;
 	tbp = abp;
@@ -246,8 +259,8 @@ putstr(abp) register argb_p abp; {
 	}
 }
 
-outdef(sp) register sym_p sp; {
-
+void outdef(sym_p sp)
+{
 	/*
 	 * The surrounding If statement is removed to be friendly
 	 * to Backend writers having to deal with assemblers
@@ -264,8 +277,8 @@ outdef(sp) register sym_p sp; {
 	 */
 }
 
-outocc(sp) register sym_p sp; {
-
+void outocc(sym_p sp)
+{
 	if ((sp->s_flags&SYMOUT)==0) {
 		sp->s_flags |= SYMOUT;
 		if ((sp->s_flags&SYMGLOBAL)==0) {
@@ -275,7 +288,8 @@ outocc(sp) register sym_p sp; {
 	}
 }
 
-outpro() {
+void outpro()
+{
 
 	outdef(curpro.symbol);
 	outinst(ps_pro);
@@ -283,18 +297,19 @@ outpro() {
 	outoff(curpro.localbytes);
 }
 
-outend() {
-
+void outend()
+{
 	outinst(ps_end);
 	outoff(curpro.localbytes);
 }
 
-outinst(m) {
-
+void outinst(int m)
+{
 	outbyte( (byte) m );
 }
 
-outoff(off) offset off; {
+void outoff(offset off)
+{
 
 #ifdef LONGOFF
 	if ((short) off == off)
@@ -309,8 +324,8 @@ outoff(off) offset off; {
 #endif
 }
 
-outint(i) short i; {
-
+void outint(short i)
+{
 	if (i>= -sp_zcst0 && i< sp_ncst0-sp_zcst0)
 		outbyte( (byte) (i+sp_zcst0+sp_fcst0) );
 	else {
@@ -319,22 +334,22 @@ outint(i) short i; {
 	}
 }
 
-outshort(i) short i; {
-
+void outshort(short i)
+{
 	outbyte( (byte) (i&BMASK) );
 	outbyte( (byte) (i>>8) );
 }
 
-numlab(np) register num_p np; {
-
+void numlab(num_p np)
+{
 	if (np->n_number < sp_nilb0)
 		outbyte( (byte) (np->n_number + sp_filb0) );
 	else
 		outnum(np);
 }
 
-outnum(np) register num_p np; {
-
+void outnum(num_p np)
+{
 	if(np->n_number<256) {
 		outbyte( (byte) sp_ilb1) ;
 		outbyte( (byte) (np->n_number) );
@@ -344,10 +359,11 @@ outnum(np) register num_p np; {
 	}
 }
 
-outsym(sp) register sym_p sp; {
-	register byte *p;
-	register unsigned num;
-
+void outsym(sym_p sp)
+{
+	byte *p;
+	unsigned int num;
+	warning("May do something nasty... (%s)", __func__);
 	if (sp->s_name[0] == '.') {
 		num = atoi(&sp->s_name[1]);
 		if (num < 256) {
@@ -359,7 +375,7 @@ outsym(sp) register sym_p sp; {
 		}
 	} else {
 		p= sp->s_name;
-		while (*p && p < &sp->s_name[IDL])
+		while ( (*p) && p < &sp->s_name[IDL] )
 			p++;
 		num = p - sp->s_name;
 		outbyte( (byte) (sp->s_flags&SYMPRO ? sp_pnam : sp_dnam) );

@@ -7,8 +7,7 @@
 static char rcsid2[]= "$Id$";
 #endif
 
-char *mystrcpy();
-int   myatoi();
+#include "extern.h"
 
 int lineno=1;
 extern char *filename;
@@ -21,10 +20,10 @@ extern char *filename;
                           do {
                                 while (c!='*') {
                                         c = input();
-					if (c=='\n') lineno++;
-				}
+                                        if (c=='\n') lineno++;
+                                }
                                 c = input();
-				if (c=='\n') lineno++;
+                                if (c=='\n') lineno++;
                           } while (c!='/');
                         }
 ^\#(line)?[ \t]*[0-9]+[ \t]+\".*\".*$	{
@@ -87,8 +86,8 @@ extern char *filename;
 %%
 int skipping=0;
 
-yywrap() {
-
+int yywrap()
+{
 	if (skipping)
 		fatal("EOF reached during error recovery");
 	return(1);
@@ -99,8 +98,9 @@ yywrap() {
  
 #define yytext_ptr yytext
 
-skipupto(tok,str) char *str; {
-	register i; 
+void skipupto(int tok, char *str)
+{
+	int i; 
 
 	skipping=1; 
 	while (yylex()!=tok)

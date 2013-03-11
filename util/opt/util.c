@@ -22,8 +22,8 @@ static char rcsid[] = "$Id$";
 
 
 /* VARARGS1 */
-error(s,a) char *s,*a; {
-
+void error(char *s, char *a)
+{
 	fprintf(stderr,"%s: error on line %u",progname,linecount);
 	if (prodepth != 0)
 		fprintf(stderr,"(%.*s)",IDL,curpro.symbol->s_name);
@@ -37,16 +37,16 @@ error(s,a) char *s,*a; {
 }
 
 #ifndef NDEBUG
-badassertion(file,line) char *file; unsigned line; {
-
+void badassertion(char *file, unsigned int line)
+{
 	fprintf(stderr,"assertion failed file %s, line %u\n",file,line);
-	error("assertion");
+	error("assertion", NULL);
 }
 #endif
 
 #ifdef DIAGOPT
-optim(n) {
-
+void optim(int n)
+{
 	fprintf(stderr,"Made optimization %d",n);
 	if (prodepth)
 		fprintf(stderr," (%.*s)",IDL,curpro.symbol->s_name);

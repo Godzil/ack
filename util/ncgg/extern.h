@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef UTIL_NCGG_EXTERN_H
+#define UTIL_NCGG_EXTERN_H
 
 extern int wordsize;
 extern int pointersize;
@@ -38,5 +40,7 @@ extern int maxtokensize;
 extern int nprocargs, maxprocargs;
 extern int use_tes;
 
-extern char *mystrcpy();
-extern char *myalloc();
+char *myalloc(int n);
+char *mystrcpy(char *s);
+
+#endif /* UTIL_NCGG_EXTERN_H */

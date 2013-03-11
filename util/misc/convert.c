@@ -6,6 +6,10 @@
 static char rcsid[] = "$Id$";
 #endif
 
+#if __STDC__
+#include	<stdarg.h>
+#endif
+
 /*	This program converts either human-readable or compact EM
 	assembly code to calls of the procedure-interface.
 	It must be linked with two libraries:
@@ -16,6 +20,7 @@ static char rcsid[] = "$Id$";
 	linked.
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "system.h"
 #include "em_pseu.h"
@@ -26,15 +31,22 @@ static char rcsid[] = "$Id$";
 #include "em.h"
 #include "em_comp.h"
 
+#if __STDC__
+void error(char *fmt, ...);
+void fatal(char *fmt, ...);
+#else
+void error();
+void fatal();
+#endif
+
 char *filename;			/* Name of input file */
 int errors;			/* Number of errors */
 extern char *C_error;
 
-main(argc,argv)
-	char **argv;
+int main(int argc, char *argv[])
 {
 	struct e_instr buf;
-	register struct e_instr *p = &buf;
+	struct e_instr *p = &buf;
 
 	if (argc >= 2) {
 		filename = argv[1];
@@ -67,7 +79,44 @@ main(argc,argv)
 	C_close();
 	EM_close();
 	exit(errors);
+	return errors;
 }
+
+
+#if __STDC__
+void error(char *fmt, ...)
+{
+	va_list ap;
+	fprint(stderr,
+		"%s, line %d: ",
+		filename ? filename : "standard input",
+		EM_lineno);
+
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	va_end(ap);
+}
+
+void fatal(char *fmt, ...)
+{
+	va_list ap;
+
+	if (C_busy()) C_close();
+
+	fprint(stderr,
+		"%s, line %d: ",
+		filename ? filename : "standard input",
+		EM_lineno);
+
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	va_end(ap);
+
+	exit(1);
+}
+#else /* __STDC__ */
 
 /* VARARGS */
 error(s,a1,a2,a3,a4)
@@ -90,3 +139,4 @@ fatal(s,a1,a2,a3,a4)
 	error(s,a1,a2,a3,a4);
 	exit(1);
 }
+#endif /* __STDC__ */

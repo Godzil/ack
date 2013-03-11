@@ -11,6 +11,8 @@ static char rcsid[]= "$Id$";
 #include "set.h"
 #include <stdio.h>
 
+void unite(short *sp, short *into);
+
 /*
  * This file implements the marriage thesis from Hall.
  * The thesis says that given a number, say N, of subsets from
@@ -31,9 +33,10 @@ short hallsets[MAXHALL][SETSIZE];
 int nhallsets= -1;
 int hallfreq[MAXHALL][2];
 
-hallverbose() {
-	register i;
-	register max;
+void hallverbose()
+{
+	int i;
+	int max;
 	
 	fprintf(stderr,"Table of hall frequencies\n   #   pre   post\n");
 	for (max=MAXHALL-1;hallfreq[max][0]==0 && hallfreq[max][1]==0;max--)
@@ -42,24 +45,26 @@ hallverbose() {
 		fprintf(stderr,"%3d%6d%6d\n",i,hallfreq[i][0],hallfreq[i][1]);
 }
 
-inithall() {
-
+void inithall()
+{
 	assert(nhallsets == -1);
 	nhallsets=0;
 }
 
-nexthall(sp) register short *sp; {
-	register i;
-	
+void nexthall(short *sp)
+{
+	int i;
+
 	assert(nhallsets>=0);
 	for(i=0;i<SETSIZE;i++)
 		hallsets[nhallsets][i] = sp[i];
 	nhallsets++;
 }
 
-card(sp) register short *sp; {
-	register sum,i;
-	
+int card(short *sp)
+{
+	int sum,i;
+
 	sum=0;
 	for(i=0;i<8*sizeof(short)*SETSIZE;i++)
 		if (BIT(sp,i))
@@ -67,15 +72,16 @@ card(sp) register short *sp; {
 	return(sum);
 }
 
-checkhall() {
-
+void checkhall()
+{
 	assert(nhallsets>=0);
 	if (!hall())
 		error("Hall says: \"You can't have those registers\"");
 }
 
-hall() {
-	register i,j,k;
+int hall()
+{
+	int i,j,k;
 	int ok;
 	
 	hallfreq[nhallsets][0]++;
@@ -109,11 +115,12 @@ hall() {
 	return(ok);
 }
 
-recurhall(nhallsets,hallsets) short hallsets[][SETSIZE]; {
+int recurhall(int nhallsets, short hallsets[][SETSIZE])
+{
 	short copysets[MAXHALL][SETSIZE];
 	short setsum[SETSIZE];
-	register i,j,k,ncopys;
-	
+	int i,j,k,ncopys;
+
 	/*
 	 * First check cardinality of union of all
 	 */
@@ -141,9 +148,10 @@ recurhall(nhallsets,hallsets) short hallsets[][SETSIZE]; {
 	return(1);
 }
 
-unite(sp,into) register short *sp,*into; {
-	register i;
-	
+void unite(short *sp, short *into)
+{
+	int i;
+
 	for(i=0;i<SETSIZE;i++)
 		into[i] |= sp[i];
 }

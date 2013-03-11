@@ -21,17 +21,20 @@ static char rcsid[]= "$Id$";
 #include <cgg_cg.h>
 #include "extern.h"
 
-n_proc(name) char *name; {
-	register symbol *sy_p;
+expr_t ident_expr(char *name);
+
+void n_proc(char *name)
+{
+	symbol *sy_p;
 	extern int npatbytes;
 
 	sy_p = lookup(name,symproc,newsymbol);
 	sy_p->sy_value.syv_procoff = npatbytes + 1;
 }
 
-struct varinfo *
-make_erase(name) char *name; {
-	expr_t e,ident_expr();
+struct varinfo *make_erase(char *name)
+{
+	expr_t e;
 	struct varinfo *result;
 
 	e = ident_expr(name);
@@ -43,14 +46,11 @@ make_erase(name) char *name; {
 	return(result);
 }
 
-n_instr(name,asname,oplist,eraselist,cost)
-char *name,*asname;
-operand *oplist;
-struct varinfo *eraselist,*cost;
+void n_instr(char *name, char *asname, operand *oplist, struct varinfo *eraselist, struct varinfo *cost)
 {
-	register instrno;
-	register cc_count;
-	register instr_p ip;
+	int instrno;
+	int cc_count;
+	instr_p ip;
 
 	instrno = NEXT(ninstr,MAXINSTR,"Instructions");
 	ip = &l_instr[instrno];
@@ -80,20 +80,19 @@ struct varinfo *eraselist,*cost;
 		error("No instruction can set condition codes more than once");
 }
 
-n_set(name,number) char *name; {
-	register symbol *sy_p;
+void n_set(char *name, int number)
+{
+	symbol *sy_p;
 
 	sy_p = lookup(name,symset,newsymbol);
 	sy_p->sy_value.syv_setno = number;
 }
 
-n_tok(name,atts,size,cost,format)
-char *name;
-struct varinfo *atts,*cost,*format;
+void n_tok(char *name,struct varinfo *atts, int size, struct varinfo *cost, struct varinfo *format)
 {
-	register symbol *sy_p;
-	register token_p tp;
-	register struct varinfo *vip;
+	symbol *sy_p;
+	token_p tp;
+	struct varinfo *vip;
 	int i;
 	int tokno;
 	int thistokensize;
@@ -149,9 +148,10 @@ struct varinfo *atts,*cost,*format;
 		tp->tk_format = -1;
 }
 
-checkprintformat(n) {
-	register short *s;
-	register i;
+void checkprintformat(int n)
+{
+	short *s;
+	int i;
 	extern set_t l_sets[];
 	
 	s= l_sets[n].set_val;
@@ -161,9 +161,10 @@ checkprintformat(n) {
 				l_tokens[i-nregs]->tk_name);
 }
 
-n_prop(name,size) char *name; int size; {
+void n_prop(char *name, int size)
+{
 	int propno;
-	register symbol *sp;
+	symbol *sp;
 
 	propno = NEXT(nprops,MAXPROPS,"Properties");
 	sp = lookup(name,symprop,newsymbol);
@@ -175,8 +176,8 @@ n_prop(name,size) char *name; int size; {
 	l_props[propno].pr_size = size;
 }
 
-prophall(n) {
-	register i;
+void prophall(int n) {
+	int i;
 	short hallset[SETSIZE];
 	
 	if (n < 0) return;
@@ -185,9 +186,10 @@ prophall(n) {
 	nexthall(hallset);
 }
 
-n_reg(name,printstring,nmemb,member1,member2) char *name,*printstring; {
-	register symbol *sy_p;
-	register reginfo *ri_p;
+int n_reg(char *name, char *printstring, int nmemb, int member1, int member2)
+{
+	symbol *sy_p;
+	reginfo *ri_p;
 	int regno;
 
 	sy_p = lookup(name,symreg,newsymbol);
@@ -202,35 +204,38 @@ n_reg(name,printstring,nmemb,member1,member2) char *name,*printstring; {
 	return(regno);
 }
 
-make_const() {
-
+void make_const()
+{
 	wordsize = cmustbeset("EM_WSIZE");
 	pointersize = cmustbeset("EM_PSIZE");
 }
 
-cmustbeset(ident) char *ident; {
-
+int cmustbeset(char *ident)
+{
 	return(lookup(ident,symconst,mustexist)->sy_value.syv_cstval);
 }
 
-n_const(ident,val) char *ident; {
-	register symbol *sy_p;
+void n_const(char *ident, int val)
+{
+	symbol *sy_p;
 
 	sy_p = lookup(ident,symconst,newsymbol);
 	sy_p->sy_value.syv_cstval = val;
 }
 
-n_sconst(ident,val) char *ident,*val; {
-	register symbol *sy_p;
+void n_sconst(char *ident, char *val)
+{
+	symbol *sy_p;
 
 	sy_p = lookup(ident,symsconst,newsymbol);
 	sy_p->sy_value.syv_stringno = strlookup(val);
 }
 
-regline(rl,pl,rv) varinfo *rl,*pl; {
-	register varinfo *rrl,*rpl;
-	register short *sp;
-	register reginfo *regp;
+void regline(varinfo *rl, varinfo *pl, int rv)
+{
+	varinfo *rrl,*rpl;
+	short *sp;
+	reginfo *regp;
 	int thissize;
 	int propno;
 
@@ -261,7 +266,7 @@ regline(rl,pl,rv) varinfo *rl,*pl; {
 			if (nregvar[rv]==0)
 				rvsize[rv] = regp->ri_size;
 			else if (rvsize[rv]!=regp->ri_size)
-				error("All register variables of one type must have the same size");
+				error("All variables of one type must have the same size");
 			NEXT(nregvar[rv],MAXREGVAR,"Register variable");
 			rvnumbers[rv][nregvar[rv]-1] = rrl->vi_int[0];
 		}
@@ -269,8 +274,8 @@ regline(rl,pl,rv) varinfo *rl,*pl; {
 	regclass++;
 }
 
-setallreg(vi) struct varinfo *vi; {
-
+void setallreg(struct varinfo *vi)
+{
 	nallreg=0;
 	for(;vi!=0;vi=vi->vi_next) {
 		if (vi->vi_int[0]<0)
@@ -279,8 +284,9 @@ setallreg(vi) struct varinfo *vi; {
 	}
 }
 
-freevi(vip) register struct varinfo *vip; {
-	register i;
+void freevi(struct varinfo *vip)
+{
+	int i;
 
 	if (vip==0)
 		return;
@@ -291,9 +297,10 @@ freevi(vip) register struct varinfo *vip; {
 	free(vip);
 }
 
-int myatoi(s) register char *s; {
-	register int base=10;
-	register sum=0;
+int myatoi(char *s)
+{
+	int base=10;
+	int sum=0;
 
 	if (*s=='0') {
 		base = 8;
@@ -341,17 +348,18 @@ int myatoi(s) register char *s; {
 	}
 }
 
-char *mystrcpy(s) char *s; {
-	register char *p;
-	char *myalloc();
+char *mystrcpy(char *s)
+{
+	char *p;
 
 	p=myalloc(strlen(s)+1);
 	strcpy(p,s);
 	return(p);
 }
 
-char *myalloc(n) register n; {
-	register char *p,*result;
+char *myalloc(int n)
+{
+	char *p,*result;
 
 	result=p=malloc(n);
 	if (p== (char *) 0)
@@ -360,16 +368,17 @@ char *myalloc(n) register n; {
 	return(result);
 }
 
-chkincl(value,lwb,upb) {
-
+int chkincl(int value, int lwb, int upb)
+{
 	if (value<lwb || value>upb)
 		error("Number %d should have been between %d and %d",
 			value,lwb,upb);
 	return(value);
 }
 
-subset(sp1,sp2,setsize) short *sp1,*sp2; {
-	register i;
+int subset(short *sp1, short *sp2, int setsize)
+{
+	int i;
 
 	for(i=0;i<setsize;i++)
 		if ( (sp1[i] | sp2[i]) != sp2[i])
@@ -377,8 +386,9 @@ subset(sp1,sp2,setsize) short *sp1,*sp2; {
 	return(1);
 }
 
-vilength(vip) register struct varinfo *vip; {
-	register l=0;
+int vilength(struct varinfo *vip)
+{
+	int l=0;
 
 	while(vip!=0) {
 		vip=vip->vi_next;

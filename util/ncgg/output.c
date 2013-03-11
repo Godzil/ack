@@ -2,7 +2,7 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-/* #define CODEDEBUG 	/* print readable code */
+/* #define CODEDEBUG */	/* print readable code */
 #ifdef CODEDEBUG
 int	code_in_c=0;	/* put readable code in "code" */
 int	tabledebug=1;	/* generate code for table debugging */
@@ -66,22 +66,25 @@ int maxallreg=0;
 int maxregvars=0;
 int setsize;
 
-opnfile(f,s) FILE **f; char *s; {
+void pat(int n);
+void patbyte(int n);
+void patshort(int n);
 
+void opnfile(FILE **f, char *s)
+{
 	if ((*f=fopen(s,"w"))==NULL)
 		fatal("Can't create %s",s);
 }
 
-unlfile(f,s) FILE *f; char *s; {
-
+void unlfile(FILE *f, char *s)
+{
 	if (f) fclose(f);
 	if (unlink(s)<0)
 		error("%s incorrect, must be removed!!",s);
 }
 
-initio() {
-	extern char *myalloc();
-
+void initio()
+{
 	opnfile(&ctable,c_file);
 	opnfile(&htable,h_file);
 	if (code_in_c)
@@ -93,8 +96,8 @@ initio() {
 		lineset = (short *) myalloc(SZOFSET(MAXSOURCELINES)*sizeof(short));
 }
 
-finishcode() {
-
+void finishcode()
+{
 	if (code_in_c)
 		fprintf(ctable,"\n};\n\n");
 	fprintf(ctable, "int allsetno = %d;\n", allsetno);
@@ -112,8 +115,8 @@ finishcode() {
 	}
 }
 
-errorexit() {
-
+void errorexit()
+{
 	unlfile(ctable,c_file);
 	unlfile(htable,h_file);
 	if (!code_in_c)
@@ -126,12 +129,12 @@ errorexit() {
 #define code53(x,y) fprintf(code,"%s-%d","x",y)
 #define codeint(x) fprintf(code," %d",x)
 #define codenl() fprintf(code,"\n")
-#else
+#else /* CODEDEBUG */
 #define codenl()
 #define code8nl(x) code8(x)
 
-code8(x) {
-
+void code8(int x)
+{
 	codeindex++;
 	if (code_in_c)
 		fprintf(ctable,"%d,",x&0377);
@@ -139,13 +142,13 @@ code8(x) {
 		putc(x,code);
 }
 
-code53(x,y) {
-
+void code53(int x, int y)
+{
 	code8(x+(y<<5));
 }
 
-codeint(x) {
-
+void codeint(int x)
+{
 	assert(x>=0 && x<=32767);
 	if (x<128) {
 		code8(x);
@@ -155,19 +158,21 @@ codeint(x) {
 	}
 }
 
-#endif
+#endif /* CODEDEBUG */
+
 int prevind=0;
 int npatbytes= -1;
 char pattern[MAXPATBYTES];
 int pathash[256];
 
-outpatterns() {
+void outpatterns()
+{
 	extern int npatterns;
 	extern int patindex[];
 	extern int empatlen;
 	extern int emmnem[];
 	extern int empatexpr;
-	register i;
+	int i;
 
 	if (!inproc) {
 		patbyte(0);
@@ -190,8 +195,8 @@ outpatterns() {
 	}
 }
 
-pat(n) {
-
+void pat(int n)
+{
 	assert(n>=0);
 	if (n<128)
 		patbyte(n);
@@ -201,23 +206,24 @@ pat(n) {
 	}
 }
 
-patshort(n) {
-
+void patshort(int n)
+{
 	patbyte(n%256);
 	patbyte(n/256);
 }
 
-patbyte(n) {
-
+void patbyte(int n)
+{
 	NEXT(npatbytes, MAXPATBYTES, "Pattern bytes");
 	pattern[npatbytes]=n;
 }
 
-hashpatterns() {
+void hashpatterns()
+{
 	short index;
-	register char *bp,*tp;
-	register short i;
-	unsigned short hashvalue;
+	char *bp,*tp;
+	short i;
+	short hashvalue;
 	int patlen;
 
 	index = prevind;
@@ -250,8 +256,8 @@ hashpatterns() {
 	}
 }
 
-outincludes() {
-
+void outincludes()
+{
 	fprintf(ctable,"#include \"param.h\"\n");
 	fprintf(ctable,"#include \"tables.h\"\n");
 	fprintf(ctable,"#include \"types.h\"\n");
@@ -259,8 +265,9 @@ outincludes() {
 	fprintf(ctable,"#include \"data.h\"\n");
 }
 
-outregs() {
-	register i,j,k;
+void outregs()
+{
+	int i,j,k;
 	short rset[SZOFSET(MAXREGS)];
 	short clashlist[MAXREGS*MAXREGS];
 	int iclashlist = 0;
@@ -328,8 +335,9 @@ outregs() {
 	fprintf(ctable, "0};\n\n");
 }
 
-outregvars() {
-	register i,j;
+void outregvars()
+{
+	int i,j;
 
 	fprintf(htable,"#define REGVARS\n");
 	fprintf(ctable,"#include \"regvar.h\"\n");
@@ -365,8 +373,8 @@ outregvars() {
 	fprintf(ctable,"};\n");
 }
 
-typeconv(n) {
-
+int typeconv(int n)
+{
 	if (n>=0) return(2);
 	if (n== -1) return(1);
 	if (n== -2) return(3);
@@ -374,8 +382,7 @@ typeconv(n) {
 	return(0);
 }
 
-outfmt(p)
-register char *p;
+void outfmt(char *p)
 {
 	register int c;
 	fprintf(ctable,"\"");
@@ -390,9 +397,10 @@ register char *p;
 	fprintf(ctable,"\"");
 }
 
-outtokens() {
-	register tokno,i;
-	register token_p tp;
+void outtokens()
+{
+	int tokno,i;
+	token_p tp;
 
 	fprintf(ctable,"tkdef_t tokens[] = {{0},\n");
 	for (tokno=1;tokno<ntokens;tokno++) {
@@ -409,8 +417,9 @@ outtokens() {
 	fprintf(ctable,"{0}};\n\n");
 }
 
-outenodes() {
-	register node_p np;
+void outenodes()
+{
+	node_p np;
 	extern node_t nodes[];
 	extern int nnodes;
 
@@ -421,10 +430,11 @@ outenodes() {
 	fprintf(ctable,"};\n\n");
 }
 
-outstrings() {
-	register i;
-	register char *p;
-	register int c;
+void outstrings()
+{
+	int i;
+	char *p;
+	int c;
 	extern char * filename;
 
 	if (tabledebug)
@@ -451,9 +461,10 @@ outstrings() {
 
 extern set_t unstackset;
 
-outsets() {
-	register i;
-	register set_p sp;
+void outsets()
+{
+	int i;
+	set_p sp;
 
 	fprintf(ctable,"set_t machsets[] = {\n");
 	for (sp=l_sets;sp< &l_sets[nsets]; sp++) {
@@ -470,9 +481,10 @@ outsets() {
 	fprintf(ctable,"}};\n\n");
 }
 
-outinstances() {
-	register inst_p ip;
-	register i;
+void outinstances()
+{
+	inst_p ip;
+	int i;
 
 	fprintf(ctable,"inst_t tokeninstances[] = {\n");
 	for (ip=l_instances;ip< &l_instances[ninstances]; ip++) {
@@ -484,8 +496,9 @@ outinstances() {
 	fprintf(ctable,"};\n\n");
 }
 
-outmoves() {
-	register move_p mp;
+void outmoves()
+{
+	move_p mp;
 
 	fprintf(ctable,"move_t moves[] = {\n");
 	for (mp=l_moves; mp< &l_moves[nmoves]; mp++)
@@ -496,8 +509,9 @@ outmoves() {
 	fprintf(ctable,"{-1}\n};\n\n");
 }
 
-outtests() {
-	register test_p tp;
+void outtests()
+{
+	test_p tp;
 
 	fprintf(ctable,"test_t tests[] = {\n");
 	for (tp=l_tests; tp< &l_tests[ntests]; tp++)
@@ -507,8 +521,9 @@ outtests() {
 	fprintf(ctable,"{-1}\n};\n\n");
 }
 
-outstacks() {
-	register c1_p cp;
+void outstacks()
+{
+	c1_p cp;
 
 	fprintf(ctable,"c1_t c1coercs[] = {\n");
 	for (cp=l_stacks; cp< &l_stacks[nstacks]; cp++)
@@ -518,9 +533,10 @@ outstacks() {
 	fprintf(ctable,"{-1}\n};\n\n");
 }
 
-outsplits() {
-	register c2_p cp;
-	register i;
+void outsplits()
+{
+	c2_p cp;
+	int i;
 
 	fprintf(ctable,"c2_t c2coercs[] = {\n");
 	for (cp=l_split; cp< &l_split[nsplit]; cp++) {
@@ -533,8 +549,9 @@ outsplits() {
 	fprintf(ctable,"{-1}\n};\n\n");
 }
 
-outcoercs() {
-	register c3_p cp;
+void outcoercs()
+{
+	c3_p cp;
 
 	fprintf(ctable,"c3_t c3coercs[] = {\n");
 	for (cp=l_coercs; cp< &l_coercs[ncoercs]; cp++)
@@ -544,9 +561,10 @@ outcoercs() {
 	fprintf(ctable,"{-1}\n};\n\n");
 }
 
-outproplists() {
-	register propno;
-	register regno;
+void outproplists()
+{
+	int propno;
+	int regno;
 
 	for(propno=0;propno<nprops;propno++) {
 		fprintf(ctable,"struct reginfo *rlist%d[] = {\n",propno);
@@ -561,28 +579,30 @@ outproplists() {
 	fprintf(ctable,"};\n\n");
 }
 
-outconsts() {
-
+void outconsts()
+{
 	fprintf(ctable,"unsigned cc1 = %u;\n",fc1);
 	fprintf(ctable,"unsigned cc2 = %u;\n",fc2);
 	fprintf(ctable,"unsigned cc3 = %u;\n",fc3);
 	fprintf(ctable,"unsigned cc4 = %u;\n",fc4);
 }
 
-cdef(s,n) char *s; {
-
+void cdef(char *s, int n)
+{
 	fprintf(htable,"#define %s %d\n",s,n);
 }
 
-passon(s) char *s; {
+void passon(char *s)
+{
 	char buf[32];
 
 	sprintf(buf,"T%s",s);
 	cdef(buf,cmustbeset(s));
 }
 
-outdefs() {
-	register symbol *sy_p;
+void outdefs()
+{
+	symbol *sy_p;
 	extern int maxempatlen,maxrule;
 	char *wrdfmt;
 
@@ -614,8 +634,9 @@ outdefs() {
 		cdef("USE_TES",1);
 }
 
-outars() {
-	register i;
+void outars()
+{
+	int i;
 	
 	if (code_in_c)
 		fprintf(htable,"#define CODEINC 1\n");
@@ -635,8 +656,9 @@ outars() {
 	fprintf(ctable,"};\n");
 }
 
-finishio() {
-	extern int nregs;
+void finishio() 
+{
+	int nregs;
 
 	finishcode();
 	hashpatterns();
@@ -662,8 +684,8 @@ finishio() {
 	outars();
 }
 
-codecoco(cocono) {
-
+void codecoco(cocono)
+{
 	if (cocono== -1)
 		return;
 	code8(DO_SETCC);
@@ -671,13 +693,12 @@ codecoco(cocono) {
 	codenl();
 }
 
-dopattern(stackcoerc,kills,allocates,generates,yields,leaving)
-varinfo *kills,*allocates,*generates,*yields,*leaving;
+void dopattern(int stackcoerc, varinfo *kills, varinfo *allocates, varinfo *generates, varinfo *yields, varinfo *leaving)
 {
-	register i;
+	int i;
 	int n,nops;
-	register struct varinfo *vp,*vivp;
-	register instr_p instp;
+	struct varinfo *vp,*vivp;
+	instr_p instp;
 	int al,deal;
 	int vil;
 	int cocono= -1;
@@ -884,13 +905,14 @@ varinfo *kills,*allocates,*generates,*yields,*leaving;
 		code8nl(DO_NEXTEM);
 }
 
-used(resource,use,max) char *resource; {
-
+void used(char *resource, int use, int max)
+{
 	if (verbose || 4*use > 3*max)
 		fprintf(stderr,"%s %d(%d)\n",resource,use,max);
 }
 
-statistics() {
+void statistics()
+{
 	extern char *beg_sbrk,*sbrk();
 	extern int nnodes, maxempatlen,maxrule;
 

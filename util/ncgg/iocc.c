@@ -6,6 +6,7 @@
 static char rcsid[]= "$Id$";
 #endif
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "assert.h"
@@ -25,12 +26,14 @@ extern set_t l_sets[];
 int narexpr;
 expr_t arexp[MAXATT];
 
-expr_t iextoaddr();
+expr_t iextoaddr(expr_t e);
 
-iocc_t subr_iocc(tokarg,subreg) {
+
+iocc_t subr_iocc(int tokarg, int subreg)
+{
 	inst_t insta;
 	iocc_t  result;
-	register i;
+	int i;
 
 	insta.in_which = IN_COPY;
 	insta.in_info[0] = tokarg;
@@ -48,10 +51,11 @@ iocc_t subr_iocc(tokarg,subreg) {
 	return(result);
 }
 
-iocc_t tokm_iocc(tokarg,ident) char *ident; {
+iocc_t tokm_iocc(int tokarg, char *ident)
+{
 	iocc_t result;
 	inst_t insta;
-	register i;
+	int i;
 	char app[100];
 	int dummy;
 	
@@ -67,10 +71,11 @@ iocc_t tokm_iocc(tokarg,ident) char *ident; {
 	return(result);
 }
 
-iocc_t percident_iocc(ident) char *ident; {
+iocc_t percident_iocc(char *ident)
+{
 	iocc_t result;
 	inst_t insta;
-	register i;
+	int i;
 	char app[100];
 	int dummy;
 	
@@ -85,11 +90,12 @@ iocc_t percident_iocc(ident) char *ident; {
 	return(result);
 }
 
-iocc_t ident_iocc(ident) char *ident; {
+iocc_t ident_iocc(char *ident)
+{
 	iocc_t result;
 	inst_t insta;
-	register i;
-	register symbol *sy_p;
+	int i;
+	symbol *sy_p;
 
 	for(i=0;i<SETSIZE;i++)
 		result.in_set[i] = 0;
@@ -101,12 +107,13 @@ iocc_t ident_iocc(ident) char *ident; {
 	return(result);
 }
 
-iocc_t all_iocc(all_no,subreg) {
+iocc_t all_iocc(int all_no, int subreg)
+{
 	iocc_t result;
 	inst_t insta;
-	register i;
+	int i;
 	set_t localset;
-	register short *sp;
+	short *sp;
 
 	sp = l_props[allreg[all_no]].pr_regset;
 	for (i=0;i<SETSIZE;i++)
@@ -121,12 +128,13 @@ iocc_t all_iocc(all_no,subreg) {
 	return(result);
 }
 
-iocc_t descr_iocc(ident) char *ident; {
+iocc_t descr_iocc(char *ident)
+{
 	iocc_t result;
 	inst_t insta;
-	register symbol *sy_p;
-	register token_p tp;
-	register i;
+	symbol *sy_p;
+	token_p tp;
+	int i;
 	int typerr;
 
 	for(i=0;i<SETSIZE;i++)
@@ -156,10 +164,16 @@ iocc_t descr_iocc(ident) char *ident; {
 		default: assert(0);
 		case TYPINT:
 			if (tp->tk_att[i].ta_type != -1)
+			{
 				if (tp->tk_att[i].ta_type == -2)
+				{
 					arexp[i] = iextoaddr(arexp[i]);
+				}
 				else
+				{
 					typerr++;
+				}
+			}
 			break;
 		case TYPBOOL:
 			typerr++; break;
@@ -190,8 +204,9 @@ iocc_t descr_iocc(ident) char *ident; {
 int ninstances=1;
 inst_t l_instances[MAXINSTANCES];
 
-instalookup(insta,filled) inst_t insta; {
-	register i,j;
+int instalookup(inst_t insta, int filled)
+{
+	int i,j;
 
 	for (j=filled;j<=MAXATT;j++)
 		insta.in_info[j] = 0;

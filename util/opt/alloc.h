@@ -12,9 +12,11 @@ extern arg_p	newarg();
 extern argb_p	newargb();
 extern reg_p	newreg();
 
-extern		oldline();
-extern		oldloc();
-extern		oldreg();
+
+
+void oldline(line_p lnp);
+void oldargb(argb_p abp);
+void oldreg(reg_p rp);
 
 #define USEMALLOC	/* if defined malloc() and free() are used */
 

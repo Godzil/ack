@@ -6,6 +6,8 @@
 static char rcsid[]= "$Id$";
 #endif
 
+#include <string.h>
+
 #include "param.h"
 #include "instruct.h"
 #include "pseudo.h"
@@ -25,7 +27,8 @@ extern inst_t l_instances[];
 
 extern expr_t subreg_expr(),regno_expr();
 
-struct varinfo * setcoco(n) {
+struct varinfo *setcoco(int n)
+{
 	struct varinfo *vi;
 	
 	NEW(vi,struct varinfo);
@@ -35,7 +38,8 @@ struct varinfo * setcoco(n) {
 	return(vi);
 }
 
-struct varinfo * generase(n) {
+struct varinfo *generase(int n)
+{
 	struct varinfo *vi;
 
 	NEW(vi,struct varinfo);
@@ -45,7 +49,8 @@ struct varinfo * generase(n) {
 	return(vi);
 }
 
-struct varinfo * genremove(n) {
+struct varinfo *genremove(int n)
+{
 	struct varinfo *vi;
 
 	NEW(vi,struct varinfo);
@@ -55,10 +60,11 @@ struct varinfo * genremove(n) {
 	return(vi);
 }
 
-onlyreg(argno) {
-	register bitno;
-	register short *sp;
-	
+int onlyreg(int argno)
+{
+	int bitno;
+	short *sp;
+
 	if (! argno) argno++;
 	sp = l_sets[tokpatset[argno-1]].set_val;
 	for(bitno=nregs;bitno<nregs+ntokens;bitno++)
@@ -67,7 +73,8 @@ onlyreg(argno) {
 	return(1);
 }
 
-makescratch(argno) {
+void makescratch(int argno)
+{
 	set_t s;
 
 	if (! argno) argno++;
@@ -78,12 +85,13 @@ makescratch(argno) {
 	tokpatset[argno-1] = setlookup(s);
 }
 
-struct varinfo *gen_inst(ident,star) char *ident; {
-	register struct varinfo *vi,*retval,*eravi;
-	register instr_p ip;
-	register struct operand *op;
-	register i;
-	register inst_p insta;
+struct varinfo *gen_inst(char *ident, int star)
+{
+	struct varinfo *vi,*retval,*eravi;
+	instr_p ip;
+	struct operand *op;
+	int i;
+	inst_p insta;
 	
 	if (star && !inproc)
 		error("Variable instruction only allowed inside proc");

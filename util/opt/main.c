@@ -21,8 +21,11 @@ static char rcsid[] = "$Id$";
 /*
  * Main program for EM optimizer
  */
+void fileinit();
+void flags(char *s);
 
-main(argc,argv) int argc; char *argv[]; {
+int main(int argc, char *argv[])
+{
 	int somespace[STACKROOM];
 
 	progname = argv[0];
@@ -42,8 +45,8 @@ main(argc,argv) int argc; char *argv[]; {
 	return(0);
 }
 
-flags(s) register char *s; {
-
+void flags(char *s)
+{
 	for (s++;*s;s++)
 		switch(*s) {
 		case 'L':	Lflag = TRUE; break;
@@ -56,14 +59,13 @@ flags(s) register char *s; {
 		}
 }
 
-fileinit() {
-	char *mktemp();
-	short readshort();
-
+void fileinit()
+{
 	if (readshort() != (short) sp_magic)
 		error("wrong input file");
 	if (Lflag) {
-		outfile = fopen(mktemp(template),"w");
+		mktemp(template);
+		outfile = fopen(template, "w");
 		if (outfile == NULL)
 			error("can't create %s",template);
 	} else {

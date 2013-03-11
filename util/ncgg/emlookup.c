@@ -17,30 +17,35 @@ extern char em_mnem[][4];
 
 #define HASHSIZE        (2*(sp_lmnem-sp_fmnem))
 
+void enter(char *name, int value);
+
 struct emhashmnem {
 	char h_name[3];
 	char h_value;
 } emhashmnem[HASHSIZE];
 
-initemhash() {
-	register i;
+void initemhash()
+{
+	int i;
 
 	for(i=0;i<=sp_lmnem-sp_fmnem;i++)
 		enter(em_mnem[i],i+sp_fmnem);
 	enter("lab", op_lab);
 }
 
-unsigned emhash(name) register char *name; {
-	register unsigned sum;
-	register i;
+unsigned int emhash(char *name)
+{
+	unsigned int sum;
+	int i;
 
 	for (sum=i=0;*name;i+=3)
 		sum ^= (*name++)<<(i&07);
 	return(sum);
 }
 
-enter(name,value) char *name; {
-	register unsigned h;
+void enter(char *name, int value)
+{
+	unsigned int h;
 
 	h=emhash(name)%HASHSIZE;
 	while (emhashmnem[h].h_name[0] != 0)
@@ -49,8 +54,9 @@ enter(name,value) char *name; {
 	emhashmnem[h].h_value = value;
 }
 
-int mlookup(name) char *name; {
-	register unsigned h;
+int mlookup(char *name)
+{
+	unsigned int h;
 
 	h = emhash(name)%HASHSIZE;
 	while (strncmp(emhashmnem[h].h_name,name,3) != 0 &&
@@ -61,8 +67,8 @@ int mlookup(name) char *name; {
 
 extern char em_flag[];
 
-argtyp(mn) {
-
+int argtyp(int mn)
+{
 	switch(em_flag[mn-sp_fmnem]&EM_PAR) {
 	case PAR_W:
 	case PAR_S:

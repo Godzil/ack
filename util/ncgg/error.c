@@ -6,17 +6,28 @@
 static char rcsid[]= "$Id$";
 #endif
 
+#if __STDC__
+#include	<stdarg.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 
+#if __STDC__
+void error(char *fmt, ...);
+#else
+void error();
+#endif
+
 int nerrors=0;
 
-yyerror(s) char *s; {
-
+void yyerror(char *s)
+{
 	error("Parser gives %s",s);
 }
 
-goodbye() {
+void goodbye()
+{
 
 	error("This was fatal, goodbye!");
 #ifndef NDEBUG
@@ -24,6 +35,39 @@ goodbye() {
 #endif
 }
 
+#if __STDC__
+/*VARARGS1*/
+void error(char *fmt, ...)
+{
+	extern int lineno;
+	extern char *filename;
+	va_list ap;
+	fprintf(stderr,"\"%s\", line %d:",filename,lineno);
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	va_end(ap);
+	nerrors++;
+}
+/*VARARGS1*/
+void fatal(char *fmt, ...)
+{
+	extern int lineno;
+	extern char *filename;
+	
+	va_list ap;
+	fprintf(stderr,"\"%s\", line %d:",filename,lineno);
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	va_end(ap);
+	nerrors++;
+
+	errorexit();
+	goodbye();
+	exit(-1);
+}
+#else /* __STDC__ */
 /*VARARGS1*/
 fatal(s,a,b,c,d) char *s; {
 
@@ -43,17 +87,18 @@ error(s,a,b,c,d) char *s; {
 	fprintf(stderr,"\n");
 	nerrors++;
 }
+#endif
 
 #ifndef NDEBUG
-badassertion(string,file,line) char *string,*file; {
-
+void badassertion(char *string, char *file, int line)
+{
 	fprintf(stderr,"\"%s\", line %d: Assertion failed \"%s\"\n",
 		file,line,string);
 	goodbye();
 }
 #endif
 
-tabovf(string) char *string; {
-
-	fatal("%s overflow",string);
+void tabovf(char *string)
+{
+	fatal("%s overflow", string);
 }

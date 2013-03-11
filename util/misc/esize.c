@@ -33,9 +33,10 @@ long szdata;
 long ptr7;
 long ptr8;
 
-main(argc, argv)
-	int argc;
-	char *argv[];
+void esize(char *fname);
+void rd_close();
+
+int main(int argc, char *argv[])
 {
 	printf("TPFCRE uref vers  w/p   text  nproc  szdata\n");
 	
@@ -49,10 +50,10 @@ main(argc, argv)
 		}
 	}
 	exit(0);
+	return 0;
 }
 
-esize(fname)
-	char *fname;
+void esize(char *fname)
 {
 	eof = 0;
 	if (!rd_open(fname))	{
@@ -91,15 +92,12 @@ esize(fname)
 
 #define	btol(a)		((long)(((long) (a)) & 0xFF))
 
-int
-rd_open(load_file)
-	char *load_file;
+int rd_open(char *load_file)
 {
 	return (load_fp = fopen(load_file, "r")) != NULL;
 }
 
-int
-rd_byte()
+int rd_byte()
 {
 	int i;
 
@@ -108,12 +106,10 @@ rd_byte()
 	return (i);
 }
 
-long
-rd_int(n)
-	long n;
+long rd_int(long n)
 {
 	long l;
-	register int i;
+	int i;
 
 	l = btol(rd_byte());
 	for (i = 1; i < n; i++)
@@ -123,13 +119,12 @@ rd_int(n)
 
 #define	rd_ptr()	((ptr) rd_int(psize))
 
-int
-rd_header()
+int rd_header()
 {
 	magic = rd_int(2L);
 	if (magic != MAGIC || eof)
 		return 0;
-	
+
 	flags = rd_int(2L);
 	uref = rd_int(2L);
 	version = rd_int(2L);
@@ -150,7 +145,7 @@ rd_header()
 	return !eof;
 }
 
-rd_close()
+void rd_close()
 {
 	fclose(load_fp);
 }

@@ -12,7 +12,7 @@ struct sym {
 	short	s_flags;
 	short	s_frag;
 	offset	s_value;
-	char	s_name[2];	/* to be extended up to IDL */
+	char	s_name[2 + IDL];	/* to be extended up to IDL */
 };
 
 /* contents of .s_flags */
