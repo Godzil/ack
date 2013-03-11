@@ -3,7 +3,7 @@ yacc = simple {
 	outputs = {"%U%/%I%.c"},
 	
 	command = {
-		"yacc -t -b %out[1]:dirname%/y -d %in%",
+		"byacc -t -b %out[1]:dirname%/y -d %in%",
 		"mv %out[1]:dirname%/y.tab.c %out[1]%"
 	}
 }
