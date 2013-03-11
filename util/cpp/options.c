@@ -23,10 +23,9 @@ char **inctable;
 char *dep_file = 0;
 
 extern int idfsize;
-int txt2int();
+int txt2int(char **tp);
 
-do_option(text)
-	char *text;
+void do_option(char *text)
 {
 	switch(*text++)	{
 	case '-':
@@ -130,9 +129,7 @@ do_option(text)
 	}
 }
 
-int
-txt2int(tp)
-	char **tp;
+int txt2int(char **tp)
 {
 	/*	the integer pointed to by *tp is read, while increasing
 		*tp; the resulting value is yielded.

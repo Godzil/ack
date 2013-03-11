@@ -22,12 +22,12 @@ char bits[128];
 char _obuf[OBUFSIZE];
 extern int do_preprocess;
 
-Xflush()
+void Xflush()
 {
 	if (do_preprocess) sys_write(STDOUT, _obuf, OBUFSIZE);
 }
 
-preprocess(fn)
+void preprocess(fn)
 	char *fn;
 {
 	register int c;

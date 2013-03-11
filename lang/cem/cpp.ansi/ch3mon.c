@@ -9,9 +9,7 @@
 #include	"arith.h"
 
 /*ARGSUSED2*/
-ch3mon(oper, pval, puns)
-	register arith *pval;
-	int *puns;
+void ch3mon(int oper, arith *pval, int *puns)
 {
 	switch (oper)	{
 	case '~':

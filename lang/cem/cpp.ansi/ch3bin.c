@@ -10,9 +10,7 @@
 
 #define arith_sign (1L << (sizeof(arith)*8-1))
 
-ch3bin(pval, pis_uns, oper, val, is_uns)
-	register arith *pval, val;
-	int oper, is_uns, *pis_uns;
+void ch3bin(arith *pval, int *pis_uns, int oper, arith val, int is_uns)
 {
 	if (is_uns) *pis_uns = 1;
 	switch (oper)	{

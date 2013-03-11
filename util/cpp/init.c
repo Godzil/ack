@@ -5,6 +5,7 @@
  */
 /* PREPROCESSOR: INITIALIZATION ROUTINES */
 
+#include	<string.h>
 #include	<system.h>
 #include	<alloc.h>
 #include	"class.h"
@@ -12,7 +13,7 @@
 #include	"idf.h"
 #include	"interface.h"
 
-PRIVATE struct mkey	{
+static struct mkey	{
 	char *mk_reserved;
 	int mk_key;
 } mkey[] =	{
@@ -30,10 +31,7 @@ PRIVATE struct mkey	{
 	{0,		K_UNKNOWN}
 };
 
-char *strcpy();
-
-EXPORT
-init_pp()
+void init_pp()
 {
 	long clock, sys_time();
 	static char date[30];

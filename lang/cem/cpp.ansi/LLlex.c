@@ -37,16 +37,13 @@ extern arith	char_constant();
 #define		FLG_ESEEN	0x01	/* possibly a floating point number */
 #define		FLG_DOTSEEN	0x02	/* certainly a floating point number */
 
-int
-LLlex()
+int LLlex()
 {
 	return (DOT != EOF) ? GetToken(&dot) : EOF;
 }
 
 
-int
-GetToken(ptok)
-	register struct token *ptok;
+int GetToken(struct token *ptok)
 {
 	/*	GetToken() is the actual token recognizer. It calls the
 		control line interpreter if it encounters a "\n{w}*#"
@@ -325,9 +322,10 @@ garbage:
 		crash("bad class for char 0%o", ch);
 	}
 	/*NOTREACHED*/
+	return -1;
 }
 
-skipcomment()
+void skipcomment()
 {
 	/*	The last character read has been the '*' of '/_*'.  The
 		characters, except NL and EOI, between '/_*' and the first
@@ -358,9 +356,7 @@ skipcomment()
 	NoUnstack--;
 }
 
-arith
-char_constant(nm)
-	char *nm;
+arith char_constant(char *nm)
 {
 	register arith val = 0;
 	register int ch;
@@ -391,9 +387,7 @@ char_constant(nm)
 	return val;
 }
 
-char *
-string_token(nm, stop_char)
-	char *nm;
+char *string_token(char *nm, int stop_char)
 {
 	register int ch;
 	register int str_size;
@@ -423,9 +417,7 @@ string_token(nm, stop_char)
 	return str;
 }
 
-int
-quoted(ch)
-	register int ch;
+int quoted(int ch)
 {	
 	/*	quoted() replaces an escaped character sequence by the
 		character meant.
@@ -483,9 +475,7 @@ quoted(ch)
 }
 
 
-int
-val_in_base(ch, base)
-	register int ch;
+int val_in_base(int ch, int base)
 {
 	switch (base) {
 	case 8:
@@ -500,11 +490,11 @@ val_in_base(ch, base)
 		fatal("(val_in_base) illegal base value %d", base);
 		/* NOTREACHED */
 	}
+	return -1;
 }
 
 
-int
-GetChar()
+int GetChar()
 {
 	/*	The routines GetChar and trigraph parses the trigraph
 		sequences and removes occurences of \\\n.
@@ -532,8 +522,7 @@ again:
 }
 
 
-int
-trigraph()
+int trigraph()
 {
 	register int ch;
 

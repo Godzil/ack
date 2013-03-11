@@ -15,10 +15,9 @@ struct file_info	finfo;
 #include <inp_pkg.body>
 #include <alloc.h>
 
-char * getwdir(char *fn)
+char *getwdir(char *fn)
 {
-	register char *p;
-	char *strrchr();
+	char *p;
 
 	p = strrchr(fn, '/');
 	while (p && *(p + 1) == '\0') {	/* remove trailing /'s */
@@ -42,7 +41,7 @@ int	NoUnstack;
 int	Unstacked;
 int	InputLevel;
 
-AtEoIT()
+int AtEoIT()
 {
 	/* if (NoUnstack) warning("unexpected EOF"); ??? */
 	/* This is wrong; in an #elif, NoUnstack can be set, but you
@@ -53,7 +52,7 @@ AtEoIT()
 	return 0;
 }
 
-AtEoIF()
+int AtEoIF()
 {
 	extern int nestlevel;
 	extern int nestcount;

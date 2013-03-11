@@ -41,6 +41,9 @@ extern int NoUnstack;		/* buffer.c	*/
 
 extern int err_occurred;	/* "error.c"	*/
 
+
+void skipcomment();
+
 #define	DOT	dot.tk_symb
 
 #define EOF	(-1)

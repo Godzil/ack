@@ -6,6 +6,7 @@
 /* MAIN PROGRAM */
 
 #include <stdlib.h>
+#include <string.h>
 #include <alloc.h>
 #include <em_arith.h>
 #include <assert.h>
@@ -26,13 +27,16 @@ static File *dep_fd = STDOUT;
 
 arith ifval;
 
+void compile(int argc, char *argv[]);
+void list_dependencies(char *source);
+void dependency(char *s, char *source);
+
 char *prog_name;
 
 extern char **inctable;
 extern int inc_max, inc_total;
 
-main(argc, argv)
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	/* parse and interpret the command line options	*/
 	prog_name = argv[0];
@@ -61,10 +65,10 @@ main(argc, argv)
 	}
 	compile(argc - 1, &argv[1]);
 	exit(err_occurred);
+	return 0;
 }
 
-compile(argc, argv)
-	char *argv[];
+void compile(int argc, char *argv[])
 {
 	register char *source = 0;
 	char *dummy;
@@ -93,10 +97,8 @@ compile(argc, argv)
 }
 
 struct idf	*file_head;
-extern char *strrchr();
 
-list_dependencies(source)
-	char *source;
+void list_dependencies(char *source)
 {
 	register struct idf *p = file_head;
 
@@ -111,7 +113,7 @@ list_dependencies(source)
                          * object generated, so don't include the pathname
                          * leading to it.
                          */
-                        if (s = strrchr(source, '/')) {
+                        if ( (s = strrchr(source, '/')) ) {
                                 source = s + 1;
                         }
 		}
@@ -127,8 +129,7 @@ list_dependencies(source)
 	}
 }
 
-add_dependency(s)
-	char *s;
+void add_dependency(char *s)
 {
 	register struct idf *p = str2idf(s, 0);
 
@@ -139,8 +140,7 @@ add_dependency(s)
 	}
 }
 
-dependency(s, source)
-	char *s, *source;
+void dependency(char *s, char *source)
 {
 	if (options['i'] && !strncmp(s, "/usr/include/", 13)) {
 		return;

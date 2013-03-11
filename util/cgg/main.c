@@ -9,7 +9,23 @@
 
 #include "booth.h"
 
-char * myalloc(n) {
+void tabovf(string tablename);
+void compueq();
+void initio();
+void inittables();
+void finishio();
+void outregvar();
+void verbose();
+void chkregexp(int number);
+void inithash();
+void enter(char *name, int value);
+void debug();
+void outbyte(int n);
+void patbyte(int n);
+void hashpatterns();
+
+char * myalloc(int n)
+{
 	register char *p;
 
 	p= malloc((unsigned)n);
@@ -20,21 +36,22 @@ char * myalloc(n) {
 	return(p);
 }
 
-tstint(e) expr_t e; {
-
+void tstint(expr_t e)
+{
 	if(e.expr_typ != TYPINT)
 		yyerror("Must be integer expression");
 }
 
-tstbool(e) expr_t e; {
-
+void tstbool(expr_t e)
+{
 	if(e.expr_typ != TYPBOOL)
 		yyerror("Must be boolean expression");
 }
 
-structsize(s) register list2 s; {
-	register list1 l;
-	register sum;
+int structsize(register list2 s)
+{
+	list1 l;
+	int sum;
 
 	sum = 0;
 	while ( s != 0 ) {
@@ -48,7 +65,8 @@ structsize(s) register list2 s; {
 	return(sum);
 }
 
-list2 lookstruct(ll) list2 ll; {
+list2 lookstruct(list2 ll)
+{
 	list3 l3;
 	list2 l21,l22;
 	list1 l11,l12;
@@ -74,8 +92,9 @@ list2 lookstruct(ll) list2 ll; {
 	return(ll);
 }
 
-instno(inst) inst_t inst; {
-	register i,j;
+int instno(inst_t inst)
+{
+	int i,j;
 
 	for(i=1;i<narinstance;i++) {
 		if (arinstance[i].in_which != inst.in_which)
@@ -91,16 +110,18 @@ instno(inst) inst_t inst; {
 	return(narinstance++);
 }
 
-string scopy(s) string s; {
-	register string t;
+string scopy(string s)
+{
+	string t;
 
 	t = (char *) myalloc(strlen(s)+1);
 	strcpy(t,s);
 	return(t);
 }
 
-strlookup(s) string s; {
-	register i;
+int strlookup(string s)
+{
+	int i;
 
 	for(i=0;i<ncodestrings;i++)
 		if(strcmp(s,codestrings[i])==0)
@@ -110,9 +131,10 @@ strlookup(s) string s; {
 	return(ncodestrings++);
 }
 
-stringno(s) register string s; {
+int stringno(string s)
+{
 	char buf[256];
-	register char *p=buf;
+	char *p=buf;
 
 	while(*s != 0) switch(*s) {
 	default:
@@ -212,7 +234,8 @@ stringno(s) register string s; {
 	return(strlookup(buf));
 }
 
-tabovf(tablename) string tablename; {
+void tabovf(string tablename)
+{
 	char buf[256];
 
 	sprintf(buf,"%s overflow",tablename);
@@ -220,8 +243,8 @@ tabovf(tablename) string tablename; {
 	exit(-1);
 }
 
-main(argc,argv) char *argv[]; {
-
+int main(int argc, char *argv[])
+{
 	while (--argc) {
 		++argv;
 		if (argv[0][0]=='-') {
@@ -252,16 +275,18 @@ main(argc,argv) char *argv[]; {
 	}
 	debug();
 	exit(nerrors);
+	return nerrors;
 }
 
-lookup(comm,operator,lnode,rnode) {
-	register node_p p;
+int lookup(int comm, int operator, int lnode, int rnode)
+{
+	node_p p;
 
 	for (p=nodes+1;p<lastnode;p++) {
 		if (p->ex_operator != operator)
 			continue;
-		if (!(p->ex_lnode == lnode && p->ex_rnode == rnode ||
-		    comm && p->ex_lnode == rnode && p->ex_rnode == lnode))
+		if (!( ((p->ex_lnode == lnode) && (p->ex_rnode == rnode)) ||
+		    ((comm && p->ex_lnode == rnode) && (p->ex_rnode == lnode)) ) )
 			continue;
 		return(p-nodes);
 	}
@@ -274,8 +299,9 @@ lookup(comm,operator,lnode,rnode) {
 	return(p-nodes);
 }
 
-compueq() {
-	register i,j;
+void compueq()
+{
+	int i,j;
 
 	for (i=1;i<nmachregs;i++) {
 		for (j=1;j<i;j++)
@@ -288,9 +314,10 @@ compueq() {
 	}
 }
 
-eqregclass(r1,r2) {
-	register reginfo rp1,rp2;
-	register i;
+int eqregclass(int r1, int r2)
+{
+	reginfo rp1,rp2;
+	int i;
 	short regbits[(MAXREGS+15)>>4];
 	int member;
 
@@ -301,7 +328,7 @@ eqregclass(r1,r2) {
 	for (i=0;i<((MAXREGS+15)>>4);i++)
 		regbits[i] = 0;
 	for (i=0;i<maxmembers;i++) {
-		if (member = rp1->rmembers[i])
+		if ( (member = rp1->rmembers[i]) )
 			regbits[member>>4] |= (1<<(member&017));
 	}
 	for (i=0;i<maxmembers;i++) {
@@ -312,25 +339,34 @@ eqregclass(r1,r2) {
 	return(1);
 }
 
-unsigned hash(name) register string name; {
-	register unsigned sum;
-	register i;
+unsigned hash(string name)
+{
+	unsigned int sum;
+	int i;
 
 	for (sum=i=0;*name;i+=3)
 		sum ^= (*name++)<<(i&07);
 	return(sum);
 }
 
-ident_p ilookup(name,enterf) string name; int enterf; {
+ident_p ilookup(string name, int enterf)
+{
 	register ident_p p,*pp;
 
 	pp = &identtab[hash(name)%ITABSIZE];
-	while (*pp != 0) {
+	while (*pp != 0)
+	{
 		if (strcmp((*pp)->i_name,name)==0)
+		{
 			if (enterf != ENTER)
+			{
 				return(*pp);
+			}
 			else
+			{
 				yyerror("Multiply defined symbol");
+			}
+		}
 		pp = &(*pp)->i_next;
 	}
 	if (enterf == LOOKUP)
@@ -344,8 +380,8 @@ ident_p ilookup(name,enterf) string name; int enterf; {
 	return(p);
 }
 
-initio() {
-
+void initio()
+{
 	if (iname!=0 && freopen(iname,"r",stdin)==NULL) {
 		fprintf(stderr,"Can't open %s\n",iname);
 		exit(-1);
@@ -367,8 +403,9 @@ initio() {
 	patbyte(0);
 }
 
-exprlookup(sett) set_t sett; {
-	register i,j,ok;
+int exprlookup(set_t sett)
+{
+	int i,j,ok;
 
 	for(i=0;i<nmachsets;i++) {
 		ok= (sett.set_size == machsets[i].set_size);
@@ -386,9 +423,10 @@ exprlookup(sett) set_t sett; {
 	return(nmachsets++);
 }
 
-inittables() {
-	register reginfo r;
-	register i;
+void inittables()
+{
+	reginfo r;
+	int i;
 	inst_t inst;
 	set_t sett;
 
@@ -421,8 +459,9 @@ inittables() {
 	cocosetno=exprlookup(sett);
 }
 
-outregs() {
-	register i,j,k;
+void outregs()
+{
+	int i,j,k;
 	static short rset[(MAXREGS+15)>>4];
 	int t,ready;
 
@@ -444,29 +483,53 @@ outregs() {
 			 */
 			for (j=0;j<((MAXREGS+15)>>4);j++)
 				rset[j]=0;
+
 			rset[i>>4] |= (1<<(i&017));
-			do {
-			    ready=1;
-			    for (j=1;j<nmachregs;j++)
-				if (rset[j>>4]&(1<<(j&017)))
-				    for (k=0;k<maxmembers;k++)
-					if ((t=machregs[j]->rmembers[k])!=0) {
-					    if ((rset[t>>4]&(1<<(t&017)))==0)
-						ready=0;
-					    rset[t>>4] |= (1<<(t&017));
+
+			do
+			{
+				ready = 1;
+				for ( j = 1 ; j < nmachregs ; j++ )
+				{
+					if ( rset[j >> 4] & (1 << (j & 017)) )
+					{
+						for ( k = 0 ; k < maxmembers ; k++ )
+						{
+							if ( (t = machregs[j]->rmembers[k]) != 0 )
+							{
+								if ( ( rset[t >> 4] & (1 << (t & 017)) ) == 0 )
+								{
+									ready = 0;
+								}
+								rset[t >> 4] |= (1 << (t & 017));
+							}
+						}
 					}
+				}
 			} while (!ready);
-			do {
-			    ready=1;
-			    for (j=1;j<nmachregs;j++)
-				for (k=0;k<maxmembers;k++)
-				    if ((t=machregs[j]->rmembers[k])!=0)
-					if (rset[t>>4]&(1<<(t&017))) {
-						if (rset[j>>4]&(1<<(j&017))==0)
-						    ready=0;
-						rset[j>>4] |= (1<<(j&017));
+
+			do
+			{
+				ready=1;
+				for ( j = 1 ; j < nmachregs ; j++ )
+				{
+					for ( k = 0 ; k < maxmembers ; k++ )
+					{
+						if ( ( t = machregs[j]->rmembers[k] ) !=0 )
+						{
+							if ( rset[t >> 4] & (1 << (t & 017)) )
+							{
+								if ( ( rset[j >> 4] & (1 << (j & 017)) ) == 0)
+								{
+									ready=0;
+								}
+								rset[j >> 4] |= (1 << (j & 017));
+							}
+						}
 					}
+				}
 			} while (!ready);
+
 			fprintf(cfile,"},{");
 			for (j=0;j<((nmachregs+15)>>4);j++)
 				fprintf(cfile,"%d,",rset[j]);
@@ -479,12 +542,13 @@ outregs() {
 	fprintf(cfile,"};\n\n");
 }
 
-finishio() {
-	register i;
-	register node_p np;
+void finishio()
+{
+	int i;
+	node_p np;
 	int j;
 	int setsize;
-	register move_p mp;
+	move_p mp;
 
 	fprintf(cfile,"};\n\n");
 	if (wsize>0)
@@ -637,8 +701,9 @@ finishio() {
 		outregvar();
 }
 
-outregvar() {
-	register i,j;
+void outregvar()
+{
+	int i,j;
 
 	fprintf(hfile,"#define REGVARS\n");
 	fprintf(cfile,"#include \"regvar.h\"\n");
@@ -670,8 +735,8 @@ outregvar() {
 	fprintf(cfile,"};\n");
 }
 
-verbose() {
-
+void verbose()
+{
 	fprintf(stderr,"Codebytes %d\n",codebytes);
 	fprintf(stderr,"Registers %d(%d)\n",nmachregs,MAXREGS);
 	fprintf(stderr,"Properties %d(%d)\n",nprops,MAXPROPS);
@@ -683,10 +748,11 @@ verbose() {
 	fprintf(stderr,"Patbytes %d(%d)\n",npatbytes,MAXPATTERN);
 }
 
-inbetween() {
-	register ident_p ip;
-	register i,j;
-	register move_p mp;
+void inbetween()
+{
+	ident_p ip;
+	int i,j;
+	move_p mp;
 
 	lookident=1;    /* for lexical analysis */
 
@@ -728,11 +794,12 @@ inbetween() {
 	}
 }
 
-formconversion(p,tp) register char *p; register token_p tp; {
+int formconversion(char *p, token_p tp)
+{
 	char buf[256];
-	register char *q=buf;
+	char *q=buf;
 	char field[256];
-	register char *f;
+	char *f;
 	int i;
 
 	if (p==0)
@@ -768,10 +835,11 @@ formconversion(p,tp) register char *p; register token_p tp; {
 	return(strlookup(buf));
 }
 
-setfields(tp,format) register token_p tp; string format; {
-	register i;
+void setfields(token_p tp, string format)
+{
+	int i;
 	list2 ll;
-	register list1 l;
+	list1 l;
 	int type;
 
 	for(i=0;i<TOKENSIZE-1;i++)
@@ -796,18 +864,20 @@ setfields(tp,format) register token_p tp; string format; {
 		tp->t_format = -1;
 }
 
-chkregexp(number) {
-	register i;
+void chkregexp(int number)
+{
+	int i;
 
 	for(i=nmachregs+1;i<nmachregs+1+nmachtokens;i++)
 		if(machsets[number].set_val[i>>4]&(01<<(i&017)))
 			yyerror("No tokens allowed in this set");
 }
 
-findstructel(number,name,t) string name; int *t; {
-	register i;
-	register token_p tp;
-	register list2 structdecl;
+int findstructel(int number, string name, int *t)
+{
+	int i;
+	token_p tp;
+	list2 structdecl;
 	int offset;
 
 	for(i=1;i<=nmachregs;i++)
@@ -839,8 +909,8 @@ findstructel(number,name,t) string name; int *t; {
 
 extern char em_flag[];
 
-argtyp(mn) {
-
+int argtyp(int mn)
+{
 	switch(em_flag[mn-sp_fmnem]&EM_PAR) {
 	case PAR_W:
 	case PAR_S:
@@ -857,8 +927,8 @@ argtyp(mn) {
 	}
 }
 
-commontype(e1,e2) expr_t e1,e2; {
-
+int commontype(expr_t e1, expr_t e2)
+{
 	if(e1.expr_typ != e2.expr_typ)
 		yyerror("Type incompatibility");
 	return(e1.expr_typ);
@@ -873,15 +943,17 @@ struct hashmnem {
 	byte h_value;
 } hashmnem[HASHSIZE];
 
-inithash() {
-	register i;
+void inithash()
+{
+	int i;
 
 	for(i=0;i<=sp_lmnem-sp_fmnem;i++)
 		enter(em_mnem[i],i+sp_fmnem);
 }
 
-enter(name,value) char *name; {
-	register unsigned h;
+void enter(char *name, int value)
+{
+	unsigned int h;
 
 	h=hash(name)%HASHSIZE;
 	while (hashmnem[h].h_name[0] != 0)
@@ -890,8 +962,9 @@ enter(name,value) char *name; {
 	hashmnem[h].h_value = value;
 }
 
-int mlookup(name) char *name; {
-	register unsigned h;
+int mlookup(char *name)
+{
+	unsigned int h;
 
 	h = hash(name)%HASHSIZE;
 	while (strncmp(hashmnem[h].h_name,name,3) != 0 &&
@@ -900,10 +973,11 @@ int mlookup(name) char *name; {
 	return(hashmnem[h].h_value&BMASK);      /* 0 if not found */
 }
 
-hashpatterns() {
+void hashpatterns()
+{
 	short index;
-	register byte *bp,*tp;
-	register short i;
+	byte *bp,*tp;
+	short i;
 	unsigned short hashvalue;
 	int patlen;
 
@@ -937,18 +1011,19 @@ hashpatterns() {
 	}
 }
 
-debug() {
-	register i,j;
+void debug()
+{
+	int i,j;
 
 	for(i=0;i<ITABSIZE;i++) {
-		register ident_p ip;
+		ident_p ip;
 		for(ip=identtab[i];ip!=0;ip=ip->i_next)
 			printf("%-14s %1d %3d\n",ip->i_name,
 				ip->i_type,ip->i_i.i_regno);
 	}
 
 	for(i=2;i<nmachregs;i++) {
-		register reginfo rp;
+		reginfo rp;
 
 		rp=machregs[i];
 		printf("%s = (\"%s\", %d",rp->rname,rp->rrepr,rp->rsize);
@@ -963,8 +1038,8 @@ debug() {
 	}
 }
 
-out(n) {
-
+void out(int n)
+{
 	assert(n>=0);
 	if (n<128)
 		outbyte(n);
@@ -974,14 +1049,14 @@ out(n) {
 	}
 }
 
-outbyte(n) {
-
+void outbyte(int n)
+{
 	fprintf(cfile,"%d, ",n&BMASK);
 	codebytes++;
 }
 
-pat(n) {
-
+void pat(int n)
+{
 	assert(n>=0);
 	if (n<128)
 		patbyte(n);
@@ -991,20 +1066,20 @@ pat(n) {
 	}
 }
 
-patshort(n) {
-
+void patshort(int n)
+{
 	patbyte(n&BMASK);
 	patbyte(n>>BSHIFT);
 }
 
-patbyte(n) {
-
+void patbyte(int n)
+{
 	chktabsiz(npatbytes,MAXPATTERN,"Pattern table");
 	pattern[npatbytes++] = n;
 }
 
-max(a,b) {
-
+int max(int a, int b)
+{
 	if (a>b)
 		return(a);
 	return(b);

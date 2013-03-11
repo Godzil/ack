@@ -23,8 +23,7 @@
 
 int err_occurred;
 
-err_hdr(s)
-	char *s;
+void err_hdr(char *s)
 {
 	if (FileName) {
 		fprint(ERROUT, "\"%s\", line %d: %s", FileName, (int)LineNumber, s);
@@ -34,7 +33,7 @@ err_hdr(s)
 
 #if __STDC__
 /*VARARGS*/
-error(char *fmt, ...)
+void error(char *fmt, ...)
 {
 	va_list ap;
 
@@ -47,7 +46,7 @@ error(char *fmt, ...)
 }
 
 /*VARARGS*/
-warning(char *fmt, ...)
+void warning(char *fmt, ...)
 {
 	va_list ap;
 
@@ -59,7 +58,7 @@ warning(char *fmt, ...)
 }
 
 /*VARARGS*/
-strict(char *fmt, ...)
+void strict(char *fmt, ...)
 {
 	va_list ap;
 
@@ -71,7 +70,7 @@ strict(char *fmt, ...)
 }
 
 /*VARARGS*/
-crash(char *fmt, ...)
+void crash(char *fmt, ...)
 {
 	va_list ap;
 
@@ -84,7 +83,7 @@ crash(char *fmt, ...)
 }
 
 /*VARARGS*/
-fatal(char *fmt, ...)
+void fatal(char *fmt, ...)
 {
 	va_list ap;
 

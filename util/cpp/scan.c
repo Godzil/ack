@@ -23,17 +23,17 @@
 #define	EOS		'\0'
 #define	overflow()	(fatal("actual parameter buffer overflow"))
 
-PRIVATE char apbuf[LAPBUF]; /* temporary storage for actual parameters	*/
-PRIVATE char *actparams[NPARAMS]; /* pointers to the text of the actuals */
-PRIVATE char *aptr;	/* pointer to last inserted character in apbuf	*/
+static char apbuf[LAPBUF]; /* temporary storage for actual parameters	*/
+static char *actparams[NPARAMS]; /* pointers to the text of the actuals */
+static char *aptr;	/* pointer to last inserted character in apbuf	*/
 
 #define	copy(ch)	((aptr < &apbuf[LAPBUF]) ? (*aptr++ = ch) : overflow())
 
-PRIVATE int nr_of_params;	/* number of actuals read until now	*/
+static int nr_of_params;	/* number of actuals read until now	*/
 
-PRIVATE char **
-getactuals(idef)
-	struct idf *idef;
+static void copyact(char ch1, char ch2, int level);
+
+char **getactuals(struct idf *idef)
 {
 	/*	getactuals() collects the actual parameters and turns them
 		into a list of strings, a pointer to which is returned.
@@ -76,10 +76,7 @@ getactuals(idef)
 	return actparams;
 }
 
-PRIVATE
-copyact(ch1, ch2, level)
-	char ch1, ch2;
-	int level;
+static void copyact(char ch1, char ch2, int level)
 {
 	/*	copyact() is taken from Ceriel Jacobs' LLgen, with
 		permission.  Its task is to build a list of actuals

@@ -113,9 +113,9 @@ registerdefs
 
 registerdef
 	: IDENT '=' '(' STRING ',' NUMBER list1 ')' optregvar list1 '.'
-		{       register ident_p ip;
-			register list1 l;
-			register reginfo r;
+		{       ident_p ip;
+			list1 l;
+			reginfo r;
 			int i;
 
 			r=(reginfo) myalloc(sizeof(struct reginfo));
@@ -190,8 +190,8 @@ tkdefs
 	;
 tkdef
 	: IDENT '=' structdecl NUMBER optcost optformat
-		{ register token_p tp;
-		  register ident_p ip;
+		{ token_p tp;
+		  ident_p ip;
 
 		  chktabsiz(nmachtokens,MAXTOKENS,"Token table");
 		  tp = &machtokens[nmachtokens];
@@ -253,7 +253,7 @@ tokenexpressions
 tokenexpressionline
 	: IDENT '=' tokenexpression
 		{
-		  {     register ident_p ip;
+		  {     ident_p ip;
 
 			chktabsiz(nmachsets,MAXSETS,"Expression table");
 			machsets[nmachsets] = $3;
@@ -268,7 +268,7 @@ tokenexpression
 	: PIDENT
 		{ $$ = machprops[$1->i_i.i_prpno].propset; }
 	| TIDENT
-		{ register i;
+		{ int i;
 
 		  for(i=0;i<SETSIZE;i++) $$.set_val[i]=0;
 		  $$.set_val[($1->i_i.i_tokno+nmachregs+1)>>4] |=
@@ -278,7 +278,7 @@ tokenexpression
 	| EIDENT
 		{ $$=machsets[$1->i_i.i_expno]; }
 	| tokenexpression '*' tokenexpression
-		{ register i;
+		{ int i;
 
 		  if (($$.set_size=$1.set_size)==0)
 			$$.set_size = $3.set_size;
@@ -286,7 +286,7 @@ tokenexpression
 			$$.set_val[i] = $1.set_val[i] & $3.set_val[i];
 		}
 	| tokenexpression '+' tokenexpression
-		{ register i;
+		{ int i;
 
 		  if ($1.set_size == -1)
 			$$.set_size = $3.set_size;
@@ -300,7 +300,7 @@ tokenexpression
 			$$.set_val[i] = $1.set_val[i] | $3.set_val[i];
 		}
 	| tokenexpression '-' tokenexpression
-		{ register i;
+		{ int i;
 
 		  if ($1.set_size == -1)
 			$$.set_size = $3.set_size;
@@ -403,7 +403,7 @@ empattern
 	: /* empty */
 		{ empatlen=0; }
 	| mnemlist optboolexpr
-		{ register i;
+		{ int i;
 
 		  empatexpr = $2;
 		  patbyte(0);
@@ -441,7 +441,7 @@ mnem    :       IDENT
 
 stackpattern
 	: optnocoerc tokenexpressionlist optstack
-		{ register i;
+		{ int i;
 
 		  if (tokpatlen != 0) {
 			  outbyte(($1 ? ( $3 ? DO_XXMATCH: DO_XMATCH ) : DO_MATCH)+(tokpatlen<<5));
@@ -703,7 +703,7 @@ movedef
 		  tokpatlen=2;
 		}
 	  optboolexpr ',' code optcommacost ')'
-		{ register move_p mp;
+		{ move_p mp;
 
 		  outbyte(DO_RETURN);
 		  fprintf(cfile,"\n");
@@ -735,7 +735,7 @@ testdef : '(' tokenexpressionno
 		  tokpatlen=2;
 		}
 	  optboolexpr ',' code optcommacost ')'
-		{ register move_p mp;
+		{ move_p mp;
 
 		  outbyte(DO_RETURN);
 		  fprintf(cfile,"\n");
@@ -765,7 +765,7 @@ stackdef
 		  tokpatlen=1;
 		}
 	  optboolexpr ',' optprop ',' code optcommacost ')'
-		{ register c1_p cp;
+		{ c1_p cp;
 
 		  outbyte(DO_TOKREPLACE);
 		  outbyte(DO_RETURN);
@@ -1053,7 +1053,7 @@ tokeninstanceno
 
 tokeninstance
 	: '%' '[' tokargno subreg ']'
-		{ register i;
+		{ int i;
 
 		  if ($4!=0)
 			  chkregexp(pattokexp[$3]);
@@ -1065,7 +1065,7 @@ tokeninstance
 		}
 	| '%' '[' tokargno '.' IDENT ']'
 		{ int typ;
-		  register i;
+		  int i;
 		  $$.in_which = IN_COPY;
 		  $$.in_info[0] = $3;
 		  $$.in_info[1] = findstructel(pattokexp[$3],$5,&typ);
@@ -1075,14 +1075,14 @@ tokeninstance
 			$$.in_info[i] = 0;
 		}
 	| RIDENT
-		{ register i;
+		{ int i;
 		  $$.in_which = IN_RIDENT;
 		  $$.in_info[0] = $1->i_i.i_regno;
 		  for (i=1;i<TOKENSIZE;i++)
 			$$.in_info[i] = 0;
 		}
 	| REGVAR '(' expr ')'
-		{ register i;
+		{ int i;
 		  MUST1BEINT($3);
 		  $$.in_which = IN_REGVAR;
 		  $$.in_info[0] = exp1;
@@ -1090,7 +1090,7 @@ tokeninstance
 			$$.in_info[i] = 0;
 		}
 	| '%' '[' LCASELETTER subreg ']'
-		{ register i;
+		{ int i;
 		  if ($3 >= 'a'+nallreg)
 			yyerror("Bad letter in %[x] construct");
 		  $$.in_which = IN_ALLOC;
@@ -1100,7 +1100,7 @@ tokeninstance
 			$$.in_info[i] = 0;
 		}
 	| '{' TIDENT attlist '}'
-		{ register i;
+		{ int i;
 		  $$.in_which = IN_DESCR;
 		  $$.in_info[0] = $2->i_i.i_tokno;
 		  for(i=0;i<narexp;i++) {

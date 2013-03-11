@@ -20,15 +20,18 @@
 #include	"class.h"
 #include	"interface.h"
 
-char *strcpy(), *strcat();
-char *long2str();
 extern int InputLevel;
 
-PRIVATE struct mlist *ReplList;	/* list of currently active macros */
+static struct mlist *ReplList;	/* list of currently active macros */
+static char *macro2buffer(struct idf *idef, char **actpars, int *siztext);
+static void macro_func(struct idf *idef); 
 
-EXPORT int
-replace(idef)
-	register struct idf *idef;
+
+char *GetIdentifier(); /* domacro.c */
+char **getactuals(struct idf *idef); /* scan.c */
+char *long2str(long value, int base); /* External lib */
+
+int replace(struct idf *idef)
 {
 	/*	replace() is called by the lexical analyzer to perform
 		macro replacement.  "idef" is the description of the
@@ -41,8 +44,8 @@ replace(idef)
 	*/
 	register struct macro *mac = idef->id_macro;
 	register char c;
-	char **actpars, **getactuals();
-	char *reptext, *macro2buffer();
+	char **actpars;
+	char *reptext;
 	register struct mlist *repl;
 	int size;
 
@@ -79,7 +82,6 @@ replace(idef)
 		if (mac->mc_flag & FUNC) {
 			struct idf *param;
 			char *nam;
-			extern char *GetIdentifier();
 
 			UnknownIdIsZero = 0;
 			nam = GetIdentifier();
@@ -137,9 +139,7 @@ replace(idef)
 
 char FilNamBuf[PATHLENGTH];
 
-PRIVATE
-macro_func(idef)
-	register struct idf *idef;
+static void macro_func(struct idf *idef)
 {
 	/*	macro_func() performs the special actions needed with some
 		macros.  These macros are __FILE__ and __LINE__ which
@@ -167,11 +167,7 @@ macro_func(idef)
 	}
 }
 
-PRIVATE char *
-macro2buffer(idef, actpars, siztext)
-	struct idf *idef;
-	char **actpars;
-	int *siztext;
+static char *macro2buffer(struct idf *idef, char **actpars, int *siztext)
 {
 	/*	Macro2buffer() turns the macro replacement text, as it is
 		stored, into an input buffer, while each occurrence of the
@@ -214,14 +210,12 @@ macro2buffer(idef, actpars, siztext)
 	return Realloc(text, pos+1);
 }
 
-EXPORT
-DoUnstack()
+void DoUnstack()
 {
 	Unstacked = 1;
 }
 
-EXPORT
-EnableMacros()
+void EnableMacros()
 {
 	register struct mlist *p = ReplList, *prev = 0;
 

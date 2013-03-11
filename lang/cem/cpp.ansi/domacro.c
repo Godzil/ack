@@ -5,6 +5,8 @@
 /* $Id$ */
 /* PREPROCESSOR: CONTROLLINE INTERPRETER */
 
+#include <string.h>
+
 #include	"arith.h"
 #include	"LLlex.h"
 #include	"Lpars.h"
@@ -26,21 +28,35 @@
 #include	"macbuf.h"
 #include	"replace.h"
 
+char *getwdir(char *fn); /* /util/cpp/input.c */
+
 extern char options[];
 extern	char **inctable;	/* list of include directories		*/
-extern	char *getwdir();
 char ifstack[IFDEPTH];	/* if-stack: the content of an entry is	*/
 				/* 1 if a corresponding ELSE has been	*/
 				/* encountered.				*/
+
+void do_include();
+void do_define();
+void do_elif();
+void push_if();
+void do_else();
+void do_endif();
+void do_if();
+void do_ifdef(int how);
+void do_undef(char *argstr);
+void do_error();
+void do_line(unsigned int l);
+
+void macro_def(struct idf *id, char *text, int nformals, int length, int flags);
 
 int	nestlevel = -1;
 int	svnestlevel[30] = {-1};
 int	nestcount;
 extern int do_preprocess;
 
-char *
-GetIdentifier(skiponerr)
-	int skiponerr;		/* skip the rest of the line on error */
+/* skiponerr => skip the rest of the line on error */
+char *GetIdentifier(int skiponerr)
 {
 	/*	Returns a pointer to the identifier that is read from the
 		input stream. When the input does not contain an
@@ -73,7 +89,7 @@ GetIdentifier(skiponerr)
 	Pragma's are handled by do_pragma(). They are passed on to the
 	compiler.
 */
-domacro()
+void domacro()
 {
 	struct token tk;	/* the token itself			*/
 	register struct idf *id;
@@ -154,8 +170,7 @@ domacro()
 	}
 }
 
-skip_block(to_endif)
-int to_endif;
+void skip_block(int to_endif)
 {
 	/*	skip_block() skips the input from
 		1)	a false #if, #ifdef, #ifndef or #elif until the
@@ -275,7 +290,7 @@ int to_endif;
 }
 
 
-ifexpr()
+int ifexpr()
 {
 	/*	ifexpr() returns whether the restricted constant
 		expression following #if or #elif evaluates to true.  This
@@ -296,7 +311,7 @@ ifexpr()
 	return (errors == err_occurred) && (ifval != (arith)0);
 }
 
-do_include()
+void do_include()
 {
 	/*	do_include() performs the inclusion of a file.
 	*/
@@ -333,7 +348,7 @@ do_include()
 	}
 }
 
-do_define()
+void do_define()
 {
 	/*	do_define() interprets a #define control line.
 	*/
@@ -373,7 +388,7 @@ do_define()
 	LineNumber++;
 }
 
-push_if()
+void push_if()
 {
 	if (nestlevel >= IFDEPTH)
 		fatal("too many nested #if/#ifdef/#ifndef");
@@ -381,7 +396,7 @@ push_if()
 		ifstack[++nestlevel] = 0;
 }
 
-do_elif()
+void do_elif()
 {
 	if (nestlevel <= svnestlevel[nestcount]) {
 		error("#elif without corresponding #if");
@@ -398,7 +413,7 @@ do_elif()
 	}
 }
 
-do_else()
+void do_else()
 {
 	if (SkipToNewLine()) {
 		if (!options['o'])
@@ -415,7 +430,7 @@ do_else()
 	}
 }
 
-do_endif()
+void do_endif()
 {
 	if (SkipToNewLine()) {
 		if (!options['o'])
@@ -427,14 +442,14 @@ do_endif()
 	else	nestlevel--;
 }
 
-do_if()
+void do_if()
 {
 	push_if();
 	if (!ifexpr())	/* a false #if/#elif expression */
 		skip_block(0);
 }
 
-do_ifdef(how)
+void do_ifdef(int how)
 {
 	register struct idf *id;
 	register char *str;
@@ -463,8 +478,7 @@ do_ifdef(how)
 }
 
 /* argstr != NULL when the undef came from a -U option */
-do_undef(argstr)
-	char *argstr;
+void do_undef(char *argstr)
 {
 	register struct idf *id;
 	register char *str = argstr;
@@ -492,7 +506,7 @@ do_undef(argstr)
 		error("illegal #undef construction");
 }
 
-do_error()
+void do_error()
 {
 	int len;
 	char *get_text();
@@ -503,10 +517,7 @@ do_error()
 	LineNumber++;
 }
 
-int
-getparams(buf, parbuf)
-	char *buf[];
-	char parbuf[];
+int getparams(char *buf[], char parbuf[])
 {
 	/*	getparams() reads the formal parameter list of a macro
 		definition.
@@ -570,11 +581,10 @@ getparams(buf, parbuf)
 		c = skipspaces(c,0);
 	}
 	/*NOTREACHED*/
+	return -1;
 }
 
-macro_def(id, text, nformals, length, flags)
-	register struct idf *id;
-	char *text;
+void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 {
 	register struct macro *newdef = id->id_macro;
 
@@ -613,9 +623,7 @@ macro_def(id, text, nformals, length, flags)
 	newdef->mc_flag = flags;	/* special flags	*/
 }
 
-int
-find_name(nm, index)
-	char *nm, *index[];
+int find_name(char *nm, char *index[])
 {
 	/*	find_name() returns the index of "nm" in the namelist
 		"index" if it can be found there.  0 is returned if it is
@@ -632,10 +640,7 @@ find_name(nm, index)
 
 #define	BLANK(ch)	((ch == ' ') || (ch == '\t'))
 
-char *
-get_text(formals, length)
-	char *formals[];
-	int *length;
+char *get_text(char *formals[], int *length)
 {
 	/*	get_text() copies the replacement text of a macro
 		definition with zero, one or more parameters, thereby
@@ -726,7 +731,7 @@ get_text(formals, length)
 				add2repl(repl, ' ');
 			}
 			/* construct the formal parameter mark or identifier */
-			if (n = find_name(id_buf, formals))
+			if ( (n = find_name(id_buf, formals)) )
 				add2repl(repl, FORMALP | (char) n);
 			else {
 				idp = id_buf;
@@ -775,8 +780,7 @@ get_text(formals, length)
 	as strings, without taking care of the leading and trailing
 	blanks (spaces and tabs).
 */
-macroeq(s, t)
-	register char *s, *t;
+int macroeq(char *s, char *t)
 {
 	
 	/* skip leading spaces	*/
@@ -798,8 +802,7 @@ macroeq(s, t)
 	}
 }
 
-do_line(l)
-	unsigned int l;
+void do_line(unsigned int l)
 {
 	struct token tk;
 	int t = GetToken(&tk);

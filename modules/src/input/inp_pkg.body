@@ -99,12 +99,16 @@ INP_PRIVATE struct INP_buffer_header *INP_head, *INP_free;
 
 _PROTOTYPE(INP_PRIVATE int INP_rdfile, (File *, char *, long *, char **));
 
+#if __STDC__
+INP_PRIVATE int INP_rdfile(File *fd, char *fn, long size, char **pbuf)
+#else
 INP_PRIVATE int
 INP_rdfile(fd, fn, size, pbuf)
 	register File *fd;
 	char *fn;		/* file name */
 	register long *size;
 	char **pbuf;		/* output parameter */
+#endif
 {
 	extern long sys_filesize();
 	int rsize;
@@ -137,8 +141,7 @@ INP_rdfile(fd, fn, size, pbuf)
 INP_PRIVATE struct INP_i_buf *i_ptr;
 
 _PROTOTYPE(INP_PRIVATE char * INP_pbuf, (void));
-INP_PRIVATE char *
-INP_pbuf()
+INP_PRIVATE char *INP_pbuf()
 {
 	register struct INP_i_buf *ib = 
 		(struct INP_i_buf *) malloc(sizeof(struct INP_i_buf));
@@ -159,12 +162,11 @@ INP_pbuf()
 _PROTOTYPE(INP_PRIVATE struct INP_buffer_header *INP_push_bh, (void));
 _PROTOTYPE(INP_PRIVATE int INP_pop_bh, (void));
 
-INP_PRIVATE struct INP_buffer_header *
-INP_push_bh()
+INP_PRIVATE struct INP_buffer_header *INP_push_bh()
 {
 	register struct INP_buffer_header *bh;
 
-	if (bh = INP_head) {
+	if ((bh = INP_head)) {
 		bh->bh_ipp = _ipp;
 #ifdef INP_TYPE
 		bh->bh_i = INP_VAR;
@@ -183,8 +185,7 @@ INP_push_bh()
 	of headers.  0 is returned if there are no more
 	inputbuffers on the stack, 1 is returned in the other case.
 */
-INP_PRIVATE int
-INP_pop_bh()
+INP_PRIVATE int INP_pop_bh()
 {
 	register struct INP_buffer_header *bh = INP_head;
 
@@ -213,11 +214,15 @@ INP_pop_bh()
 */
 _PROTOTYPE(INP_PRIVATE int INP_rdblock, (File *, char *, int *));
 
+#if __STDC__
+INP_PRIVATE int INP_rdblock(File *fd, char *buf, int *n)
+#else
 INP_PRIVATE int
 INP_rdblock(fd, buf, n)
 	File *fd;
 	char *buf;
 	int *n;
+#endif
 {
 
 	if (!sys_read(fd, buf, INP_BUFSIZE, n)) {
@@ -235,10 +240,14 @@ _PROTOTYPE(INP_PRIVATE int INP_mk_filename, (char *, char *, char **));
 
 /*	INP_mk_filename() concatenates a dir and filename.
 */
+#if __STDC__
+INP_PRIVATE int INP_mk_filename(char *dir, char *file, char **newname)
+#else
 INP_PRIVATE int
 INP_mk_filename(dir, file, newname)
 	register char *dir, *file;
 	char **newname;
+#endif
 {
 
 	register char *dst;
@@ -247,21 +256,24 @@ INP_mk_filename(dir, file, newname)
 	if (!dst) return 0;
 	*newname = dst;
 	if (*dir) {
-		while (*dst++ = *dir++) ;
+		while (((*dst++) = (*dir++))) ;
 		*(dst-1) = '/';
 	}
-	while (*dst++ = *file++);
+	while (((*dst++) = (*file++)));
 	return 1;
 }
 
 /*	Interface routines : InsertFile, InsertText, and loadbuf
 */
-
+#if __STDC__
+int InsertFile(char *filnam, char *table[], char **result)
+#else
 int
 InsertFile(filnam, table, result)
 	char *filnam;
 	char *table[];
 	char **result;
+#endif
 {
 	char *newfn = 0;
 
@@ -327,9 +339,13 @@ InsertFile(filnam, table, result)
 	return 0;
 }
 
+#if __STDC__
+int InsertText(char *text, int length)
+#else
 int
 InsertText(text, length)
 	char *text;
+#endif
 {
 	register struct INP_buffer_header *bh = INP_push_bh();
 
@@ -346,8 +362,7 @@ InsertText(text, length)
 	Note: this routine is exported due to its occurence in the definition
 	of LoadChar [input.h], that is defined as a macro.
 */
-int
-loadbuf()
+int loadbuf()
 {
 	register struct INP_buffer_header *bh = INP_head;
 	static char buf[INP_NPUSHBACK + 1];

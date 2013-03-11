@@ -9,9 +9,7 @@
 #include	"class.h"
 #include	"input.h"
 
-int
-skipspaces(ch, skipnl)
-	register int ch;
+int skipspaces(int ch, int skipnl)
 {
 	/*	skipspaces() skips any white space and returns the first
 		non-space character.
@@ -52,18 +50,18 @@ skipspaces(ch, skipnl)
 	}
 }
 
-skipline()
+void skipline()
 {
 	/*	skipline() skips all characters until a newline character
 		is seen, not escaped by a '\\'.
 		Any comment is skipped.
 	*/
-	register int c;
+	int c;
 
 	LoadChar(c);
 	while (class(c) != STNL && c != EOI) {
 		if (class(c) == STSTR || class(c) == STCHAR) {
-			register int stopc = c;
+			int stopc = c;
 			int escaped;
 			do {
 				escaped = 0;

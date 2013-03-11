@@ -29,12 +29,11 @@ extern int InputLevel;
 
 extern char *sprint();
 
-Xflush()
+void Xflush()
 {
 	sys_write(STDOUT, _obuf, OBUFSIZE);
 }
 
-static char *SkipComment();
 extern char options[];
 
 /* #pragma directives are saved here and passed to the compiler later on.
@@ -47,7 +46,10 @@ struct prag_info {
 static struct prag_info *pragma_tab;
 static int pragma_nr;
 
-do_pragma()
+static char *SkipComment(char *op, int *lineno);
+void preprocess(char *fn);
+
+void do_pragma()
 {
 	register int size = ITEXTSIZE;
 	char *cur_line = Malloc((unsigned)size);
@@ -105,8 +107,7 @@ do_pragma()
 
 char Xbuf[256];
 
-preprocess(fn)
-	char *fn;
+void preprocess(char *fn)
 {
 	register int c;
 	register char *op = _obuf;
@@ -409,10 +410,7 @@ preprocess(fn)
 	/*NOTREACHED*/
 }
 
-static char *
-SkipComment(op, lineno)
-char *op;
-int *lineno;
+static char *SkipComment(char *op, int *lineno)
 {
 	char *ob = &_obuf[OBUFSIZE];
 	register int c, oldc = '\0';

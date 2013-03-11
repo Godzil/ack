@@ -19,15 +19,11 @@ static struct idf *IDF_hashtable[IDF_HASHSIZE];
 
 _PROTOTYPE(static struct idf *IDF_new, (char *, int, int));
 
-void
-init_idf()
+void init_idf()
 {
 }
 
-static struct idf *
-IDF_new(tg, size, cpy)
-	register char *tg;
-	register int size;
+static struct idf *IDF_new(char *tg, int size, int cpy)
 {
 	static int nidf;
 	static struct idf *pidf;
@@ -67,8 +63,7 @@ IDF_new(tg, size, cpy)
 }
 
 #ifdef	IDF_DEBUG
-void
-hash_stat()
+void hash_stat()
 {
 	register int i;
 	int total_count = 0;
@@ -91,10 +86,7 @@ hash_stat()
 	print("End hash table tally\n");
 }
 
-void
-idfappfun(fun, opt)
-	int	(*fun)();
-	int	opt;
+void idfappfun(int	(*fun)(struct idf *, int), int opt)
 {
 	register int	i;
 
@@ -109,9 +101,7 @@ idfappfun(fun, opt)
 }
 #endif	/* IDF_DEBUG */
 
-struct idf *
-str2idf(tg, cpy)
-	char tg[];
+struct idf *str2idf(char tg[], int cpy)
 {
 	/*	str2idf() returns an entry in the symbol table for the
 		identifier tg.  If necessary, an entry is created.
@@ -124,7 +114,7 @@ str2idf(tg, cpy)
 	int size;
 
 	IDF_STARTHASH(hash);
-	while (c = *cp++) {
+	while ((c = *cp++)) {
 		IDF_ENHASH(hash, c);
 	}
 	IDF_STOPHASH(hash);

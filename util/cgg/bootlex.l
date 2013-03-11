@@ -21,6 +21,8 @@ static char rcsid2[]="$Id$";
 #include "booth.h"
 #include "y.tab.h"
 
+void yyerror(string s);
+
 int lineno = 1;
 extern char *iname;
 extern char *scopy();
@@ -158,10 +160,9 @@ return			return(RETURN);
 .                       return(yytext[0]);
 %%
 
-yyerror(s,a1,a2,a3,a4) string s; {
-
+void yyerror(string s)
+{
 	fprintf(stderr,"\"%s\", line %d:",iname ? iname : "",lineno);
-	fprintf(stderr,s,a1,a2,a3,a4);
 	fprintf(stderr,"\n");
         nerrors++;
 }
