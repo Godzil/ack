@@ -15,4 +15,11 @@
 
 /*	All preprocessor arithmetic should be done in longs.
 */
-#define	arith	long				/* dummy */
+#ifndef LANG_CEM_CPP_ANSI_ARITH_H
+#define LANG_CEM_CPP_ANSI_ARITH_H
+
+#include <stdint.h>
+
+#define	arith	int32_t				/* dummy */
+
+#endif /* LANG_CEM_CPP_ANSI_ARITH_H */
