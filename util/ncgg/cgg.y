@@ -26,6 +26,8 @@ int att_type;
 int patindex[MAXPATTERNS];
 extern set_t l_sets[];
 
+void skipupto(int tok, char *str);
+
 int emhere=0;	/* lexical analyzer flag */
 int optexact=0;	/* Inside "with exact" rule */
 int optstack=0;	/* Inside with <blah> STACK rule */
