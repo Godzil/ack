@@ -256,8 +256,8 @@ garbage:
 	}
 	case STNUM:				/* a numeric constant	*/
 	{			/* it may only be an integer constant */
-		register int base = 10, vch;
-		register arith val = 0;
+		int base = 10, vch;
+		arith val = 0;
 		int ovfl = 0;
 		arith ubound = ~(1<<(sizeof(arith)*8-1))/(base/2);
 
