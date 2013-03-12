@@ -28,6 +28,8 @@ static char rcsid[] = "$Id$";
 #include <stdio.h>
 #endif
 
+int optimize();
+
 #define ILLHASH 0177777
 short pathash[256];	/* table of indices into pattern[] */
 
@@ -39,8 +41,8 @@ byte transl[op_plast-op_pfirst+1][3] = {
 	/* SEP */	{ op_SEP, op_ste, op_sde }
 };
 
-opcheck(bp) register byte *bp; {
-
+void opcheck(byte *bp)
+{
 	if (((*bp)&BMASK) >= op_pfirst)
 		*bp = transl[((*bp)&BMASK)-op_pfirst][opind];
 }
@@ -54,11 +56,12 @@ opcheck(bp) register byte *bp; {
  * Estimated improvement possible: about 2%
  */
 
-hashpatterns() {
+void hashpatterns()
+{
 	short index;
-	register byte *bp,*tp;
-	register short i;
-	unsigned short hashvalue;
+	byte *bp,*tp;
+	short i;
+	short hashvalue;
 	byte *save;
 	int patlen;
 
@@ -121,7 +124,8 @@ hashpatterns() {
 	}
 }
 
-peephole() {
+int peephole()
+{
 	static bool phashed = FALSE;
 
 	if (!phashed) {
@@ -131,9 +135,10 @@ peephole() {
 	return optimize();
 }
 
-optimize() {
-	register num_p *npp,np;
-	register instr;
+int optimize()
+{
+	num_p *npp,np;
+	int instr;
 	bool madeopt;
 
 	madeopt = basicblock(&instrs);
@@ -152,15 +157,16 @@ optimize() {
 	return madeopt;
 }
 
-offset oabs(off) offset off; {
-
+offset oabs(offset off)
+{
 	return(off >= 0 ? off : -off);
 }
 
-line_p repline(ev,patlen) eval_t ev; {
-	register line_p lp;
-	register iarg_p iap;
-	register sym_p sp;
+line_p repline(eval_t ev, int patlen)
+{
+	line_p lp;
+	iarg_p iap;
+	sym_p sp;
 	offset diff,newdiff;
 
 	assert(ev.e_typ != EV_UNDEF);
@@ -226,7 +232,8 @@ line_p repline(ev,patlen) eval_t ev; {
 	}
 }
 
-offset rotate(w,amount) offset w,amount; {
+offset rotate(offset w, offset amount)
+{
 	offset highmask,lowmask;
 
 #ifndef LONGOFF
@@ -241,10 +248,11 @@ offset rotate(w,amount) offset w,amount; {
 
 eval_t undefres = { EV_UNDEF };
 
-eval_t compute(pexp) register expr_p pexp; {
+eval_t compute(expr_p pexp)
+{
 	eval_t leaf1,leaf2,res;
-	register i;
-	register sym_p sp;
+	int i;
+	sym_p sp;
 	offset mask;
 
 	switch(nparam[pexp->ex_operator]) {
@@ -252,15 +260,15 @@ eval_t compute(pexp) register expr_p pexp; {
 		assert(FALSE);
 	case 2:
 		leaf2 = compute(&enodes[pexp->ex_rnode]);
-		if (leaf2.e_typ == EV_UNDEF ||
-		    nonumlab[pexp->ex_operator] && leaf2.e_typ == EV_NUMLAB ||
-		    onlyconst[pexp->ex_operator] && leaf2.e_typ != EV_CONST)
+		if ((leaf2.e_typ == EV_UNDEF) ||
+		    (nonumlab[pexp->ex_operator] && leaf2.e_typ == EV_NUMLAB) ||
+		    (onlyconst[pexp->ex_operator] && leaf2.e_typ != EV_CONST) )
 			return(undefres);
 	case 1:
 		leaf1 = compute(&enodes[pexp->ex_lnode]);
-		if (leaf1.e_typ == EV_UNDEF ||
-		    nonumlab[pexp->ex_operator] && leaf1.e_typ == EV_NUMLAB ||
-		    onlyconst[pexp->ex_operator] && leaf1.e_typ != EV_CONST)
+		if ((leaf1.e_typ == EV_UNDEF) ||
+		    (nonumlab[pexp->ex_operator] && leaf1.e_typ == EV_NUMLAB) ||
+		    (onlyconst[pexp->ex_operator] && leaf1.e_typ != EV_CONST))
 			return(undefres);
 	case 0:
 		break;

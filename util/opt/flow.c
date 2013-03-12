@@ -21,14 +21,19 @@ static char rcsid[] = "$Id$";
  * Author: Hans van Staveren
  */
 
-flow() {
+void findreach();
+void reach(line_p lnp);
+void cleaninstrs();
 
+void flow()
+{
 	findreach();	/* determine reachable labels */
 	cleaninstrs();	/* throw away unreachable code */
 }
 
-findreach() {
-	register num_p	*npp,np;
+void findreach()
+{
+	num_p	*npp,np;
 
 	reach(instrs);
 	for(npp=curpro.numhash;npp< &curpro.numhash[NNUMHASH]; npp++)
@@ -51,8 +56,9 @@ findreach() {
 			}
 }
 
-reach(lnp) register line_p lnp; {
-	register num_p np;
+void reach(line_p lnp)
+{
+	num_p np;
 
 	for (;lnp != (line_p) 0; lnp = lnp->l_next) {
 		if(lnp->l_optyp == OPNUMLAB) {
@@ -88,9 +94,10 @@ reach(lnp) register line_p lnp; {
 	}
 }
 
-cleaninstrs() {
-	register line_p *lpp,lp,*lastbra;
-	bool reachable,superfluous;
+void cleaninstrs()
+{
+	line_p *lpp, lp, *lastbra;
+	bool reachable, superfluous;
 	int instr;
 
 	lpp = &instrs; lastbra = (line_p *) 0; reachable = TRUE;

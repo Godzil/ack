@@ -24,6 +24,9 @@ static char rcsid[] = "$Id$";
 extern char *pop_push[];
 extern char flow_tab[];
 
+void assign_label(num_p label);
+void do_inst_label(line_p lnp);
+
 #define NON_CONTINUABLE(i)	(flow_tab[i]&JUMP)
 #define ISABRANCH(i)		(flow_tab[i]&HASLABEL)
 #define ISCONDBRANCH(i)		(flow_tab[i]&CONDBRA)
@@ -39,22 +42,22 @@ extern char flow_tab[];
 int state;
 static int stacktop = 0;
 
-init_state()
+void init_state()
 {
 	stacktop = 0;
 	state = KNOWN;
 }
 
-tes_pseudos()
+void tes_pseudos()
 {
-	register line_p lp;
+	line_p lp;
 
 	for (lp = pseudos; lp != (line_p)0; lp = lp->l_next) {
 		switch(INSTR(lp)) {
 		case ps_con:
 		case ps_rom:
 			if (lp->l_optyp == OPLIST) {
-				register arg_p ap = lp->l_a.la_arg;
+				arg_p ap = lp->l_a.la_arg;
 
 				while (ap != (arg_p) 0) {
 					if (ap->a_typ == ARGNUM) {
@@ -68,12 +71,11 @@ tes_pseudos()
 	}
 }
 
-tes_instr(lnp, x, y)
-line_p lnp, x, y;
+void tes_instr(line_p lnp, line_p x, line_p y)
 {
 	char *s;
-	register instr = INSTR(lnp);
-	register int arg, argdef;
+	int instr = INSTR(lnp);
+	int arg, argdef;
 	int neg = 0;
 
 	if (instr == op_lab) {
@@ -155,8 +157,7 @@ line_p lnp, x, y;
 	}
 }
 
-assign_label(label)
-register num_p label;
+void assign_label(num_p label)
 {
 	if (label->n_flags & NUMSET) {
 		if (state == NOTREACHED || stacktop > label->n_size) {
@@ -170,8 +171,7 @@ register num_p label;
 	}
 }
 
-do_inst_label(lnp)	/* (re-)install a label */
-line_p lnp;
+void do_inst_label(line_p lnp)	/* (re-)install a label */
 {
 	num_p label = lnp->l_a.la_np->n_repl;
 	int instr = INSTR(lnp);

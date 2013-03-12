@@ -46,6 +46,16 @@ int CBO_instrs[] = {
 	/* don't add op_mli and op_mlu! */
 };
 
+
+void enter(char *name, int value);
+void yyerror(char *s);
+void printnodes();
+void initio();
+void outpat(int exprno, int instrno);
+void outbyte(int b);
+void outshort(int s);
+void out(int w);
+
 int	patCBO;
 int	rplCBO;
 %}
@@ -242,8 +252,9 @@ struct hashmnem {
 	byte h_value;
 } hashmnem[HASHSIZE];
 
-inithash() {
-	register i;
+void inithash()
+{
+	int i;
 
 	enter("lab",op_lab);
 	enter("LLP",op_LLP);
@@ -255,8 +266,9 @@ inithash() {
 		enter(em_mnem[i],i+sp_fmnem);
 }
 
-unsigned hashname(name) register char *name; {
-	register unsigned h;
+unsigned int hashname(char *name)
+{
+	unsigned int h;
 
 	h = (*name++)&BMASK;
 	h = (h<<4)^((*name++)&BMASK);
@@ -264,8 +276,9 @@ unsigned hashname(name) register char *name; {
 	return(h);
 }
 
-enter(name,value) char *name; {
-	register unsigned h;
+void enter(char *name, int value)
+{
+	unsigned int h;
 
 	h=hashname(name)%HASHSIZE;
 	while (hashmnem[h].h_name[0] != 0)
@@ -274,8 +287,9 @@ enter(name,value) char *name; {
 	hashmnem[h].h_value = value;
 }
 
-int mlookup(name) char *name; {
-	register unsigned h;
+int mlookup(char *name)
+{
+	unsigned int h;
 
 	h = hashname(name)%HASHSIZE;
 	while (strncmp(hashmnem[h].h_name,name,3) != 0 &&
@@ -284,8 +298,8 @@ int mlookup(name) char *name; {
 	return(hashmnem[h].h_value&BMASK);	/* 0 if not found */
 }
 
-main() {
-
+int main(int argc, char *argv[])
+{
 	inithash();
 	initio();
 	yyparse();
@@ -294,20 +308,21 @@ main() {
 	return nerrors;
 }
 
-yyerror(s) char *s; {
-
+void yyerror(char *s)
+{
 	fprintf(stderr,"line %d: %s\n",lino,s);
 	nerrors++;
 }
 
-lookup(comm,operator,lnode,rnode) {
-	register expr_p p;
+int lookup(int comm, int operator, int lnode, int rnode)
+{
+	expr_p p;
 
 	for (p=nodes+1;p<lastnode;p++) {
 		if (p->ex_operator != operator)
 			continue;
-		if (!(p->ex_lnode == lnode && p->ex_rnode == rnode ||
-		    comm && p->ex_lnode == rnode && p->ex_rnode == lnode))
+		if (!((p->ex_lnode == lnode && p->ex_rnode == rnode) ||
+		    (comm && p->ex_lnode == rnode && p->ex_rnode == lnode)))
 			continue;
 		return(p-nodes);
 	}
@@ -320,20 +335,22 @@ lookup(comm,operator,lnode,rnode) {
 	return(p-nodes);
 }
 
-printnodes() {
-	register expr_p p;
+void printnodes()
+{
+	expr_p p;
 
 	printf("};\n\nshort lastind = %d;\n\nexpr_t enodes[] = {\n",prevind);
 	for (p=nodes;p<lastnode;p++)
-		printf("/* %3d */\t%3d,%6u,%6u,\n",
+		printf("/* %3ld */\t%3d,%6u,%6u,\n",
 			p-nodes,p->ex_operator,p->ex_lnode,p->ex_rnode);
 	printf("};\n\niarg_t iargs[%d];\n", (maxpatlen>0 ? maxpatlen : 1));
 	if (patid[0])
 		printf("static char rcsid[] = %s;\n",patid);
 }
 
-initio() {
-	register i;
+void initio()
+{
+	int i;
 
 	printf("#include \"param.h\"\n#include \"types.h\"\n");
 	printf("#include \"pattern.h\"\n\n");
@@ -374,9 +391,9 @@ initio() {
 	curind = 1;
 }
 
-outpat(exprno, instrno)
+void outpat(int exprno, int instrno)
 {
-	register int i;
+	int i;
 
   	outbyte(0); outshort(prevind); prevind=curind-3;
   	out(patlen);
@@ -399,20 +416,20 @@ outpat(exprno, instrno)
   	if (patlen>maxpatlen) maxpatlen=patlen;
 }
 
-outbyte(b) {
-
+void outbyte(int b)
+{
 	printf(",%3d",b);
 	curind++;
 }
 
-outshort(s) {
-
+void outshort(int s)
+{
 	outbyte(s&0377);
 	outbyte((s>>8)&0377);
 }
 
-out(w) {
-
+void out(int w)
+{
 	if (w<255) {
 		outbyte(w);
 	} else {

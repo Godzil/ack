@@ -6,7 +6,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <string.h>
 /*  MAKECLASSDEF
  *
  * This program is used by several phases of the optimizer
@@ -25,8 +25,9 @@
 #define TRUE  1
 #define FALSE 0
 
-convert(mnemfile,classfile)
-	FILE *mnemfile, *classfile;
+void error(char *);
+
+void convert(FILE *mnemfile, FILE *classfile)
 {
 	char mnem1[10], mnem2[10],def[10];
 	int src,res,newcl,opc;
@@ -61,19 +62,13 @@ convert(mnemfile,classfile)
 	printf("};\n");
 }
 
-
-
-error(s)
-	char *s;
+void error(char *s)
 {
 	fprintf(stderr,"%s\n",s);
 	exit(-1);
 }
 
-
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	FILE *f1,*f2;
 

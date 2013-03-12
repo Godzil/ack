@@ -21,9 +21,10 @@ static char rcsid[] = "$Id$";
  * Author: Hans van Staveren
  */
 
-regvar(ap) register arg_p ap; {
-	register reg_p rp;
-	register i;
+void regvar(arg_p ap)
+{
+	reg_p rp;
+	int i;
 
 	rp = newreg();
 	i=0;
@@ -46,7 +47,8 @@ regvar(ap) register arg_p ap; {
 	curpro.freg = rp;
 }
 
-inreg(off) offset off; {
+int inreg(offset off)
+{
 	register reg_p rp;
 
 	for (rp=curpro.freg; rp != (reg_p) 0; rp=rp->r_next)
@@ -55,9 +57,10 @@ inreg(off) offset off; {
 	return(FALSE);
 }
 
-outregs() {
-	register reg_p rp,tp;
-	register i;
+void outregs()
+{
+	reg_p rp,tp;
+	int i;
 
 	for(rp=curpro.freg; rp != (reg_p) 0; rp = tp) {
 		tp = rp->r_next;
@@ -79,8 +82,8 @@ outregs() {
 }
 
 /* outtes() handles the output of the top elt. messages */
-outtes() {
-	register num_p *npp, np;
+void outtes() {
+	num_p *npp, np;
 
 	for (npp=curpro.numhash;npp< &curpro.numhash[NNUMHASH]; npp++) {
 		for (np = *npp; np != (num_p) 0; np=np->n_next) {
@@ -96,8 +99,9 @@ outtes() {
 	}
 }
 
-incregusage(off) offset off; {
-	register reg_p rp;
+void incregusage(offset off)
+{
+	reg_p rp;
 
 #ifndef GLOBAL_OPT
 	/* If we're optimizing the output of the global optimizer

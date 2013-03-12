@@ -363,7 +363,7 @@ void outsym(sym_p sp)
 {
 	byte *p;
 	unsigned int num;
-	warning("May do something nasty... (%s)", __func__);
+	printf("May do something nasty... (%s)", __func__);
 	if (sp->s_name[0] == '.') {
 		num = atoi(&sp->s_name[1]);
 		if (num < 256) {

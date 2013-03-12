@@ -9,6 +9,18 @@
  *
  */
 
+#ifdef __STDC__
+
+void go(int argc, char *argv[], int (*initialize)(void), 
+         int (*optimize)(proc_p), int (*phase_machinit)(FILE *), 
+         int (*proc_flag)(char *));
+         
+int no_action(proc_p dummy);
+
+void core_usage();
+void report(char *s, int n);
+
+#else 
 
 extern go();		/* ( int argc; char *argv[];
 			 *   int (*initialize)(); int (*optimize)(); 
@@ -37,3 +49,5 @@ extern report();	/* ( char *s; int n)
 			 * Report number of optimizations found, if 
 			 * report_flag is set
 			 */
+
+#endif

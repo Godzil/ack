@@ -87,6 +87,7 @@ int asizetab[] = {
 void oldline(line_p lnp);
 void oldargb(argb_p abp);
 void oldreg(reg_p rp);
+void oldargs(arg_p ap);
 
 /*
  * alloc routines:
@@ -131,7 +132,7 @@ arg_p newarg(int kind)
 	return(ap);
 }
 
-void ldargs(arg_p ap)
+void oldargs(arg_p ap)
 {
 	arg_p	next;
 

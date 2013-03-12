@@ -11,20 +11,42 @@
 extern int		linecount;	/* # lines in this file */
 extern bool		verbose_flag;  /* generate verbose output ? */
 
+#ifdef __STDC__
+
+/* VARARGS 1 */
+void error(char *fmt, ...);
+
+# ifdef TRACE
+void OUTTRACE(char *s, ...);
+# else /* TRACE */
+#  define OUTTRACE(s,n)
+# endif /* TRACE */
+
+# ifdef VERBOSE
+void OUTVERBOSE(char *s, ...);
+# else /* VERBOSE */
+#  define OUTVERBOSE(s,n1,n2)
+# endif /* VERBOSE */
+
+#else /* __STDC__ */
+
 /* VARARGS 1 */
 extern error();
 
-
-#ifdef TRACE
+# ifdef TRACE
 extern OUTTRACE();
-#else
-#define OUTTRACE(s,n)
-#endif
-#ifdef VERBOSE
+# else /* TRACE */
+#  define OUTTRACE(s,n)
+# endif /* TRACE */
+
+# ifdef VERBOSE
 extern OUTVERBOSE();
-#else
-#define OUTVERBOSE(s,n1,n2)
-#endif
+# else /* VERBOSE */
+#  define OUTVERBOSE(s,n1,n2)
+# endif /* VERBOSE */
+
+#endif /* __STDC__ */
+
 #ifdef DEBUG
 
 /* Some (all?) Unix debuggers don't particularly like

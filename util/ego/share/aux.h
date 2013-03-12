@@ -32,7 +32,7 @@ extern line_p reg_mes();	/* (offset tmp; short size; int typ,score)
 				 * given arguments.
 				 */
 extern bool dom();		/* (bblock_p b1,b2)
-				/* See if b1 dominates b2. Note that a
+				 * See if b1 dominates b2. Note  that a
 				 * block always * dominates itself.
 				 */
 extern bblock_p common_dom();	/* (bblock_p a,b)

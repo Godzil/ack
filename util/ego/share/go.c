@@ -29,9 +29,7 @@ STATIC bool core_flag = FALSE;    /* report core usage? */
 #endif
 
 
-STATIC mach_init(machfile,phase_machinit)
-	char *machfile;
-	int (*phase_machinit)();
+STATIC void mach_init(char *machfile, int (*phase_machinit)(FILE *))
 {
 	/* Read target machine dependent information */
 
@@ -47,13 +45,9 @@ STATIC mach_init(machfile,phase_machinit)
 
 
 
-go(argc,argv,initialize,optimize,phase_machinit,proc_flag)
-	int argc;
-	char *argv[];
-	int (*initialize)();
-	int (*optimize)();
-	int (*phase_machinit)();
-	int (*proc_flag)();
+void go(int argc, char *argv[], int (*initialize)(void), 
+        int (*optimize)(proc_p), int (*phase_machinit)(FILE *), 
+        int (*proc_flag)(char *))
 {
 	FILE *f, *gf, *f2, *gf2;  /* The EM input and output and
 				 * the basic block graphs input and output
@@ -140,9 +134,12 @@ go(argc,argv,initialize,optimize,phase_machinit,proc_flag)
 }
 
 
-no_action() { }
+int no_action(proc_p dummy)
+{
+   return 0;   
+}
 
-core_usage()
+void core_usage()
 {
 #ifdef DEBUG
 	if (core_flag) {
@@ -151,9 +148,7 @@ core_usage()
 #endif
 }
 
-report(s,n)
-	char *s;
-	int n;
+void report(char *s, int n)
 {
 	/* Report number of optimizations found, if report_flag is set */
 
