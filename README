@@ -2,7 +2,7 @@ THE AMSTERDAM COMPILER KIT V6.0pre4
 ===================================
 
 © 1987-2005 Vrije Universiteit, Amsterdam 2010-08-08
-
+© 2013      Manoel Trapier, Paris
 
 INTRODUCTION
 ============
@@ -17,6 +17,23 @@ lot is supported, the build mechanism needs work, and a lot of things are
 probably broken. However, what's there should be sufficient to get things
 done and to evaluate how the full 6.0 release should work. 
 
+This is a fork from the original repository found on sourceforge. This
+fork exist for three reason, the first is I strongly prefere git than 
+mercurial (this is a personal preference) and second I want to make it
+work on Mac OS X but the OSX clang/gcc does not really like the K&R
+syntax, so I take into the process of ANSIfy it. The third reason is why
+I want to use the ACK, it support old CPU, like the 6502 or i8080, i8086
+and it is open source unlike a lot of compiler we can found nowadays for
+such targets, and it support more than C that is a wonderfull bonus!
+
+I have plan to add targets like the NES, add support for the 65c816 and
+add the SNES target, add the WonderSwan as a target and so on. I see in
+this compiler kit a wonderfull project for all sort of old computer that
+are still used nowadays and used CPU that are no longuer targeted by
+modern compilers.
+
+I plan to push my changes on the original version, at least for the new
+targets and cpu.
 
 SUPPORT
 =======
@@ -154,10 +171,14 @@ more welcome.
 The ACK is licensed under a BSD-like license. Please see the 'Copyright' file
 for the full text.
 
-You can find the mailing list on the project's web site:
+You will find this "ANSI Fork" on github:
+
+	http://github.com/Godzil/ack
+
+You can find the ACK mailing list and the original project's web site:
 
 	http://tack.sourceforge.net/
-	
+
 Please enjoy.
 
 David Given (dtrg on Sourceforge)
