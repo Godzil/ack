@@ -11,6 +11,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef __STDC__
+#include <stdarg.h>
+#endif
 #include <em_spec.h>
 #include "types.h"
 #include "def.h"
