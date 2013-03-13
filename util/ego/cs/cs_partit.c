@@ -16,6 +16,8 @@
 #include "cs.h"
 #include "cs_stack.h"
 
+#include "cs_partit.h"
+
 #define XXX	(-1)
 #define ARGW	0
 #define WS	1
@@ -28,7 +30,7 @@
 #define PTR	1
 #define FLT	2
 
-STATIC struct {
+static struct {
     byte i_group;   /* Group of instruction. */
     byte i_op1;		/* Indication of size of operand of unary operator. */
 			/* Idem for 1st operand of binary operator. */
@@ -178,8 +180,7 @@ STATIC struct {
 #define AVSIZE(l)	(info[INSTR(l)].i_av)
 #define REGTYPE(n)	(info[n].i_regtype)
 
-int instrgroup(lnp)
-	line_p lnp;
+int instrgroup(line_p lnp)
 {
 	if (INSTR(lnp) == op_lor && SHORT(lnp) == 1) {
 		/* We can't do anything with the stackpointer. */
@@ -192,8 +193,7 @@ int instrgroup(lnp)
 	return GROUP(INSTR(lnp));
 }
 
-bool stack_group(instr)
-	int instr;
+bool stack_group(int instr)
 {
 	/* Is this an instruction that only does something to the top of
 	 * the stack?
@@ -209,10 +209,10 @@ bool stack_group(instr)
 		default:
 			return FALSE;
 	}
+	return 0;
 }
 
-STATIC offset argw(lnp)
-	line_p lnp;
+static offset argw(line_p lnp)
 {
 	/* Some EM-instructions have their argument either on the same line,
 	 * or on top of the stack. We give up when the argument is on top of
@@ -226,10 +226,10 @@ STATIC offset argw(lnp)
 		Pop(&dummy, (offset) ws);
 		return UNKNOWN_SIZE;
 	}
+	return 0;
 }
 
-offset op11size(lnp)
-	line_p lnp;
+offset op11size(line_p lnp)
 {
 	/* Returns the size of the first argument of
 	 * the unary operator in lnp.
@@ -246,10 +246,10 @@ offset op11size(lnp)
 			assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
-offset op12size(lnp)
-	line_p lnp;
+offset op12size(line_p lnp)
 {
 	/* Same for first of binary. */
 
@@ -262,10 +262,10 @@ offset op12size(lnp)
 			assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
-offset op22size(lnp)
-	line_p lnp;
+offset op22size(line_p lnp)
 {
 	switch (OP2SIZE(lnp)) {
 		case ARGW:
@@ -278,12 +278,12 @@ offset op22size(lnp)
 			assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 /* Ternary operators are op_aar and conversions between types and/or sizes. */
 
-offset op13size(lnp)
-	line_p lnp;
+offset op13size(line_p lnp)
 {
 	/* When the instruction is a conversion, the size of the first
 	 * operand is the value of the second operand.
@@ -301,8 +301,7 @@ offset op13size(lnp)
 		return UNKNOWN_SIZE;
 }
 
-offset op23size(lnp)
-	line_p lnp;
+offset op23size(line_p lnp)
 {
 	if (INSTR(lnp) == op_aar)
 		return argw(lnp);
@@ -310,8 +309,7 @@ offset op23size(lnp)
 		return ws;
 }
 
-offset op33size(lnp)
-	line_p lnp;
+offset op33size(line_p lnp)
 {
 	if (INSTR(lnp) == op_aar)
 		return ps;
@@ -319,8 +317,7 @@ offset op33size(lnp)
 		return ws;
 }
 
-offset avsize(lnp)
-	line_p lnp;
+offset avsize(line_p lnp)
 {
 	/* Returns the size of the result of the instruction in lnp.
 	 * If the instruction is a conversion this size is given on the stack.
@@ -357,10 +354,10 @@ offset avsize(lnp)
 			break;
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
-int regtype(instr)
-	byte instr;
+int regtype(byte instr)
 {
 	switch (REGTYPE(instr & BMASK)) {
 		case ANY:
@@ -373,4 +370,5 @@ int regtype(instr)
 			assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }

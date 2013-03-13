@@ -9,10 +9,11 @@
  */
 
 #ifdef DEBUG
-extern char *newcore();
-extern oldcore();
+char *newcore(int size);
+void oldcore(char *p, int size);
+void coreusage()
 #else
-extern char *myalloc();
+char *myalloc(int size);
 #define newcore(size) myalloc(size)
 #define oldcore(p,size) free((char *)p)
 #endif
@@ -20,24 +21,23 @@ extern char *myalloc();
 #define newstruct(t)	((struct t *) newcore (sizeof (struct t)))
 #define oldstruct(t,p)	oldcore((char *) p,sizeof (struct t))
 
-extern line_p	newline();		/* (byte optype) */
-extern arg_p	newarg();		/* (byte argtype) */
-extern short    **newmap();		/* (short length)	*/
-extern cset	newbitvect();		/* (short nrbytes)	*/
-extern cond_p 	newcondtab();
+line_p	newline(int optyp);
+arg_p newarg(int kind);
+short **newmap(short length);
+cset newbitvect(short n);
+cond_p newcondtab(int l);
 
+void oldline(line_p lnp);
+void oldargs(arg_p ap);
+void oldargb(argb_p abp);
+void oldobjects(obj_p op);
+void olddblock(dblock_p dbl);
+void oldmap(short **mp, short length);
+void oldbitvect(cset s, short n);
+void oldcondtab(cond_p tab);
+short *newtable(short length);
+void oldtable(short **mp, short length);
 
-extern oldline() ;
-extern oldargs() ;
-extern oldargb() ;
-extern oldobjects() ;
-extern olddblock() ;
-extern oldmap();
-extern oldbitvect();			/* (cset s, short nrbytes)	*/
-extern oldcondtab();
-
-extern short *newtable();
-extern oldtable();
 
 #define newdblock()	(dblock_p) newstruct(dblock)
 #define newobject()	(obj_p) newstruct(obj)

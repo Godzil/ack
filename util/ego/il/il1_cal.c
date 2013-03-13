@@ -21,14 +21,12 @@
 #include "il1_aux.h"
 #include "../share/parser.h"
 
-STATIC actual_p acts, *app;
+static actual_p acts, *app;
 
 #define INIT_ACTS()	{acts = (actual_p) 0; app = &acts;}
 #define APPEND_ACTUAL(a) {*app = a; app = &a->ac_next;}
 
-STATIC make_actual(l1,l2,size)
-	line_p l1,l2;
-	offset size;
+static void make_actual(line_p l1, line_p l2, offset size)
 {
 	/* Allocate a struct for a new actual parameter
 	 * expression, the code of which extends from
@@ -45,9 +43,7 @@ STATIC make_actual(l1,l2,size)
 
 
 
-STATIC bool chck_asp(p,l)
-	proc_p p;
-	line_p l;
+static bool chck_asp(proc_p p, line_p l)
 {
 	/* We require a call to a procedure p that has n formal
 	 * parameters to be followed by an 'asp n' instruction
@@ -60,8 +56,7 @@ STATIC bool chck_asp(p,l)
 
 
 
-STATIC inc_count(caller,callee)
-	proc_p caller, callee;
+static void inc_count(proc_p caller, proc_p callee)
 {
 	/* Update the call-count information.
 	 * Record the fact that there is one more call
@@ -93,11 +88,7 @@ STATIC inc_count(caller,callee)
 
 
 
-anal_cal(p,call,b,cf)
-	proc_p p;
-	line_p call;
-	bblock_p b;
-	FILE   *cf;
+void anal_cal(proc_p p, line_p call, bblock_p b, FILE *cf)
 {
 	/* Analyze a call instruction. If the called
 	 * routine may be expanded in line, try to

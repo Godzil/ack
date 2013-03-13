@@ -26,8 +26,6 @@ prc_p prochash[NPROCHASH];
 num_p numhash[NNUMHASH];
 char *lastname;
 
-//extern char	*strcpy();
-
 #define newsym()	(sym_p) newstruct(sym)
 #define newprc()	(prc_p) newstruct(prc)
 #define newnum()	(num_p) newstruct(num)
@@ -41,14 +39,9 @@ char *lastname;
 
 /* instr_lab */
 
-
-
-
-
-lab_id instr_lab(number)
-	short number;
+lab_id instr_lab(short number)
 {
-	register num_p *npp, np;
+	num_p *npp, np;
 
 	/* In EM assembly language, a label is an unsigned number,
 	 * e.g. 120 in 'BRA *120'. In IC the labels of a procedure
@@ -84,18 +77,17 @@ lab_id instr_lab(number)
 
 /*  symlookup */
 
-STATIC unsigned hash(string) char *string; {
-	register char *p;
-	register unsigned i,sum;
+STATIC unsigned hash(char *string)
+{
+	char *p;
+	unsigned i,sum;
 
 	for (sum=i=0,p=string;*p;i += 3)
 		sum ^= (*p++)<<(i&07);
 	return(sum);
 }
 
-dblock_p symlookup(name, status)
-	char *name;
-	int  status;
+dblock_p symlookup(char *name, int status)
 {
 	/* Look up the name of a data block. The name can appear
 	 * in either a defining or applied occurrence (status is
@@ -107,8 +99,8 @@ dblock_p symlookup(name, status)
 	 */
 
 
-	register sym_p *spp,  sp;
-	register dblock_p dp;
+	sym_p *spp,  sp;
+	dblock_p dp;
 
 	if (name == (char *) 0) {
 		assert(status == DEFINING);
@@ -182,8 +174,7 @@ dblock_p symlookup(name, status)
 
 /* getsym */
 
-dblock_p getsym(status)
-	int status;
+dblock_p getsym(int status)
 {
 	if (table2() != DLBX) {
 		error("symbol expected");
@@ -195,8 +186,7 @@ dblock_p getsym(status)
 
 /* getproc */
 
-proc_p getproc(status)
-	int status;
+proc_p getproc(int status)
 {
 	if (table2() != sp_pnam) {
 		error("proc name expected");
@@ -208,12 +198,10 @@ proc_p getproc(status)
 
 /* proclookup */
 
-proc_p proclookup(name, status)
-	char *name;
-	int  status;
+proc_p proclookup(char *name, int status)
 {
-	register prc_p *ppp,  pp;
-	register proc_p dp;
+	prc_p *ppp,  pp;
+	proc_p dp;
 
 	ppp = &prochash[hash(name)%NPROCHASH];
 	while (*ppp != (prc_p) 0) {
@@ -273,7 +261,7 @@ proc_p proclookup(name, status)
 
 /* cleaninstrlabs */
 
-cleaninstrlabs()
+void cleaninstrlabs()
 {
 	register num_p *npp, np, next;
 
@@ -292,10 +280,7 @@ cleaninstrlabs()
 
 /* dump_procnames */
 
-dump_procnames(hash,n,f)
-	prc_p  hash[];
-	int    n;
-	FILE   *f;
+void dump_procnames(prc_p hash[], int n, FILE *f)
 {
 	/* Save the names of the EM procedures in file f.
 	 * Note that the Optimizer Intermediate Code does not
@@ -308,7 +293,7 @@ dump_procnames(hash,n,f)
 	 * more than once, the PF_WRITTEN flag is used.
 	 */
 
-	register prc_p *pp, ph;
+	prc_p *pp, ph;
 	proc_p p;
 
 #define PF_WRITTEN 01
@@ -330,9 +315,7 @@ dump_procnames(hash,n,f)
 
 /* cleanprocs */
 
-cleanprocs(hash,n,mask)
-	prc_p hash[];
-	int   n,mask;
+void cleanprocs(prc_p hash[], int n, int mask)
 {
 	/* After an EM input file has been processed, the names
 	 * of those procedures that are internal (i.e. not visible
@@ -343,7 +326,7 @@ cleanprocs(hash,n,mask)
 	 * remaining prc structs are also removed.
 	 */
 
-	register prc_p *pp, ph, x, next;
+	prc_p *pp, ph, x, next;
 
 	for (pp = &hash[0]; pp < &hash[n]; pp++) {
 		/* Traverse the hash table */
@@ -374,17 +357,14 @@ cleanprocs(hash,n,mask)
 
 /* dump_dblocknames */
 
-dump_dblocknames(hash,n,f)
-	sym_p  hash[];
-	int    n;
-	FILE   *f;
+void dump_dblocknames(sym_p hash[], int n, FILE *f)
 {
 	/* Save the names of the EM data blocks in file f.
 	 * The output consists of tuples (dblock_id, name).
 	 * This routine is called once for every input file.
 	 */
 
-	register sym_p *sp, sh;
+	sym_p *sp, sh;
 	dblock_p d;
 
 #define DF_WRITTEN 01
@@ -406,15 +386,13 @@ dump_dblocknames(hash,n,f)
 
 /* cleandblocks */
 
-cleandblocks(hash,n,mask)
-	sym_p hash[];
-	int   n,mask;
+void cleandblocks(sym_p hash[], int n, int mask)
 {
 	/* After an EM input file has been processed, the names
 	 * of those data blocks that are internal must be removed.
 	 */
 
-	register sym_p *sp, sh, x, next;
+	sym_p *sp, sh, x, next;
 
 	for (sp = &hash[0]; sp < &hash[n]; sp++) {
 		x = (sym_p) 0;

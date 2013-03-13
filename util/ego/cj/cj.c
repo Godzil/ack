@@ -54,17 +54,14 @@
  */
 
 
-STATIC int Scj;  /* number of optimizations found */
+static int Scj;  /* number of optimizations found */
 
-STATIC showinstr();
-
-
+static void showinstr(line_p lnp);
 
 #define DLINK(l1,l2)	l1->l_next=l2; l2->l_prev=l1
 
 
-STATIC bool same_instr(l1,l2)
-	line_p l1,l2;
+static bool same_instr(line_p l1, line_p l2)
 {
 	/* See if l1 and l2 are the same instruction */
 
@@ -83,12 +80,11 @@ STATIC bool same_instr(l1,l2)
 
 
 
-STATIC line_p last_mnem(b)
-	bblock_p b;
+static line_p last_mnem(bblock_p b)
 {
 	/* Determine the last line of a list */
 
-	register line_p l;
+	line_p l;
 
 	for (l = b->b_start; l->l_next != (line_p) 0; l = l->l_next);
 	while (l != (line_p) 0 && (INSTR(l) < sp_fmnem || INSTR(l) > sp_lmnem)) {
@@ -98,8 +94,7 @@ STATIC line_p last_mnem(b)
 }
 
 
-STATIC bool is_desirable(text)
-	line_p text;
+static bool is_desirable(line_p text)
 {
 	/* We avoid to generate a BRAnch in the middle of some expression,
 	 * as the code generator will write the contents of the fakestack
@@ -134,11 +129,9 @@ STATIC bool is_desirable(text)
 }
 
 
-STATIC cp_loops(b1,b2)
-	bblock_p b1,b2;
+static void cp_loops(bblock_p b1, bblock_p b2)
 {
 	/* Copy the loopset of b2 to b1 */
-
 	Lindex i;
 	loop_p lp;
 	for (i = Lfirst(b2->b_loops); i != (Lindex) 0;
@@ -149,9 +142,7 @@ STATIC cp_loops(b1,b2)
 }
 
 
-STATIC jump_cross(l1,l2,b1,b2)
-	line_p l1,l2;
-	bblock_p b1,b2;
+static void jump_cross(line_p l1, line_p l2, bblock_p b1, bblock_p b2)
 {
 	/* A cross-jump from block b2 to block b1 is found; the code in
 	 * block b2 from line l2 up to the BRAnch is removed; block b1 is
@@ -214,8 +205,7 @@ STATIC jump_cross(l1,l2,b1,b2)
 }
 
 
-STATIC bool try_tail(b1,b2)
-	bblock_p b1,b2;
+static bool try_tail(bblock_p b1, bblock_p b2)
 {
 	/* See if b1 and b2 end on the same sequence of instructions */
 
@@ -263,8 +253,7 @@ STATIC bool try_tail(b1,b2)
 
 
 
-STATIC bool try_pred(b)
-	bblock_p b;
+static bool try_pred(bblock_p b)
 {
 	/* See if there is any pair (b1,b2), both in PRED(b) for
 	 * which we can perform cross jumping.
@@ -289,8 +278,7 @@ STATIC bool try_pred(b)
 
 
 
-cj_optimize(p)
-	proc_p p;
+int cj_optimize(void *param)
 {
 	/* Perform cross jumping for procedure p.
 	 * In case cases a cross-jumping optimization which give
@@ -299,10 +287,12 @@ cj_optimize(p)
 	 * untill we find no further optimizations.
 	 */
 
+	proc_p p = (proc_p)param;
+
 	bblock_p b;
 	bool changes = TRUE;
 
-	if (IS_ENTERED_WITH_GTO(p)) return;
+	if (IS_ENTERED_WITH_GTO(p)) return 0;
 	while(changes) {
 		changes = FALSE;
 		b = p->p_start; 
@@ -314,12 +304,11 @@ cj_optimize(p)
 			}
 		}
 	}
+	return 0;
 }
 
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	go(argc,argv,no_action,cj_optimize,no_action,no_action);
 	report("cross jumps",Scj);
@@ -334,8 +323,8 @@ main(argc,argv)
 
 extern char em_mnem[]; /* The mnemonics of the EM instructions. */
 
-STATIC showinstr(lnp) line_p lnp; {
-
+static void showinstr(line_p lnp)
+{
     /* Makes the instruction in `lnp' human readable. Only lines that
      * can occur in expressions that are going to be eliminated are
      * properly handled.

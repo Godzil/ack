@@ -7,20 +7,18 @@
  *      C O M P A C T   S E T S
  */
 
-
-extern	cset	Cempty_set();	/* (short)			*/
-extern	bool	Cis_elem();	/* (Celem, cset)		*/
-extern		Cadd();		/* (Celem, *cset)		*/
-extern		Cremove();	/* (Celem, *cset)		*/
-extern	Cindex	Cfirst();	/* (cset)			*/
-extern	Cindex	Cnext();	/* (Cindex, cset)		*/
-extern	Celem_t	Celem();	/* (Cindex)			*/
-extern		Cjoin();	/* (cset, *cset)		*/
-extern		Cintersect();	/* (cset, *cset)		*/
-extern		Cdeleteset();	/* (cset)			*/
-extern bool	Cis_subset();	/* (cset, cset)			*/
-extern 		Cclearset();	/* (cset, *cset)		*/
-extern		Ccopy_set();	/* (cset, *cset)		*/
-extern		Csubtract();	/* (cset, *cset)		*/
-extern bool	Cequal();	/* (cset, cset)			*/
-extern	short	Cnrelems();	/* (cset)			*/
+cset Cempty_set(short n);
+bool Cis_elem(Celem_t x, cset s);
+void Cadd(Celem_t x, cset *s_p);
+void Cremove(Celem_t x, cset *s_p);
+Cindex Cfirst(cset s);
+Cindex Cnext(Cindex i, cset s);
+Celem_t Celem(Cindex i);
+void Cjoin(cset s1, cset *s2_p);
+void Cintersect(cset s1, cset *s2_p);
+void Cdeleteset(cset s);
+bool Cis_subset(cset s1, cset s2);void Cclear_set(cset *s_p);
+void Ccopy_set(cset s1, cset *s2_p);
+void Csubtract(cset s1, cset *s2_p);
+bool Cequal(cset s1, cset s2);
+short Cnrelems(cset s);

@@ -46,7 +46,7 @@ typedef struct elemholder *lset;
 typedef struct bitvector  *cset;
 typedef elem_p Lindex;
 typedef short  Cindex;
-typedef char   *Lelem_t;
+typedef void  *Lelem_t;
 typedef short  Celem_t;
 
 typedef union pext_t *pext_p;
@@ -224,7 +224,7 @@ struct use {
  */
 
 
- struct elemholder {
+struct elemholder {
 	char	   *e_elem;	/* pointer to the element		*/
 	elem_p     e_next;	/* link					*/
 };

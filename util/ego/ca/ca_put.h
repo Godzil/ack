@@ -10,5 +10,5 @@
  */
 
 
-extern cputlines();
-extern cputmagic();
+void cputlines(line_p l, FILE *lf);
+void cputmagic(FILE *lf);

@@ -33,11 +33,9 @@
 #define CHANGED(p)	p->p_flags2 |= PF_CHANGED
 #define IS_CHANGED(p)	(p->p_flags2 & PF_CHANGED)
 
+void Sstat(proc_p proclist, long space);
 
-
-STATIC bool match_pars(fm,act)
-	formal_p fm;
-	actual_p act;
+static bool match_pars(formal_p fm, actual_p act)
 {
 	/* Check if every actual parameter has the same
 	 * size as its corresponding formal. If not, the
@@ -55,9 +53,7 @@ STATIC bool match_pars(fm,act)
 }
 
 
-STATIC bool change_act(p,act)
-	proc_p p;
-	actual_p act;
+static bool change_act(proc_p p, actual_p act)
 {
 	/* See if a call to p migth change any of the
 	 * operands of the actual parameter expression.
@@ -97,8 +93,7 @@ STATIC bool change_act(p,act)
 
 
 
-STATIC bool is_simple(expr)
-	line_p expr;
+static bool is_simple(line_p expr)
 {
 	/* See if expr is something simple, i.e. a constant or
 	 * a variable. So the expression must consist of
@@ -122,9 +117,7 @@ STATIC bool is_simple(expr)
 
 
 
-STATIC bool too_expensive(fm,act)
-	formal_p fm;
-	actual_p act;
+static bool too_expensive(formal_p fm, actual_p act)
 {
 	/* If the formal parameter is used often and the
 	 * actual parameter is not something simple
@@ -135,8 +128,8 @@ STATIC bool too_expensive(fm,act)
 
 	return (OFTEN_USED(fm) && !is_simple(act->ac_exp));
 }
-bool anal_params(c)
-	call_p c;
+
+bool anal_params(call_p c)
 {
 	/* Determine which of the actual parameters of a
 	 * call may be expanded in line.
@@ -172,8 +165,7 @@ bool anal_params(c)
 }
 
 
-STATIC short space_saved(c)
-	call_p c;
+static short space_saved(call_p c)
 {
 	/* When a call gets expanded in line, the total size of the
 	 * code usually gets incremented, because we have to
@@ -189,8 +181,7 @@ STATIC short space_saved(c)
 	return (1 + (c->cl_flags & CLF_INLPARS) + (c->cl_proc->p_nrformals>0));
 }
 
-STATIC short param_score(c)
-	call_p c;
+static short param_score(call_p c)
 {
 	/* If a call has an inline parameter that is a constant,
 	 * chances are high that other optimization techniques
@@ -219,8 +210,7 @@ STATIC short param_score(c)
 
 
 
-assign_ratio(c)
-	call_p c;
+void assign_ratio(call_p c)
 {
 	/* This routine is one of the most important ones
 	 * of the inline substitution phase. It assigns a number
@@ -266,8 +256,7 @@ assign_ratio(c)
 }
 
 
-call_p abstract(c)
-	call_p c;
+call_p abstract(call_p c)
 {
 	/* Abstract information from the call that is essential
 	 * for choosing the calls that will be expanded.
@@ -288,9 +277,7 @@ call_p abstract(c)
 
 
 
-STATIC adjust_counts(callee,ccf)
-	proc_p callee;
-	FILE   *ccf;
+static void adjust_counts(proc_p callee, FILE *ccf)
 {
 	/* A call to callee is expanded in line;
 	 * the text of callee is not removed, so
@@ -309,9 +296,7 @@ STATIC adjust_counts(callee,ccf)
 
 
 
-STATIC bool is_dispensable(callee,ccf)
-	proc_p callee;
-	FILE   *ccf;
+static bool is_dispensable(proc_p callee, FILE *ccf)
 {
 	/* A call to callee is expanded in line.
 	 * Decrement its P_NRCALLED field and see if
@@ -339,8 +324,7 @@ STATIC bool is_dispensable(callee,ccf)
 
 
 
-STATIC call_p nested_calls(a)
-	call_p a;
+static call_p nested_calls(call_p a)
 {
 	/* Get a list of all calls that will appear in the
 	 * EM text if the call 'a' is expanded in line.
@@ -369,8 +353,7 @@ STATIC call_p nested_calls(a)
 
 
 
-STATIC call_p find_origin(c)
-	call_p c;
+static call_p find_origin(call_p c)
 {
 	/* c is a nested call. Find the original call.
 	 * This origional must be in the P_CALS list
@@ -384,12 +367,12 @@ STATIC call_p find_origin(c)
 	}
 	assert(FALSE);
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
-STATIC selected(a)
-	call_p a;
+static void selected(call_p a)
 {
 	/* The call a is selected for in line expansion.
 	 * Mark the call as being selected and get the
@@ -405,9 +388,7 @@ STATIC selected(a)
 
 
 
-STATIC compare(x,best,space)
-	call_p x, *best;
-	long  space;
+static void compare(call_p x, call_p *best, long space)
 {
 	/* See if x is better than the current best choice */
 
@@ -423,9 +404,7 @@ STATIC compare(x,best,space)
 
 
 
-STATIC call_p best_one(list,space)
-	call_p list;
-	long  space;
+static call_p best_one(call_p list, long space)
 {
 	/* Find the best candidate of the list
 	 * that has not already been selected. The
@@ -449,8 +428,7 @@ STATIC call_p best_one(list,space)
 
 
 
-STATIC singles(cals)
-	call_p cals;
+static void singles(call_p cals)
 {
 	/* If a procedure is only called once, this call
 	 * will be expanded in line, because it costs
@@ -485,8 +463,7 @@ STATIC singles(cals)
 
 
 
-STATIC single_calls(proclist)
-	proc_p proclist;
+static void single_calls(proc_p proclist)
 {
 	proc_p p;
 
@@ -504,10 +481,7 @@ STATIC single_calls(proclist)
 
 
 
-select_calls(proclist,ccf,space)
-	proc_p proclist;
-	FILE   *ccf;
-	long space ;
+void select_calls(proc_p proclist, FILE *ccf, long space)
 {
 	/* Select all calls that are to be expanded in line. */
 
@@ -548,16 +522,15 @@ select_calls(proclist,ccf,space)
 
 
 
-STATIC nonnested_calls(cfile)
-	FILE *cfile;
+static void nonnested_calls(FILE *cfile)
 {
 	register call_p c,a;
 
 	while((c = getcall(cfile)) != (call_p) 0) {
 		/* find the call in the call list of the caller */
 		for (a = c->cl_caller->P_CALS;
-		     a != (call_p) 0 && c->cl_id != a->cl_id; a = a->cl_cdr);
-		assert(a != (call_p) 0 && a->cl_proc == c->cl_proc);
+		     a != NULL && c->cl_id != a->cl_id; ) a = a->cl_cdr;
+		assert(a != NULL && a->cl_proc == c->cl_proc);
 		if (IS_EVER_EXPANDED(a)) {
 			a->cl_actuals = c->cl_actuals;
 			c->cl_actuals = (actual_p) 0;
@@ -568,8 +541,7 @@ STATIC nonnested_calls(cfile)
 
 
 
-STATIC copy_pars(src,dest)
-	call_p src, dest;
+static void copy_pars(call_p src, call_p dest)
 {
 	/* Copy the actual parameters of src to dest. */
 
@@ -588,8 +560,7 @@ STATIC copy_pars(src,dest)
 
 
 
-STATIC nest_pars(cals)
-	call_p cals;
+static void nest_pars(call_p cals)
 {
 	/* Recursive auxiliary procedure of add_actuals. */
 
@@ -606,9 +577,7 @@ STATIC nest_pars(cals)
 
 
 
-add_actuals(proclist,cfile)
-	proc_p proclist;
-	FILE   *cfile;
+void add_actuals(proc_p proclist, FILE *cfile)
 {
 	/* Fetch the actual parameters of all selected calls.
 	 * For all non-nested calls (i.e. those calls that
@@ -632,8 +601,7 @@ add_actuals(proclist,cfile)
 
 
 
-STATIC clean(cals)
-	call_p *cals;
+static void clean(call_p *cals)
 {
 	call_p c,next,*cpp;
 
@@ -654,8 +622,7 @@ STATIC clean(cals)
 }
 
 
-cleancals(proclist)
-	proc_p proclist;
+void cleancals(proc_p proclist)
 {
 	/* Remove all calls in the P_CALS list of p
 	 * that were not selected for in line expansion.
@@ -671,9 +638,7 @@ cleancals(proclist)
 
 
 
-append_abstract(a,p)
-	call_p a;
-	proc_p p;
+void append_abstract(call_p a, proc_p p)
 {
 	/* Append an abstract of a call-descriptor to
 	 * the call-list of procedure p.
@@ -697,9 +662,7 @@ append_abstract(a,p)
  */
 
 
-Sstatist(list,space)
-	call_p list;
-	long space;
+void Sstatist(call_p list, long space)
 {
 	call_p c;
 
@@ -716,9 +679,7 @@ Sstatist(list,space)
 	}
 }
 
-Sstat(proclist,space)
-	proc_p proclist;
-	long space;
+void Sstat(proc_p proclist, long space)
 {
 	proc_p p;
 

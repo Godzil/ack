@@ -20,21 +20,21 @@
 
 FILE *outfile;
 
-STATIC proc_p thispro;
+static proc_p thispro;
 
-STATIC outinst(m) {
-
+static void outinst(int m)
+{
 	outbyte( (byte) m );
 }
 
-STATIC coutshort(i) short i; {
-
+static void coutshort(short i)
+{
 	outbyte( (byte) (i&BMASK) );
 	outbyte( (byte) (i>>8) );
 }
 
-STATIC coutint(i) short i; {
-
+static void coutint(short i)
+{
 	if (i>= -sp_zcst0 && i< sp_ncst0-sp_zcst0)
 		outbyte( (byte) (i+sp_zcst0+sp_fcst0) );
 	else {
@@ -43,8 +43,8 @@ STATIC coutint(i) short i; {
 	}
 }
 
-STATIC coutoff(off) offset off; {
-
+static void coutoff(offset off)
+{
 	if ((short) off == off)
 		coutint((short) off);
 	else {
@@ -55,12 +55,10 @@ STATIC coutoff(off) offset off; {
 }
 
 
-STATIC outsym(s,t)
-	char *s;
-	int t;
+static void outsym(char *s, int t)
 {
-	register byte *p;
-	register unsigned num;
+	byte *p;
+	unsigned int num;
 
 	if (s[0] == '.') {
 		num = atoi(&s[1]);
@@ -85,22 +83,20 @@ STATIC outsym(s,t)
 }
 
 
-STATIC outdsym(dbl)
-	dblock_p dbl;
+static void outdsym(dblock_p dbl)
 {
 	if (dnames[dbl->d_id]) outsym(dnames[dbl->d_id],sp_dnam);
 }
 
 
-STATIC outpsym(p)
-	proc_p p;
+static void outpsym(proc_p p)
 {
 	outsym(pnames[p->p_id],sp_pnam);
 }
 
 
-STATIC outddef(id) short id; {
-
+static void outddef(short id)
+{
 	dblock_p dbl;
 
 	dbl = dmap[id];
@@ -111,7 +107,8 @@ STATIC outddef(id) short id; {
 	}
 }
 
-STATIC outpdef(p) proc_p p; {
+static void outpdef(proc_p p)
+{
 	p->p_flags2 |= PF_SYMOUT;
 	if (p->p_flags1 & PF_EXTERNAL) {
 		outinst(ps_exp);
@@ -120,7 +117,8 @@ STATIC outpdef(p) proc_p p; {
 }
 
 
-STATIC outdocc(obj) obj_p obj; {
+static void outdocc(obj_p obj)
+{
 	dblock_p dbl;
 
 	dbl = obj->o_dblock;
@@ -135,7 +133,8 @@ STATIC outdocc(obj) obj_p obj; {
 }
 
 
-STATIC outpocc(p) proc_p p; {
+static void outpocc(proc_p p)
+{
 	if ((p->p_flags2 & PF_SYMOUT) == 0) {
 		p->p_flags2 |= PF_SYMOUT;
 		if ((p->p_flags1 & PF_EXTERNAL) == 0) {
@@ -146,8 +145,7 @@ STATIC outpocc(p) proc_p p; {
 }
 
 
-STATIC coutobject(obj)
-	obj_p obj;
+static void coutobject(obj_p obj)
 {
 	/* In general, an object is defined by a global data
 	 * label and an offset. There are two special cases:
@@ -169,9 +167,10 @@ STATIC coutobject(obj)
 }
 
 
-STATIC cputstr(abp) register argb_p abp; {
-	register argb_p tbp;
-	register length;
+static void cputstr(argb_p abp)
+{
+	argb_p tbp;
+	int length;
 
 	length = 0;
 	tbp = abp;
@@ -188,8 +187,7 @@ STATIC cputstr(abp) register argb_p abp; {
 }
 
 
-STATIC outnum(n)
-	int n;
+static void outnum(int n)
 {
 	if (n < 256) {
 		outbyte((byte) sp_ilb1);
@@ -201,8 +199,7 @@ STATIC outnum(n)
 }
 
 
-STATIC numlab(n)
-	int n;
+static void numlab(int n)
 {
 	if (n < sp_nilb0) {
 		outbyte((byte) (n + sp_filb0));
@@ -212,10 +209,9 @@ STATIC numlab(n)
 }
 
 
-STATIC cputargs(lnp)
-	line_p lnp;
+static void cputargs(line_p lnp)
 {
-	register arg_p ap;
+	arg_p ap;
 	int cnt = 0;
 	ap = ARG(lnp);
 	while (ap != (arg_p) 0) {
@@ -264,8 +260,7 @@ STATIC cputargs(lnp)
 
 
 
-STATIC outoperand(lnp)
-	line_p lnp;
+static void outoperand(line_p lnp)
 {
 	/* Output the operand of instruction lnp */
 
@@ -320,8 +315,7 @@ STATIC outoperand(lnp)
 }
 
 
-STATIC outvisibility(lnp)
-	line_p lnp;
+static void outvisibility(line_p lnp)
 {
 	/* In EM names of datalabels and procedures can be made
 	 * externally visible, so they can be used in other files.
@@ -377,9 +371,7 @@ STATIC outvisibility(lnp)
 }
 
 
-cputlines(l,lf)
-	line_p l;
-	FILE *lf;
+void cputlines(line_p l, FILE *lf)
 {
 	/* Output the lines in Campact assembly language
 	 * format.
@@ -405,13 +397,12 @@ cputlines(l,lf)
 		oldline(lnp);
 	}
 	if (lmap != (line_p *) 0) {
-		oldmap(lmap,llength);
+		oldmap((short **)lmap,llength);
 		lmap = (line_p *) 0;
 	}
 }
 
-cputmagic(lf)
-	FILE *lf;
+void cputmagic(FILE *lf)
 {
 	/* write the magic number */
 

@@ -35,42 +35,42 @@ extern sym_p symhash[];
 extern prc_p prochash[];
 extern num_p numhash[];
 
-extern lab_id	instr_lab();		/* ( short number)
-					 * Maps EM labels to sequential
+lab_id instr_lab(short number);
+					/* Maps EM labels to sequential
 					 * integers.
 					 */
-extern dblock_p	symlookup();		/* (char *ident, int status)
-					 * Look up the data block with
+dblock_p symlookup(char *name, int status);
+					/* Look up the data block with
 					 * the given name.
 					 */
-extern dblock_p	getsym();		/* ( int status)
-					 * Read and look up a symbol.
+dblock_p getsym(int status);
+					/* Read and look up a symbol.
 					 * If this is the first occurrence
 					 * of it, then make it external
 					 * (if status=OCCURRING) or
 					 * internal (if DEFINING).
 					 */
-extern proc_p	getproc();		/* (int status)
-					 * Same as getsym, but for procedure
+proc_p getproc(int status);
+					/* Same as getsym, but for procedure
 					 * names.
 					 */
-extern proc_p	proclookup();		/* ( char *ident, int status)
-					 * Find (in the hashtable) the
+proc_p proclookup(char *name, int status);
+					/* Find (in the hashtable) the
 					 * procedure with the given name.
 					 */
-extern		cleaninstrlabs();	/* ( )
-					 * Forget about all instruction labels.
+void cleaninstrlabs();
+					/* Forget about all instruction labels.
 					 */
-extern		dump_procnames();	/* (prc_p hash[], int n, FILE *f)
-					 * Save the names of the procedures
+void dump_procnames(prc_p hash[], int n, FILE *f);
+					/* Save the names of the procedures
 					 * in file f; hash is the hashtable
 					 * used and n is its length.
 					 */
-extern		cleanprocs();		/* (prc_p hash[], int n,mask)
-					 * Make the names of all procedures
+void cleanprocs(prc_p hash[], int n, int mask);
+					/* Make the names of all procedures
 					 * for which p_flags1&mask = 0 invisible
 					 */
-extern		cleandblocks();		/* (sym_p hash[], int n)
-					 * Make the names of all data blocks
+void cleandblocks(sym_p hash[], int n, int mask);
+					/* Make the names of all data blocks
 					 * for which d_flags1&mask = 0 invisible
 					 */

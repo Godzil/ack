@@ -38,25 +38,24 @@
 short nrglobals;
 short nrvars;
 
-STATIC int Slv;
-STATIC bool mesgflag = FALSE;  /* Suppress generation of live/dead info */
+static int Slv;
+static bool mesgflag = FALSE;  /* Suppress generation of live/dead info */
 
-STATIC app_block();
+static void app_block(line_p l, bblock_p b);
 
-STATIC clean_up()
+static void clean_up()
 {
 	local_p *p;
 
 	for (p = &locals[1]; p <= &locals[nrlocals]; p++) {
 		oldlocal(*p);
 	}
-	oldmap(locals,nrlocals);
+	oldmap((short **)locals,nrlocals);
 }
 
 
 
-STATIC bool is_dir_use(l)
-	line_p l;
+static bool is_dir_use(line_p l)
 {
 	/* See if l is a direct use of some variable
 	 * (i.e. not through a pointer). A LIL is a
@@ -89,8 +88,7 @@ STATIC bool is_dir_use(l)
 
 
 
-STATIC bool is_indir_use(l)
-	line_p l;
+static bool is_indir_use(line_p l)
 {
 	/* See if instruction l uses some variable(s) indirectly,
 	 * i.e. through a pointer or via a procedure call.
@@ -113,12 +111,12 @@ STATIC bool is_indir_use(l)
 			return FALSE;
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
-STATIC bool is_def(l)
-	line_p l;
+static bool is_def(line_p l)
 {
 	/* See if l does a direct definition */
 
@@ -134,11 +132,11 @@ STATIC bool is_def(l)
 			return FALSE;
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
-STATIC def_use(p)
-	proc_p p;
+static void def_use(proc_p p)
 {
 	/* Compute DEF(b) and USE(b), for every basic block b
 	 * of procedure p. DEF(b) contains the variables that
@@ -151,8 +149,8 @@ STATIC def_use(p)
 	 * the basic block from beginning till end.
 	 */
 
-	register bblock_p b;
-	register line_p l;
+	bblock_p b;
+	line_p l;
 	short v;
 	bool found;
 	cset all_ind_uses;
@@ -200,14 +198,11 @@ STATIC def_use(p)
 
 
 
-STATIC unite_ins(bbset,setp)
-	lset bbset;
-	cset *setp;
+static void unite_ins(lset bbset, cset *setp)
 {
 	/* Take the union of L_IN(b), for all b in bbset,
 	 * and put the result in setp.
 	 */
-
 	Lindex i;
 
 	Cclear_set(setp);
@@ -218,8 +213,7 @@ STATIC unite_ins(bbset,setp)
 
 
 
-STATIC solve_lv(p)
-	proc_p p;
+static void solve_lv(proc_p p)
 {
 	/* Solve the data flow equations for Live Variables,
 	 * for procedure p. These equations are:
@@ -254,8 +248,7 @@ STATIC solve_lv(p)
 }
 
 
-STATIC live_variables_analysis(p)
-	proc_p p;
+static void live_variables_analysis(proc_p p)
 {
 	make_localtab(p);
 	nrvars = nrglobals + nrlocals;
@@ -264,14 +257,13 @@ STATIC live_variables_analysis(p)
 }
 
 
-STATIC init_live_dead(b)
-	bblock_p b;
+static void init_live_dead(bblock_p b)
 {
 	/* For every register variable, see if it is
 	 * live or dead at the end of b.
 	 */
 
-	register short v;
+	short v;
 	local_p loc;
 
 	for (v = 1; v <= nrlocals; v++) {
@@ -286,9 +278,7 @@ STATIC init_live_dead(b)
 
 
 
-STATIC line_p make_mesg(mesg,loc)
-	short mesg;
-	local_p loc;
+static line_p make_mesg(short mesg,local_p loc)
 {
 	/* Create a line for a message stating that
 	 * local variable loc is live/dead. This message
@@ -297,7 +287,7 @@ STATIC line_p make_mesg(mesg,loc)
 	 */
 
 	line_p l = newline(OPLIST);
-	register arg_p ap;
+	arg_p ap;
 
 	l->l_instr = ps_mes;
 	ap = ARG(l) = newarg(ARGOFF);
@@ -313,8 +303,7 @@ STATIC line_p make_mesg(mesg,loc)
 
 
 
-STATIC block_entry(b,prev)
-	bblock_p b,prev;
+static void block_entry(bblock_p b, bblock_p prev)
 {
 	short v,vn;
 	local_p loc;
@@ -345,9 +334,7 @@ STATIC block_entry(b,prev)
 
 
 
-STATIC app_block(l,b)
-	line_p l;
-	bblock_p b;
+static void app_block(line_p l, bblock_p b)
 {
 	line_p x = b->b_start;
 
@@ -369,11 +356,7 @@ STATIC app_block(l,b)
 
 
 
-STATIC definition(l,useless_out,v_out,mesgflag)
-	line_p l;
-	bool *useless_out;
-	short *v_out;
-	bool mesgflag;
+static void definition(line_p l, bool *useless_out, short *v_out, bool mesgflag)
 {
 	/* Process a definition. If the defined (register-) variable
 	 * is live after 'l', then create a live-message and put
@@ -420,9 +403,7 @@ STATIC definition(l,useless_out,v_out,mesgflag)
 
 
 
-STATIC use(l,mesgflag)
-	line_p l;
-	bool mesgflag;
+static void use(line_p l, bool mesgflag)
 {
 	/* Process a use. If the defined (register-) variable
 	 * is dead after 'l', then create a dead-message and put
@@ -447,11 +428,9 @@ STATIC use(l,mesgflag)
 
 
 
-STATIC nothing() { }  /* No action to be undertaken at level 0 of parser */
+static void nothing() { }  /* No action to be undertaken at level 0 of parser */
 
-STATIC rem_code(l1,l2,b)
-	line_p l1,l2;
-	bblock_p b;
+static void rem_code(line_p l1, line_p l2, bblock_p b)
 {
 	line_p l,x,y,next;
 
@@ -479,9 +458,7 @@ STATIC rem_code(l1,l2,b)
 
 
 
-lv_mesg(p,mesgflag)
-	proc_p p;
-	bool mesgflag;
+void lv_mesg(proc_p p, bool mesgflag)
 {
 	/* Create live/dead messages for every possible register
 	 * variable of p. A dead-message is put after a "use" of
@@ -508,8 +485,8 @@ lv_mesg(p,mesgflag)
 	 * On the fly, useless assignments are removed.
 	 */
 
-	register bblock_p b;
-	register line_p l;
+	bblock_p b;
+	line_p l;
 	line_p lnp, prev;
 	bblock_p prevb = (bblock_p) 0;
 	short v;
@@ -551,12 +528,10 @@ OUTVERBOSE("useless assignment ,proc %d,local %d", curproc->p_id,
 }
 
 
-STATIC lv_extend(p)
-	proc_p p;
+static void lv_extend(proc_p p)
 {
 	/* Allocate extended data structures for Use Definition analysis */
-
-	register bblock_p b;
+	bblock_p b;
 
 	for (b = p->p_start; b != (bblock_p) 0; b = b->b_next) {
 		b->b_extend = newlvbx();
@@ -564,12 +539,10 @@ STATIC lv_extend(p)
 }
 
 
-STATIC lv_cleanup(p)
-	proc_p p;
+static void lv_cleanup(proc_p p)
 {
 	/* Deallocate extended data structures for Use Definition analysis */
-
-	register bblock_p b;
+	bblock_p b;
 
 	for (b = p->p_start; b != (bblock_p) 0; b = b->b_next) {
 		Cdeleteset(USE(b));
@@ -580,21 +553,22 @@ STATIC lv_cleanup(p)
 	}
 }
 
-lv_flags(p)
-	char *p;
+int lv_flags(void *param)
 {
+	char *p = (char *)param;
 	switch(*p) {
 		case 'N':
 			mesgflag = TRUE;
 			break;
 	}
+	return 0;
 }
 
 
-lv_optimize(p)
-	proc_p p;
+int lv_optimize(void *param)
 {
-	if (IS_ENTERED_WITH_GTO(p)) return;
+	proc_p p = (proc_p)param;
+	if (IS_ENTERED_WITH_GTO(p)) return 0;
 	locals = (local_p *) 0;
 	lv_extend(p);
 	live_variables_analysis(p);
@@ -602,13 +576,10 @@ lv_optimize(p)
 	/* generate live-dead messages for regvars */
 	lv_cleanup(p);
 	clean_up();
+	return 0;
 }
 
-
-
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc,char *argv[])
 {
 	go(argc,argv,init_globals,lv_optimize,no_action,lv_flags);
 	report("useless assignments deleted",Slv);

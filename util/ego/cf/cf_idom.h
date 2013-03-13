@@ -9,8 +9,8 @@
  */
 
 
-extern dominator();	/* (bblock_p head, short n)
-			 * Compute for every basic block its immediate
+void dominators(bblock_p r, short n);
+			/* Compute for every basic block its immediate
 			 * dominator. The dominator relation is hence
 			 * recorded as a tree in which every node contains
 			 * a pointer to its parent, which is its

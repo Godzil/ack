@@ -26,8 +26,7 @@
 extern char em_flag[];
 
 
-STATIC succeeds(succ,pred)
-	bblock_p succ, pred;
+static void succeeds(bblock_p succ, bblock_p pred)
 {
 	assert(pred != (bblock_p) 0);
 	if (succ != (bblock_p) 0) {
@@ -36,7 +35,6 @@ STATIC succeeds(succ,pred)
 	}
 }
 
-
 #define IS_RETURN(i)	(i == op_ret || i == op_rtt)
 #define IS_CASE_JUMP(i)	(i == op_csa || i == op_csb)
 #define IS_UNCOND_JUMP(i) (i <= sp_lmnem && (em_flag[i-sp_fmnem] & EM_FLO) == FLO_T)
@@ -44,10 +42,7 @@ STATIC succeeds(succ,pred)
 #define TARGET(lnp)	(lbmap[INSTRLAB(lnp)])
 #define ATARGET(arg)	(lbmap[arg->a_a.a_instrlab])
 
-
-
-STATIC arg_p skip_const(arg)
-	arg_p arg;
+static arg_p skip_const(arg_p arg)
 {
 	assert(arg != (arg_p) 0);
 	switch(arg->a_type) {
@@ -62,9 +57,7 @@ STATIC arg_p skip_const(arg)
 }
 
 
-STATIC arg_p use_label(arg,b)
-	arg_p arg;
-	bblock_p b;
+static arg_p use_label(arg_p arg, bblock_p b)
 {
 	if (arg->a_type == ARGINSTRLAB) {
 		/* arg is a non-null label */
@@ -75,18 +68,14 @@ STATIC arg_p use_label(arg,b)
 
 
 
-STATIC case_flow(instr,desc,b)
-	short    instr;
-	line_p   desc;
-	bblock_p b;
+static void case_flow(short instr, line_p desc, bblock_p b)
 {
 	/* Analyse the case descriptor (given as a ROM pseudo instruction).
 	 * Every instruction label appearing in the descriptor
 	 * heads a basic block that is a successor of the block
 	 * in which the case instruction appears (b).
 	 */
-
-	register arg_p arg;
+	arg_p arg;
 
 	assert(instr == op_csa || instr == op_csb);
 	assert(TYPE(desc) == OPLIST);
@@ -120,8 +109,7 @@ STATIC case_flow(instr,desc,b)
 
 
 
-STATIC line_p case_descr(lnp)
-	line_p lnp;
+static line_p case_descr(line_p lnp)
 {
 	/* lnp is the instruction just before a csa or csb,
 	 * so it is the instruction that pushes the address
@@ -130,8 +118,7 @@ STATIC line_p case_descr(lnp)
 	 * Note that this instruction will always be part
 	 * of the procedure in which the csa/csb occurs.
 	 */
-
-	register line_p l;
+	line_p l;
 	dblock_p d;
 	obj_p    obj;
 	dblock_id id;
@@ -172,13 +159,12 @@ STATIC line_p case_descr(lnp)
 	}
 	error("cannot find rom pseudo for case descriptor");
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
-STATIC last2_instrs(b,last_out,prev_out)
-	bblock_p b;
-	line_p   *last_out,*prev_out;
+static void last2_instrs(bblock_p b, line_p *last_out, line_p *prev_out)
 {
 	/* Determine the last and one-but-last instruction
 	 * of basic block b. An end-pseudo is not regarded
@@ -186,7 +172,7 @@ STATIC last2_instrs(b,last_out,prev_out)
 	 * instruction, prev_out is 0.
 	 */
 
-	register line_p l1,l2;
+	line_p l1,l2;
 
 	l2 = b->b_start;  /* first instruction of b */
 	assert(l2 != (line_p) 0); /* block can not be empty */
@@ -203,16 +189,13 @@ STATIC last2_instrs(b,last_out,prev_out)
 	}
 }
 
-
-
-control_flow(head)
-	bblock_p head;
+void control_flow(bblock_p head)
 {
 	/* compute the successor and predecessor relation
 	 * for every basic block.
 	 */
 
-	register bblock_p b;
+	bblock_p b;
 	line_p lnp, prev;
 	short instr;
 

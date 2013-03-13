@@ -8,8 +8,8 @@
  *  I C _ A U X . C
  */
 
-
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <em_pseu.h>
 #include <em_spec.h>
 #include <em_mnem.h>
@@ -24,12 +24,9 @@
 #include "../share/alloc.h"
 #include "ic_aux.h"
 
-
-
 /* opr_size */
 
-offset opr_size(instr)
-	short instr;
+offset opr_size(short instr)
 {
 	switch(instr) {
 		case op_loe:
@@ -49,14 +46,14 @@ offset opr_size(instr)
 			error("illegal operand of opr_size: %d", instr);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
 /* dblockdef */
 
-STATIC offset argsize(arg)
-	arg_p arg;
+static offset argsize(arg_p arg)
 {
 	/* Compute the size (in bytes) that the given initializer
 	 * will occupy.
@@ -93,12 +90,11 @@ STATIC offset argsize(arg)
 			assert(FALSE);
 		}
 		/* NOTREACHED */
+		return 0;
 }
 
 
-STATIC offset blocksize(pseudo,args)
-	byte  pseudo;
-	arg_p args;
+static offset blocksize(byte pseudo, arg_p args)
 {
 	/* Determine the number of bytes of a datablock */
 
@@ -124,11 +120,11 @@ STATIC offset blocksize(pseudo,args)
 		assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
-STATIC arg_p copy_arg(arg)
-	arg_p arg;
+static arg_p copy_arg(arg_p arg)
 {
 	/* Copy one argument */
 
@@ -142,8 +138,7 @@ STATIC arg_p copy_arg(arg)
 
 
 
-STATIC arg_p copy_rom(args)
-	arg_p args;
+static arg_p copy_rom(arg_p args)
 {
 	/* Make a copy of the values of a rom,
 	 * provided that the rom contains only integer values,
@@ -167,10 +162,7 @@ STATIC arg_p copy_rom(args)
 
 
 
-dblockdef(db,n,lnp)
-	dblock_p db;
-	int	 n;
-	line_p	 lnp;
+void dblockdef(dblock_p db, int n, line_p lnp)
 {
 	/* Process a data block defining occurrence */
 
@@ -206,10 +198,7 @@ dblockdef(db,n,lnp)
 
 /* combine */
 
-combine(db,l1,l2,pseu)
-	dblock_p db;
-	line_p   l1,l2;
-	byte pseu;
+void combine(dblock_p db, line_p l1, line_p l2, byte pseu)
 {
 	/* Combine two successive ROMs/CONs (without a data label
 	 * in between into a single ROM. E.g.:
@@ -258,11 +247,8 @@ combine(db,l1,l2,pseu)
 
 /* arglist */
 
-STATIC arg_string(length,abp)
-	offset  length;
-	register argb_p abp;
+static void arg_string(offset length, argb_p abp)
 {
-
 	while (length--) {
 		if (abp->ab_index == NARGBYTES)
 			abp = abp->ab_next = newargb();
@@ -271,8 +257,7 @@ STATIC arg_string(length,abp)
 }
 
 
-line_p arglist(n)
-	int n;
+line_p arglist(int n)
 {
 	line_p	lnp;
 	register arg_p ap,*app;
@@ -355,8 +340,7 @@ line_p arglist(n)
 
 /* is_datalabel */
 
-bool is_datalabel(l)
-	line_p l;
+bool is_datalabel(line_p l)
 {
 	VL(l);
 	return (l->l_instr == (byte) ps_sym);
@@ -366,8 +350,7 @@ bool is_datalabel(l)
 
 /* block_of_lab */
 
-dblock_p block_of_lab(ident)
-	char *ident;
+dblock_p block_of_lab(char *ident)
 {
 	dblock_p dbl;
 
@@ -387,10 +370,7 @@ dblock_p block_of_lab(ident)
 
 /* object */
 
-STATIC obj_p make_object(dbl,off,size)
-	dblock_p dbl;
-	offset   off;
-	offset   size;
+static obj_p make_object(dblock_p dbl, offset off, offset size)
 {
 	/* Allocate an obj struct with the given attributes
 	 * (if it did not exist already).
@@ -447,10 +427,7 @@ STATIC obj_p make_object(dbl,off,size)
 
 
 
-obj_p object(ident,off,size)
-	char *ident;
-	offset off;
-	offset size;
+obj_p object(char *ident, offset off, offset size)
 {
 	dblock_p dbl;
 

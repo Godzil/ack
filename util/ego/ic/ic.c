@@ -55,15 +55,13 @@ offset 		mespar = UNKNOWN_SIZE;
 		/* argumument of ps_par message of current procedure */
 
 
-extern		process_lines();
-extern int	readline();
-extern line_p	readoperand();
-extern line_p	inpseudo();
+void process_lines(FILE *fout);
+int readline(short *instr_out, line_p *lnp_out);
+line_p readoperand(short instr);
+line_p inpseudo(short n);
 
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	/* The input files must be legal EM Compact
 	 * Assembly Language files, as produced by the EM Peephole
@@ -128,7 +126,7 @@ main(argc,argv)
 #define DELETED_INSTR	5
 
 
-STATIC add_end()
+static void add_end()
 {
 	/* Add an end-pseudo to the current instruction list */
 
@@ -138,8 +136,7 @@ STATIC add_end()
 }
 
 
-process_lines(fout)
-	FILE *fout;
+void process_lines(FILE *fout)
 {
 	line_p lnp;
 	short   instr;
@@ -228,11 +225,9 @@ process_lines(fout)
 
 
 
-int readline(instr_out, lnp_out)
-	short  *instr_out;
-	line_p *lnp_out;
+int readline(short *instr_out, line_p *lnp_out)
 {
-	register line_p lnp;
+	line_p lnp;
 	short n;
 
 	/* Read one line. If it is a normal EM instruction without
@@ -295,18 +290,16 @@ int readline(instr_out, lnp_out)
 			return NORMAL;
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
-line_p readoperand(instr)
-	short instr;
+line_p readoperand(short instr)
 {
 	/* Read the operand of the given instruction.
 	 * Create a line struct and return a pointer to it.
 	 */
-
-
-	register line_p lnp;
+	line_p lnp;
 	short flag;
 
 	VI(instr);
@@ -420,8 +413,7 @@ static char *hol_label()
 }
 
 
-line_p inpseudo(n)
-	short n;
+line_p inpseudo(short n)
 {
 	int m;
 	line_p lnp;
@@ -454,7 +446,7 @@ line_p inpseudo(n)
 				curhol = hol_label();
 			}
 			n = ps_bss;
-			/* fall through */			
+			/* fall through */
 		case ps_bss:
 		case ps_rom:
 		case ps_con:
@@ -570,4 +562,6 @@ line_p inpseudo(n)
 			assert(FALSE);
 	}
 	/* NOTREACHED */
+
+	return 0;
 }

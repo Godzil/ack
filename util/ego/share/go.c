@@ -23,13 +23,13 @@
 #include "go.h"
 
 
-STATIC bool report_flag = FALSE;  /* report #optimizations found? */
+static bool report_flag = FALSE;  /* report #optimizations found? */
 #ifdef DEBUG
-STATIC bool core_flag = FALSE;    /* report core usage? */
+static bool core_flag = FALSE;    /* report core usage? */
 #endif
 
 
-STATIC void mach_init(char *machfile, int (*phase_machinit)(FILE *))
+static void mach_init(char *machfile, int (*phase_machinit)(void *))
 {
 	/* Read target machine dependent information */
 
@@ -45,9 +45,9 @@ STATIC void mach_init(char *machfile, int (*phase_machinit)(FILE *))
 
 
 
-void go(int argc, char *argv[], int (*initialize)(void), 
-        int (*optimize)(proc_p), int (*phase_machinit)(FILE *), 
-        int (*proc_flag)(char *))
+void go(int argc, char *argv[], int (*initialize)(void *), 
+        int (*optimize)(void *), int (*phase_machinit)(void *), 
+        int (*proc_flag)(void *))
 {
 	FILE *f, *gf, *f2, *gf2;  /* The EM input and output and
 				 * the basic block graphs input and output
@@ -91,9 +91,9 @@ void go(int argc, char *argv[], int (*initialize)(void),
 		}
 	}
 	time_space_ratio = (time_opt ? 100 : 0);
-	fproc = getptable(pname); /* proc table */
-	fdblock = getdtable(dname);  /* data block table */
-	(*initialize)();
+	fproc = getptable(&pname); /* proc table */
+	fdblock = getdtable(&dname);  /* data block table */
+	(*initialize)(NULL);
 	if (optimize == no_action) return;
 	f   = openfile(lname,"r");
 	gf  = openfile(bname,"r");
@@ -134,9 +134,9 @@ void go(int argc, char *argv[], int (*initialize)(void),
 }
 
 
-int no_action(proc_p dummy)
+int no_action(void *dummy)
 {
-   return 0;   
+   return 0;
 }
 
 void core_usage()

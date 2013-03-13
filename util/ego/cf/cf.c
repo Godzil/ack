@@ -36,8 +36,8 @@
 
 extern char em_flag[];
 
-STATIC cset	lpi_set;	/* set of procedures used in LPI instruction */
-STATIC cset	cai_set;	/* set of all procedures doing a CAI */
+static cset	lpi_set;	/* set of procedures used in LPI instruction */
+static cset	cai_set;	/* set of all procedures doing a CAI */
 
 
 /* The procedure getbblocks reads the EM textfile and 
@@ -55,15 +55,15 @@ STATIC cset	cai_set;	/* set of all procedures doing a CAI */
 
 /* These global variables are used by getbblocks and nextblock. */
 
-STATIC bblock_p b, *bp;  /* b is the current basic block, bp is
+static bblock_p b, *bp;  /* b is the current basic block, bp is
 			  * the address where the next block has
 			  * to be linked.
 			  */
-STATIC line_p   lnp, *lp; /* lnp is the current line, lp is
+static line_p   lnp, *lp; /* lnp is the current line, lp is
 			   * the address where the next line
 			   * has to be linked.
 			   */
-STATIC short state;	/* We use a finite state machine with the
+static short state;	/* We use a finite state machine with the
 			 * following states:
 			 *  LABEL0: after the first (successive)
 			 *	    instruction label.
@@ -78,7 +78,7 @@ STATIC short state;	/* We use a finite state machine with the
 			 */
 
 
-STATIC nextblock()
+static void nextblock()
 {
 	/* allocate a new basic block structure and
 	 * set b, bp and lp.
@@ -99,8 +99,7 @@ STATIC nextblock()
 }
 
 
-STATIC short kind(lnp)
-	line_p lnp;
+static short kind(line_p lnp)
 {
 	/* determine if lnp is a label, branch, end or otherwise */
 
@@ -116,15 +115,14 @@ STATIC short kind(lnp)
 }
 
 
-STATIC line_p doread_line(p_out)
-	proc_p *p_out;
+static line_p doread_line(proc_p *p_out)
 {
 	/* read a line, and check pseudos for procedure addresses */
 
-	register line_p lnp = read_line(p_out);
+	line_p lnp = read_line(p_out);
 
 	if (lnp && TYPE(lnp) == OPLIST && INSTR(lnp) != ps_mes) {
-		register arg_p arg = ARG(lnp);
+		arg_p arg = ARG(lnp);
 		
 		while (arg) {
 			if (arg->a_type == ARGPROC) {
@@ -137,12 +135,7 @@ STATIC line_p doread_line(p_out)
 	return lnp;
 }
 
-STATIC bool getbblocks(fp,kind_out,n_out,g_out,l_out)
-	FILE *fp;
-	short *kind_out;
-	short *n_out;
-	bblock_p *g_out;
-	line_p *l_out;
+static bool getbblocks(FILE *fp, short *kind_out, short *n_out, bblock_p *g_out, line_p *l_out)
 {
 	bblock_p head = (bblock_p) 0;
 	line_p headl = (line_p) 0;
@@ -237,8 +230,7 @@ STATIC bool getbblocks(fp,kind_out,n_out,g_out,l_out)
 }
 
 
-STATIC interproc_analysis(p)
-	proc_p p;
+static void interproc_analysis(proc_p p)
 {
 	/* Interprocedural analysis of a procedure p determines:
 	 *  - all procedures called by p (the 'call graph')
@@ -342,8 +334,7 @@ STATIC interproc_analysis(p)
 }
 
 
-STATIC cf_cleanproc(p)
-	proc_p p;
+static void cf_cleanproc(proc_p p)
 {
 	/* Remove the extended data structures of p */
 
@@ -369,8 +360,7 @@ STATIC cf_cleanproc(p)
 #define ENVIRON(p)		(p->p_flags1 & (byte) PF_ENVIRON)
 
 
-STATIC bool add_info(q,p)
-	proc_p q,p;
+static bool add_info(proc_p q, proc_p p)
 {
 	/* Determine the consequences for used/changed variables info
 	 * of the fact that p calls q. If e.g. q changes a variable X
@@ -448,14 +438,12 @@ STATIC bool add_info(q,p)
 
 
 
-STATIC trans_clos(head)
-	proc_p head;
+static void trans_clos(proc_p head)
 {
 	/* Compute the transitive closure of the used/changed
 	 * variable information.
 	 */
-
-	register proc_p p,q;
+	proc_p p,q;
 	Cindex i;
 	bool changes = TRUE;
 
@@ -477,7 +465,7 @@ STATIC trans_clos(head)
 
 
 
-indir_calls()
+void indir_calls()
 {
 	Cindex i;
 	proc_p p;
@@ -492,9 +480,7 @@ indir_calls()
 
 
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	FILE *f, *f2, *gf2;  /* The EM input, EM output, basic block output */
 	bblock_p g;
@@ -502,8 +488,8 @@ main(argc,argv)
 	line_p l;
 
 	linecount = 0;
-	fproc = getptable(pname); /* proc table */
-	fdblock = getdtable(dname);  /* data block table */
+	fproc = getptable(&pname); /* proc table */
+	fdblock = getdtable(&dname);  /* data block table */
 	lpi_set = Cempty_set(plength);
 	cai_set = Cempty_set(plength);
 	if ((f = fopen(lname,"r")) == NULL) {
@@ -554,4 +540,5 @@ main(argc,argv)
 	}
 	putptable(fproc,f,TRUE);
 	exit(0);
+	return 0;
 }

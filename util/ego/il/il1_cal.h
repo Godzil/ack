@@ -29,8 +29,8 @@ extern struct class classtab[];
 #define CLASS9	9
 
 
-extern anal_cal();	/* (line_p call, bblock_p b)
-			 * analyze a call instruction;
+void anal_cal(proc_p p, line_p call, bblock_p b, FILE *cf);
+			/* analyze a call instruction;
 			 * try to recognize the actual parameter
 			 * expressions.
 			 */

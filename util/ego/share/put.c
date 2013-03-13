@@ -30,12 +30,16 @@ FILE *curoutp;
 
 /* putlines */
 
-STATIC putstr();
-STATIC outlab();
-STATIC outobject();
+static void putstr(argb_p abp);
+static void outlab(lab_id lid);
+static void outobject(obj_p obj);
+static void putstr(argb_p abp);
+void outshort(short i);
+static void putstr(argb_p abp);
 
-STATIC putargs(ap)
-	register arg_p ap;
+
+
+static void putargs(arg_p ap)
 {
 	while (ap != (arg_p) 0) {
 		outbyte((byte) ap->a_type & BMASK);
@@ -69,9 +73,10 @@ STATIC putargs(ap)
 
 
 
-STATIC putstr(abp) register argb_p abp; {
-	register argb_p tbp;
-	register length;
+static void putstr(argb_p abp)
+{
+	argb_p tbp;
+	int length;
 
 	length = 0;
 	tbp = abp;
@@ -88,22 +93,21 @@ STATIC putstr(abp) register argb_p abp; {
 }
 
 
-outoff(off) offset off; {
-
+void outoff(offset off)
+{
 	outshort( (short) (off&0177777L) );
 	outshort( (short) (off>>16) );
 }
 
 
-outshort(i) short i; {
-
+void outshort(short i)
+{
 	outbyte( (byte) (i&BMASK) );
 	outbyte( (byte) (i>>8) );
 }
 
 
-STATIC outint(i)
-	int i;
+static void outint(int i)
 {
 	/* Write an integer to the output file. This routine is
 	 * only used when outputting a bitvector-set. We expect  an
@@ -118,30 +122,31 @@ STATIC outint(i)
 	}
 }
 
-STATIC outlab(lid) lab_id lid; {
+static void outlab(lab_id lid)
+{
 	outshort((short) lid);
 }
 
 
-STATIC outobject(obj) obj_p obj; {
+static void outobject(obj_p obj)
+{
 	outshort((short) obj->o_id);
 }
 
 
-outproc(p) proc_p p; {
+void outproc(proc_p p)
+{
 	outshort((short) p->p_id);
 }
 
 
-short putlines(l,lf)
-	line_p l;
-	FILE *lf;
+short putlines(line_p l, FILE *lf)
 {
 	/* Output the list of em instructions headed by l.
 	 * Return the number of instruction written.
 	 */
 
-	register line_p lnp;
+	line_p lnp;
 	line_p next;
 	short instr;
 	short count= 0;
@@ -180,16 +185,12 @@ short putlines(l,lf)
 }
 
 
-
-
-
 /* putdtable */
 
 #define outmark(m)	outbyte((byte) m)
 
 
-STATIC putobjects(obj)
-	register obj_p obj;
+static void putobjects(obj_p obj)
 {
 	while (obj != (obj_p) 0) {
 		outmark(MARK_OBJ);
@@ -202,8 +203,7 @@ STATIC putobjects(obj)
 
 
 
-STATIC putvalues(arg)
-	register arg_p arg;
+static void putvalues(arg_p arg)
 {
 	while (arg != (arg_p) 0) {
 		assert(arg->a_type == ARGOFF);
@@ -212,16 +212,15 @@ STATIC putvalues(arg)
 		arg = arg->a_next;
 	}
 }
-putdtable(head,df)
-	dblock_p head;
-	FILE *df;
+
+void putdtable(dblock_p head, FILE *df)
 {
 	/* Write the datablock table to the data block file df. */
 
-	register dblock_p dbl;
-	register obj_p obj;
+	dblock_p dbl;
+	obj_p obj;
 	dblock_p next;
-	register short n = 0;
+	short n = 0;
 
 	curoutp = df;	    /* set f to the data block output file */
 	/* Count the number of objects */
@@ -253,17 +252,13 @@ putdtable(head,df)
 
 
 /* putptable */
-
-
-
-STATIC outcset(s)
-	cset s;
+static void outcset(cset s)
 {
 	/* A 'compact' set is represented externally as a row of words
 	 * (its bitvector) preceded by its length.
 	 */
 
-	register short i;
+	short i;
 
 	outshort(s->v_size);
 	for (i = 0; i <= DIVWL(s->v_size - 1); i++) {
@@ -273,14 +268,11 @@ STATIC outcset(s)
 
 
 
-putptable(head,pf,all)
-	proc_p head;
-	FILE   *pf;
-	bool   all;
+void putptable(proc_p head, FILE *pf, bool all)
 {
-	register proc_p p;
+	proc_p p;
 	proc_p next;
-	register short n = 0;
+	short n = 0;
 	/* Write the proc table */
 
 	curoutp = pf;
@@ -327,16 +319,17 @@ putptable(head,pf,all)
 
 /* putunit */
 
-STATIC outloop(l)
-	loop_p l;
+static void outloop(Lelem_t param)
 {
+	loop_p l = (loop_p)param;
 	outshort((short) l->lp_id);
 }
 
 
-STATIC outblock(b)
-	bblock_p b;
+static void outblock(Lelem_t param)
 {
+	bblock_p b = (bblock_p)param;
+
 	if (b == (bblock_p) 0) {
 		outshort((short) 0);
 	} else {
@@ -345,9 +338,7 @@ STATIC outblock(b)
 }
 
 
-STATIC outid(e,p)
-	Lelem_t e;
-	int (*p) ();
+static void outid(Lelem_t e, void (*p)(Lelem_t))
 {
 	/* Auxiliary routine used by outlset. */
 
@@ -356,9 +347,7 @@ STATIC outid(e,p)
 }
 
 
-STATIC outlset(s,p)
-	lset s;
-	int (*p) ();
+static void outlset(lset s, void (*p)(Lelem_t))
 {
 	/* A 'long' set is represented externally as a
 	 * a sequence of elements terminated by a 0 word.
@@ -366,7 +355,7 @@ STATIC outlset(s,p)
 	 * prints an id (proc_id, obj_id etc.).
 	 */
 
-	register Lindex i;
+	Lindex i;
 
 	for (i = Lfirst(s); i != (Lindex) 0; i = Lnext(i,s)) {
 		outid(Lelem(i),p);
@@ -376,14 +365,10 @@ STATIC outlset(s,p)
 
 
 
-putunit(kind,p,l,gf,lf)
-	short	 kind;
-	proc_p   p;
-	line_p   l;
-	FILE     *gf, *lf;
+void putunit(short kind, proc_p p, line_p l, FILE *gf, FILE *lf)
 {
-	register bblock_p b;
-	register short n = 0;
+	bblock_p b;
+	short n = 0;
 	Lindex   pi;
 	loop_p   lp;
 

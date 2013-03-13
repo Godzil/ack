@@ -25,8 +25,7 @@
 #include "il_aux.h"
 
 
-int tsize(type)
-	int type;
+int tsize(int type)
 {
 	/* Determine the size of a variable of the
 	 *  given type.
@@ -39,12 +38,12 @@ int tsize(type)
 		default:	assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
-line_p duplicate(lnp)
-	line_p lnp;
+line_p duplicate(line_p lnp)
 {
 	/* Make a duplicate of an EM instruction.
 	 * Pseudos may not be passed as argument.
@@ -81,8 +80,7 @@ line_p duplicate(lnp)
 
 
 
-line_p copy_expr(l1)
-	line_p l1;
+line_p copy_expr(line_p l1)
 {
 	/* copy the expression */
 
@@ -105,8 +103,7 @@ line_p copy_expr(l1)
 
 
 
-rem_call(c)
-	call_p c;
+void rem_call(call_p c)
 {
 	actual_p act, nexta;
 	call_p   nc,nextc;
@@ -133,11 +130,9 @@ rem_call(c)
 
 /* rem_graph */
 
-STATIC short remlines(l)
-	line_p l;
+static void remlines(line_p l)
 {
-
-	register line_p lnp;
+	line_p lnp;
 	line_p next;
 
 	for (lnp = l; lnp != (line_p) 0; lnp = next) {
@@ -148,12 +143,9 @@ STATIC short remlines(l)
 
 
 
-remunit(kind,p,l)
-	short    kind;
-	proc_p   p;
-	line_p   l;
+void remunit(short kind, proc_p p, line_p l)
 {
-	register bblock_p b;
+	bblock_p b;
 	bblock_p next;
 	Lindex   pi;
 
@@ -174,13 +166,13 @@ remunit(kind,p,l)
 		oldloop(Lelem(pi));
 	}
 	Ldeleteset(p->p_loops);
-	oldmap(lmap,llength);
-	oldmap(lbmap,llength);
-	oldmap(bmap,blength);
-	oldmap(lpmap,lplength);
+	oldmap((short **)lmap,llength);
+	oldmap((short **)lbmap,llength);
+	oldmap((short **)bmap,blength);
+	oldmap((short **)lpmap,lplength);
 }
-remcc(head)
-	calcnt_p head;
+
+void remcc(calcnt_p head)
 {
 	calcnt_p cc, next;
 
@@ -193,8 +185,7 @@ remcc(head)
 
 /* Extra I/O routines */
 
-call_p getcall(cf)
-	FILE *cf;
+call_p getcall(FILE *cf)
 {
 	/* read a call from the call-file */
 
@@ -220,7 +211,7 @@ call_p getcall(cf)
 		m = getshort();
 		act->ac_size = getoff();
 		act->ac_inl = getbyte();
-		act->ac_exp = getlines(cf,m,&voided);
+		act->ac_exp = getlines(cf,m,&voided, 0); //WARN
 		*app = act;
 		app = &act->ac_next;
 	}
@@ -230,9 +221,7 @@ call_p getcall(cf)
 
 
 
-line_p get_text(lf,p_out)
-	FILE *lf;
-	proc_p *p_out;
+line_p get_text(FILE *lf, proc_p *p_out)
 {
 	/* Read the EM text of one unit
 	 * If it is a procedure, set p_out to
@@ -269,8 +258,8 @@ line_p get_text(lf,p_out)
 	 * and labels to basic blocks are not used.
 	 */
 	if (*p_out != (proc_p) 0) {
-		oldmap(lmap,llength);
-		oldmap(lbmap,llength);
+		oldmap((short **)lmap,llength);
+		oldmap((short **)lbmap,llength);
 		lmap = oldlmap;
 		lpmap = oldlpmap;
 	}
@@ -281,9 +270,7 @@ line_p get_text(lf,p_out)
 
 
 
-calcnt_p getcc(ccf,p)
-	FILE *ccf;
-	proc_p p;
+calcnt_p getcc(FILE *ccf, proc_p p)
 {
 	/* Get call-count info of procedure p */
 
@@ -307,9 +294,7 @@ calcnt_p getcc(ccf,p)
 /* The following routines are only used by the Inline Substitution phase */
 
 
-STATIC putactuals(alist,cfile)
-	actual_p alist;
-	FILE     *cfile;
+static void putactuals(actual_p alist, FILE *cfile)
 {
 	/* output a list of actual parameters */
 
@@ -334,10 +319,7 @@ STATIC putactuals(alist,cfile)
 
 
 
-putcall(c,cfile,level)
-	call_p c;
-	FILE   *cfile;
-	short  level;
+void putcall(call_p c, FILE *cfile, short level)
 {
 	/* output a call */
 
@@ -362,9 +344,7 @@ putcall(c,cfile,level)
 	}
 }
 
-long putcc(head,ccf)
-	calcnt_p head;
-	FILE     *ccf;
+long putcc(calcnt_p head, FILE *ccf)
 {
 	/* Write call-count information to file ccf.
 	 * Return the disk address of the info written.

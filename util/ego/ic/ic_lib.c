@@ -24,18 +24,16 @@
 #include "ic_lib.h"
 
 
-STATIC skip_string(n)
-	offset n;
+static void skip_string(offset n)
 {
 	/* Read a string of length n and void it */
-
 	while (n--) {
 		readchar();
 	}
 }
 
 
-STATIC skip_arguments()
+static void skip_arguments()
 {
 	/* Skip the arguments of a MES pseudo. The argument
 	 * list is terminated by a sp_cend byte.
@@ -62,8 +60,7 @@ STATIC skip_arguments()
 
 
 
-STATIC bool proc_wanted(name)
-	char *name;
+static bool proc_wanted(char *name)
 {
 	/* See if 'name' is the name of an external procedure
 	 * that has been used before, but for which no body
@@ -82,8 +79,7 @@ STATIC bool proc_wanted(name)
 
 
 
-STATIC bool data_wanted(name)
-	char *name;
+static bool data_wanted(char *name)
 {
 	/* See if 'name' is the name of an externally visible
 	 * data block that has been used before, but for which
@@ -102,7 +98,7 @@ STATIC bool data_wanted(name)
 
 
 
-STATIC bool wanted_names()
+static bool wanted_names()
 {
 	/* Read the names of procedures and data labels,
 	 * appearing in a 'MES ms_ext' pseudo. Those are
@@ -139,8 +135,8 @@ STATIC bool wanted_names()
 
 
 
-STATIC FILE *curfile = NULL;
-STATIC bool useful()
+static FILE *curfile = NULL;
+static bool useful()
 {
 	/* Determine if any entity imported by the current
 	 * compact EM assembly file  (which will usually be
@@ -171,8 +167,7 @@ STATIC bool useful()
 
 
 
-STATIC bool is_archive(name)
-	char *name;
+static bool is_archive(char *name)
 {
 	/* See if 'name' is the name of an archive file, i.e. it
 	 * should end on ".ma" and should at least be four characters
@@ -187,9 +182,9 @@ STATIC bool is_archive(name)
 
 
 
-STATIC struct ar_hdr hdr;
+static struct ar_hdr hdr;
 
-STATIC bool read_hdr()
+static bool read_hdr()
 {
 	/* Read the header of an archive module */
 
@@ -220,13 +215,11 @@ STATIC bool read_hdr()
 
 
 
-STATIC int argcnt = ARGSTART - 1;
-STATIC short arstate = NO_ARCHIVE;
+static int argcnt = ARGSTART - 1;
+static short arstate = NO_ARCHIVE;
 
 
-FILE *next_file(argc,argv)
-	int argc;
-	char *argv[];
+FILE *next_file(int argc, char *argv[])
 {
 	/* See if there are more EM input files. The file names
 	 * are given via argv. If a file is an archive file

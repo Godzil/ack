@@ -38,8 +38,7 @@
 
 
 
-apriori(proctab)
-	proc_p proctab;
+void apriori(proc_p proctab)
 {
 	/* For every procedure, see if we can determine
 	 * from the information provided by the previous
@@ -47,8 +46,7 @@ apriori(proctab)
 	 * be expanded in line. This will reduce the length
 	 * of the call list.
 	 */
-
-	register proc_p p;
+	proc_p p;
 
 	for (p = proctab; p != (proc_p) 0; p = p->p_next) {
 		if (!BODY_KNOWN(p)  ||
@@ -68,9 +66,7 @@ apriori(proctab)
 }
 
 
-STATIC check_labels(p,arglist)
-	proc_p p;
-	arg_p arglist;
+static void check_labels(proc_p p, arg_p arglist)
 {
 	/* Check if any of the arguments contains an instruction
 	 * label; if so, make p unsuitable.
@@ -91,10 +87,7 @@ STATIC check_labels(p,arglist)
 
 
 
-STATIC anal_instr(p,b,cf)
-	proc_p   p;
-	bblock_p b;
-	FILE     *cf;
+static void anal_instr(proc_p p, bblock_p b, FILE *cf)
 {
 	/* Analyze the instructions of block b
 	 * within procedure p.
@@ -103,8 +96,7 @@ STATIC anal_instr(p,b,cf)
 	 * the actual parameter expressions of
 	 * the CAL instructions.
 	 */
-
-	register line_p l;
+	line_p l;
 
 	for (l = b->b_start; l != (line_p) 0; l = l->l_next) {
 	   switch(INSTR(l)) {
@@ -152,16 +144,14 @@ STATIC anal_instr(p,b,cf)
 
 
 
-anal_proc(p,cf,ccf)
-	proc_p p;
-	FILE   *cf,*ccf;
+void anal_proc(proc_p p, FILE *cf, FILE *ccf)
 {
 	/* Analyze a procedure; use information
 	 * stored in its basic blocks or in
 	 * its instructions.
 	 */
 
-	register bblock_p b;
+	bblock_p b;
 	bool     fallthrough = TRUE;
 
 	cchead = (calcnt_p) 0;

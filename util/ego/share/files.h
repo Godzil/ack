@@ -31,8 +31,8 @@
 
 #define ARGSTART 9
 
-extern FILE *openfile();	/* (char *name, *mode)
-				 * Open a file with the given name
+FILE *openfile(char *name, char *mode);
+				/* Open a file with the given name
 				 * and mode; aborts if the file
 				 * cannot be opened.
 				 */

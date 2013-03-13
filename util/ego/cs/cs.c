@@ -25,7 +25,7 @@
 
 int Scs; /* Number of optimizations found. */
 
-STATIC cs_clear()
+static void cs_clear()
 {
 	clr_avails();
 	clr_entities();
@@ -34,14 +34,13 @@ STATIC cs_clear()
 	start_valnum();
 }
 
-STATIC cs_optimize(p)
-	proc_p p;
+static int cs_optimize(void *param)
 {
 	/* Optimize all basic blocks of one procedure. */
+	bblock_p rbp, bdone;
+	proc_p p = (proc_p)param;
 
-	register bblock_p rbp, bdone;
-
-	if (IS_ENTERED_WITH_GTO(p)) return;
+	if (IS_ENTERED_WITH_GTO(p)) return 0;
 	avails = (avail_p) 0;
 	entities = Lempty_set();
 	cs_clear();
@@ -72,11 +71,10 @@ STATIC cs_optimize(p)
 		eliminate(p);
 		cs_clear();
 	}
+	return 0;
 }
 
-main(argc, argv)
-	int	argc;
-	char	*argv[];
+int main(int argc, char *argv[])
 {
 	Scs = 0;
 	go(argc, argv, no_action, cs_optimize, cs_machinit, no_action);

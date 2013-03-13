@@ -19,7 +19,7 @@
 
 extern short nrglobals;
 
-init_globals()
+int init_globals(void *dummy)
 {
 	/* Assign a 'global variable number (o_globnr) to
 	 * every global variable for which we want to
@@ -59,4 +59,5 @@ init_globals()
 		}
 	}
 	nrglobals = nr -1;
+	return 0;
 }

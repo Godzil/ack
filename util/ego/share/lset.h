@@ -8,14 +8,14 @@
  */
 
 
-extern	lset	Lempty_set();	/* ()				*/
-extern	bool	Lis_elem();	/* (Lelem_t, lset)		*/
-extern		Ladd();		/* (Lelem_t, *lset)		*/
-extern		Lremove();	/* (Lelem_t, *lset)		*/
-extern	Lindex	Lfirst();	/* (lset)			*/
-extern	Lindex	Lnext();	/* (Lindex, lset)		*/
-extern	Lelem_t	Lelem();	/* (Lindex)			*/
-extern		Ljoin();	/* (lset, *lset)		*/
-extern		Ldeleteset();	/* (lset)			*/
-extern bool	Lis_subset();	/* (lset, lset)			*/
-extern	short	Lnrelems();	/* (lset)			*/
+lset	Lempty_set();
+bool Lis_elem(Lelem_t x, lset s);
+void Ladd(Lelem_t x, lset *s_p);
+void Lremove(Lelem_t x, lset *s_p);
+Lindex Lfirst(lset s);
+Lindex Lnext(Lindex i, lset s);
+Lelem_t Lelem(Lindex i);
+void Ljoin(lset s1, lset *s2_p);
+void Ldeleteset(lset s);
+bool Lis_subset(lset s1, lset s2);
+short Lnrelems(lset s);

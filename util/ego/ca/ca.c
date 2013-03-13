@@ -42,9 +42,7 @@ char **dnames, **pnames;  /* Dynamically allocated arrays of strings.
 
 
 
-STATIC line_p get_ca_lines(lf,p_out)
-	FILE *lf;
-	proc_p *p_out;
+static line_p get_ca_lines(FILE *lf, proc_p *p_out)
 {
 	/* Read lines of EM text and link them.
 	 * Register messages are outputted immediately after the PRO.
@@ -100,8 +98,7 @@ STATIC line_p get_ca_lines(lf,p_out)
 	return head;
 }
 
-STATIC int makedmap(dbl)
-	dblock_p dbl;
+static int makedmap(dblock_p dbl)
 {
 	/* construct the dmap table */
 
@@ -122,8 +119,7 @@ STATIC int makedmap(dbl)
 
 
 
-STATIC getdnames(dumpd)
-	FILE *dumpd;
+static void getdnames(FILE *dumpd)
 {
 	/* Read the names of the datalabels from
 	 * the dump file.
@@ -141,8 +137,7 @@ STATIC getdnames(dumpd)
 	}
 }
 
-STATIC getpnames(dumpp)
-	FILE *dumpp;
+static void getpnames(FILE *dumpp)
 {
 	/* Read the names of the procedures from
 	 * the dump file.
@@ -162,8 +157,7 @@ STATIC getpnames(dumpp)
 
 
 
-STATIC new_name(s)
-	char **s;
+static void new_name(char **s)
 {
 	static int nn = 0;
 	char buf[20];
@@ -181,7 +175,7 @@ STATIC new_name(s)
 
 
 
-STATIC uniq_names()
+static void uniq_names()
 {
 	/* The names of all internal procedures and data blocks
 	 * are made different. As the optimizer combines several
@@ -206,9 +200,7 @@ STATIC uniq_names()
 }
 
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	/* CA does not output proctable etc. files. Instead, its
 	 * pname2 and dname2 arguments contain the names of the
@@ -218,8 +210,8 @@ main(argc,argv)
 	FILE *df, *pf;    /* The dump files */
 	line_p lnp;
 
-	fproc = getptable(pname); /* proc table */
-	fdblock = getdtable(dname);  /* data block table */
+	fproc = getptable(&pname); /* proc table */
+	fdblock = getdtable(&dname);  /* data block table */
 	dlength = makedmap(fdblock); /* allocate dmap table */
 	df = openfile(dname2,"r");
 	getdnames(df);

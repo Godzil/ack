@@ -45,8 +45,7 @@
 
 
 
-STATIC bool same_loop(l1,l2)
-	loop_p l1,l2;
+static bool same_loop(loop_p l1, loop_p l2)
 {
 	/* Two loops are the same if:
 	 * (1)  they have the same number of basic blocks, and
@@ -63,8 +62,7 @@ STATIC bool same_loop(l1,l2)
 
 
 
-STATIC bool inner_loop(l1,l2)
-	loop_p l1,l2;
+static bool inner_loop(loop_p l1, loop_p l2)
 {
 	/* Loop l1 is an inner loop of l2 if:
 	 * (1)  the first loop has fewer basic blocks than
@@ -82,10 +80,7 @@ STATIC bool inner_loop(l1,l2)
 
 
 
-STATIC insrt(b,lpb,s_p)
-	bblock_p b;
-	lset *lpb;
-	lset *s_p;
+static void insrt(bblock_p b, lset *lpb, lset *s_p)
 {
 	/* Auxiliary routine used by 'natural_loop'.
 	 * Note that we use a set rather than a stack,
@@ -99,8 +94,7 @@ STATIC insrt(b,lpb,s_p)
 }
 
 
-STATIC loop_p natural_loop(d,n)
-	bblock_p d,n;
+static loop_p natural_loop(bblock_p d, bblock_p n)
 {
 	/* Find the basic blocks of the natural loop of the
 	 * back edge 'n->d' (i.e. n->d is an edge in the control
@@ -138,15 +132,12 @@ STATIC loop_p natural_loop(d,n)
 }
 
 
-STATIC loop_p org_loop(lp,loops)
-	loop_p lp;
-	lset   loops;
+static loop_p org_loop(loop_p lp, lset loops)
 {
 	/* See if the loop lp was already found via another
 	 * back edge; if so return this loop; else return 0.
 	 */
-
-	register Lindex li;
+	Lindex li;
 
 	for (li = Lfirst(loops); li != (Lindex) 0; li = Lnext(li,loops)) {
 		if (same_loop((loop_p) Lelem(li), lp)) {
@@ -161,11 +152,10 @@ STATIC loop_p org_loop(lp,loops)
 
 
 
-STATIC collapse_loops(loops_p)
-	lset *loops_p;
+static void collapse_loops(lset *loops_p)
 {
-	register Lindex li1, li2;
-	register loop_p lp1,lp2;
+	Lindex li1, li2;
+	loop_p lp1,lp2;
 
 	for (li1 = Lfirst(*loops_p); li1 != (Lindex) 0; li1 = Lnext(li1,*loops_p)) {
 		lp1 = (loop_p) Lelem(li1);
@@ -183,8 +173,7 @@ STATIC collapse_loops(loops_p)
 }
 
 
-STATIC loop_per_block(lp)
-	loop_p lp;
+static void loop_per_block(loop_p  lp)
 {
 	bblock_p b;
 
@@ -201,13 +190,12 @@ STATIC loop_per_block(lp)
 
 
 
-STATIC loop_attrib(loops)
-	lset loops;
+static void loop_attrib(lset loops)
 {
 	/* Compute several attributes */
 
-	register Lindex li;
-	register loop_p lp;
+	Lindex li;
+	loop_p lp;
 	loop_id lastlpid = 0;
 
 	for (li = Lfirst(loops); li != (Lindex) 0; li = Lnext(li,loops)) {
@@ -219,8 +207,7 @@ STATIC loop_attrib(loops)
 
 
 
-STATIC nest_levels(loops)
-	lset loops;
+static void nest_levels(lset loops)
 {
 	/* Compute the nesting levels of all loops of
 	 * the current procedure. For every loop we just count
@@ -229,9 +216,8 @@ STATIC nest_levels(loops)
 	 * of the current procedure. As this number tends to be
 	 * very small, there is no cause for alarm.
 	 */
-
-	register Lindex li1, li2;
-	register loop_p lp;
+	Lindex li1, li2;
+	loop_p lp;
 
 	for (li1 = Lfirst(loops); li1 != (Lindex) 0; li1 = Lnext(li1,loops)) {
 		lp = (loop_p) Lelem(li1);
@@ -246,8 +232,7 @@ STATIC nest_levels(loops)
 }
 
 
-STATIC cleanup(loops)
-	lset loops;
+static void cleanup(lset loops)
 {
 	/* Throw away the LP_BLOCKS sets */
 
@@ -259,14 +244,11 @@ STATIC cleanup(loops)
 }
 
 
-STATIC bool does_exit(b,lp)
-	bblock_p b;
-	loop_p   lp;
+static bool does_exit(bblock_p b, loop_p lp)
 {
 	/* See if b may exit the loop, i.e. if it
 	 * has a successor outside the loop
 	 */
-
 	Lindex i;
 
 	for (i = Lfirst(b->b_succ); i != (Lindex) 0; i = Lnext(i,b->b_succ)) {
@@ -276,9 +258,7 @@ STATIC bool does_exit(b,lp)
 }
 
 
-STATIC mark_succ(b,lp)
-	bblock_p b;
-	loop_p   lp;
+static void mark_succ(bblock_p b, loop_p lp)
 {
 	Lindex i;
 	bblock_p succ;
@@ -294,8 +274,7 @@ STATIC mark_succ(b,lp)
 }
 
 
-STATIC mark_blocks(lp)
-	loop_p lp;
+static void mark_blocks(loop_p lp)
 {
 	/* Mark the strong and firm blocks of a loop.
 	 * The last set of blocks consists of the end-block
@@ -335,8 +314,7 @@ STATIC mark_blocks(lp)
 
 
 
-STATIC mark_loopblocks(loops)
-	lset loops;
+static void mark_loopblocks(lset loops)
 {
 	/* Determine for all loops which basic blocks
 	 * of the loop are strong (i.e. are executed
@@ -356,8 +334,7 @@ STATIC mark_loopblocks(loops)
 
 
 
-loop_detection(p)
-	proc_p p;
+void loop_detection(proc_p p)
 {
 	/* Find all natural loops of procedure p. Every loop is
 	 * assigned a unique identifying number, a set of basic

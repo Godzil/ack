@@ -28,12 +28,7 @@ short nrglobals;
 short nrlocals;
 local_p *locals;  /* dynamic array */
 
-STATIC localvar(off,size,locs,reg,score)
-	offset off;
-	short  size;
-	local_p *locs;
-	bool reg;
-	offset score;
+static void localvar(offset off, short size, local_p *locs, bool reg, offset score)
 {
 	/* process a reference to a local variable.
 	 * A local is characterized by a (offset,size) pair.
@@ -71,12 +66,9 @@ STATIC localvar(off,size,locs,reg,score)
 
 
 
-STATIC check_message(l,locs)
-	line_p l;
-	local_p *locs;
+static void check_message(line_p l, local_p *locs)
 {
 	/* See if l is a register message */
-
 	arg_p arg;
 
 	arg = ARG(l);
@@ -89,9 +81,7 @@ STATIC check_message(l,locs)
 
 
 
-STATIC check_local_use(l,locs)
-	line_p l;
-	local_p *locs;
+static void check_local_use(line_p l, local_p *locs)
 {
 	short sz;
 
@@ -125,8 +115,7 @@ STATIC check_local_use(l,locs)
 }
 
 
-make_localtab(p)
-	proc_p p;
+void make_localtab(proc_p p)
 {
 	/* Make a table of local variables.
 	 * This table is used to associate a
@@ -140,8 +129,8 @@ make_localtab(p)
 	local_p locallist = (local_p) 0;
 	short cnt = 0;
 	offset x, ill_zone = 0;
-	register bblock_p b;
-	register line_p   l;
+	bblock_p b;
+	line_p   l;
 
 	/* first make a list of all locals used */
 	for (b = p->p_start; b != (bblock_p) 0; b = b->b_next) {
@@ -185,15 +174,11 @@ make_localtab(p)
 
 
 
-find_local(off,nr_out,found_out)
-	offset off;
-	short  *nr_out;
-	bool   *found_out;
+void find_local(offset off, short *nr_out, bool *found_out)
 {
 	/* Try to find the local variable at the given
 	 * offset. Return its local-number.
 	 */
-
 	short v;
 
 	for (v = 1; v <= nrlocals; v++) {
@@ -207,13 +192,7 @@ find_local(off,nr_out,found_out)
 	*found_out = FALSE;
 }
 
-
-
-
-var_nr(l,nr_out,found_out)
-	line_p l;
-	short  *nr_out;
-	bool   *found_out;
+void var_nr(line_p l, short *nr_out, bool *found_out)
 {
 	/* Determine the number of the variable referenced
 	 * by EM instruction l.

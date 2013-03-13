@@ -11,6 +11,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <em_pseu.h>
 #include <em_spec.h>
 #include <arch.h>
@@ -22,12 +23,12 @@
 #include "ic_io.h"
 
 
-STATIC short libstate;
-STATIC long  bytecnt;
+static short libstate;
+static long  bytecnt;
 
-STATIC FILE *infile;  /* The current EM input file */
+static FILE *infile;  /* The current EM input file */
 
-STATIC int readbyte()
+static int readbyte()
 {
 	if (libstate == ARCHIVE && bytecnt-- == 0L) {
 		/* If we're reading from an archive file, we'll
@@ -42,8 +43,9 @@ STATIC int readbyte()
 
 
 
-short readshort() {
-	register int l_byte, h_byte;
+short readshort()
+{
+	int l_byte, h_byte;
 
 	l_byte = readbyte();
 	h_byte = readbyte();
@@ -52,9 +54,10 @@ short readshort() {
 }
 
 #ifdef LONGOFF
-offset readoffset() {
-	register long l;
-	register int h_byte;
+offset readoffset()
+{
+	long l;
+	int h_byte;
 
 	l = readbyte();
 	l |= ((unsigned) readbyte())*256 ;
@@ -66,8 +69,8 @@ offset readoffset() {
 #endif
 
 
-short get_int() {
-
+short get_int()
+{
 	switch(table2()) {
 	default: error("int expected");
 	case CSTX1:
@@ -82,8 +85,8 @@ char readchar()
 
 
 
-offset get_off() {
-
+offset get_off()
+{
 	switch (table2()) {
 	default: error("offset expected");
 	case CSTX1:
@@ -95,15 +98,16 @@ offset get_off() {
 	}
 }
 
-STATIC make_string(n) int n; {
-	
+static void make_string(int n)
+{
 	sprintf(string,".%u",n);
 }
 
-STATIC inident() {
-	register n;
-	register char *p = string;
-	register c;
+static void inident()
+{
+	int n;
+	char *p = string;
+	int c;
 
 	n = get_int();
 	while (n--) {
@@ -114,8 +118,8 @@ STATIC inident() {
 	*p++ = 0;
 }
 
-int table3(n) int n; {
-
+int table3(int n)
+{
 	switch (n) {
 	case sp_ilb1:	tabval = readbyte(); return(ILBX);
 	case sp_ilb2:	tabval = readshort(); return(ILBX);
@@ -139,8 +143,9 @@ int table3(n) int n; {
 	}
 }
 
-int table1() {
-	register n;
+int table1()
+{
+	int n;
 
 	n = readbyte();
 	if (n == EOF)
@@ -160,8 +165,9 @@ int table1() {
 	return(table3(n));
 }
 
-int table2() {
-	register n;
+int table2()
+{
+	int n;
 
 	n = readbyte();
 	if ((n < sp_fcst0 + sp_ncst0) && (n >= sp_fcst0)) {
@@ -174,10 +180,7 @@ int table2() {
 
 
 
-file_init(f,state,length)
-	FILE *f;
-	short state;
-	long  length;
+void file_init(FILE *f, short state, long length)
 {
 	short n;
 
@@ -193,8 +196,7 @@ file_init(f,state,length)
 
 
 
-arch_init(arch)
-	FILE *arch;
+void arch_init(FILE *arch)
 {
 	short n;
 

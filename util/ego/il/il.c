@@ -30,15 +30,15 @@
 int calnr;
 int complete_program;
 calcnt_p cchead;	/* call-count info of current proc */
-STATIC long space = 0;
-STATIC long total_size = 0;
+static long space = 0;
+static long total_size = 0;
 
-STATIC char cname[128] = TMP_DIR;
-STATIC char ccname[128] = TMP_DIR;
+static char cname[128] = TMP_DIR;
+static char ccname[128] = TMP_DIR;
 
 /* For debugging only */
-STATIC char sname[128] = TMP_DIR;
-STATIC int kp_temps = 0;
+static char sname[128] = TMP_DIR;
+static int kp_temps = 0;
 
 int Ssubst;
 #ifdef VERBOSE
@@ -56,8 +56,7 @@ int Sbig_caller,Sdispensable,Schangedcallee,Sbigcallee,Sspace,Szeroratio;
  * The call descriptors are put in a file (calfile).
  */
 
-pass1(lnam,bnam,cnam)
-	char *lnam, *bnam, *cnam;
+void pass1(char *lnam, char *bnam, char *cnam)
 {
 	FILE *f, *gf, *cf, *ccf; /* The EM input, the basic block graph,
 				  * the call-list file and the calcnt file.
@@ -123,11 +122,9 @@ pass1(lnam,bnam,cnam)
 
 
 
-STATIC char cname2[128] = TMP_DIR;
+static char cname2[128] = TMP_DIR;
 
-pass2(cnam,space)
-	char *cnam;
-	long space;
+void pass2(char *cnam, long space)
 {
 	FILE  *cf, *cf2, *ccf;
 	call_p c,a;
@@ -171,8 +168,7 @@ pass2(cnam,space)
  */
 
 
-pass3(lnam,lnam2)
-	char *lnam,*lnam2;
+void pass3(char *lnam, char *lnam2)
 {
 	bool verbose = TRUE;
 	FILE *lfile, *lfilerand, *lfile2, *sfile;
@@ -229,8 +225,7 @@ pass3(lnam,lnam2)
 }
 
 
-STATIC il_extptab(ptab)
-	proc_p ptab;
+static void il_extptab(proc_p ptab)
 {
 	/* Allocate space for extension of proctable entries.
 	 * Also, initialise some of the fields just allocated.
@@ -245,8 +240,7 @@ STATIC il_extptab(ptab)
 	}
 }
 
-STATIC il_cleanptab(ptab)
-	proc_p ptab;
+static void il_cleanptab(proc_p ptab)
 {
 	/* De-allocate space for extensions */
 
@@ -258,7 +252,7 @@ STATIC il_cleanptab(ptab)
 }
 
 #ifdef VERBOSE
-Sdiagnostics()
+void Sdiagnostics()
 {
 	/* print statictical information */
 
@@ -282,9 +276,9 @@ Sdiagnostics()
 }
 #endif
 
-il_flags(p)
-	char *p;
+int il_flags(void *param)
 {
+	char *p = (char *)param;
 	switch(*p++) {
 	case 's':
 		while (*p != '\0') {
@@ -302,11 +296,10 @@ il_flags(p)
 		kp_temps = 1;
 		break;
 	}
+	return 0;
 }
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	FILE *f;
 	
