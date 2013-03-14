@@ -26,11 +26,15 @@ static char rcsid[] = "$Id$";
 #include "const.h"
 #include "assert.h"
 #include "debug.h"
+#include "arch.h"
 #include "memory.h"
+#include "defs.h"
 
-static		copy_down();
-static		copy_up();
-static		free_saved_moduls();
+static ind_t move_up(int piece, ind_t incr);
+static bool compact(int piece, ind_t incr, int flag);
+static void copy_down(struct memory *mem, ind_t dist);
+static void copy_up(struct memory *mem, ind_t dist);
+static void free_saved_moduls();
 
 struct memory	mems[NMEMS];
 
@@ -42,10 +46,9 @@ ind_t	core_position = (ind_t)0;	/* Index of current module. */
 static char *BASE;
 static ind_t refused;
 
-sbreak(incr)
-	ind_t incr;
+int sbreak(ind_t incr)
 {
-	unsigned int	inc;
+	unsigned int inc;
 
 	incr = (incr + (GRANULE - 1)) & ~(GRANULE - 1);
 
@@ -66,11 +69,11 @@ sbreak(incr)
  * Initialize some pieces of core. We hope that this will be our last
  * real allocation, meaning we've made the right choices.
  */
-init_core()
+void init_core()
 {
-	register char		*base;
-	register ind_t		total_size;
-	register struct memory	*mem;
+	char		*base;
+	ind_t		total_size;
+	struct memory	*mem;
 	extern char		*sbrk();
 
 #include "mach.c"
@@ -134,17 +137,14 @@ init_core()
  * higher than `piece' up with the size of the block.
  * Move up as much as possible, if "incr" fails.
  */
-static ind_t
-move_up(piece, incr)
-	register int		piece;
-	register ind_t		incr;
+static ind_t move_up(int piece, ind_t incr)
 {
 	register struct memory	*mem;
 #ifndef NOSTATISTICS
 	extern int statistics;
 #endif
 
-	debug("move_up(%d, %d)\n", piece, (int)incr, 0, 0);
+	debug("move_up(%d, %d)\n", piece, (int)incr);
 	while (incr > 0 && sbreak(incr) == -1)
 		incr -= INCRSIZE;
 
@@ -171,23 +171,20 @@ extern int	passnumber;
  * bytes of all higher pieces and move them up. We return whether we have
  * enough bytes, the first or the second time.
  */
-static bool
-compact(piece, incr, flag)
-	register int		piece;
-	register ind_t		incr;
 #define NORMAL 0
 #define FREEZE 1
 #define FORCED 2
+static bool compact(int piece, ind_t incr, int flag)
 {
-	register ind_t		gain, size;
-	register struct memory	*mem;
+	ind_t		gain, size;
+	struct memory	*mem;
 	int min = piece, max = piece;
 #define SHIFT_COUNT 2		/* let pieces only contribute if their free
 				   memory is more than 1/2**SHIFT_COUNT * 100 %
 				   of its occupied memory
 				*/
 
-	debug("compact(%d, %d, %d)\n", piece, (int)incr, flag, 0);
+	debug("compact(%d, %d, %d)\n", piece, (int)incr, flag);
 	for (mem = &mems[0]; mem < &mems[NMEMS - 1]; mem++) {
 		assert(mem->mem_base + mem->mem_full + mem->mem_left == (mem+1)->mem_base);
 	}
@@ -278,7 +275,7 @@ compact(piece, incr, flag)
 	mem->mem_left = 0;
 
 	if (gain < incr) {
-		register ind_t	up = (ind_t)0;
+		ind_t	up = (ind_t)0;
 
 		for (mem = &mems[max]; mem > &mems[piece]; mem--) {
 			/* Here memory is appended after a piece. */
@@ -312,14 +309,11 @@ compact(piece, incr, flag)
  * overlap with the old area, but we do not want to overwrite them before they
  * are copied.
  */
-static
-copy_down(mem, dist)
-	register struct memory	*mem;
-	ind_t			dist;
+static void copy_down(struct memory *mem, ind_t dist)
 {
-	register char		*old;
-	register char		*new;
-	register ind_t		size;
+	char		*old;
+	char		*new;
+	ind_t		size;
 
 	size = mem->mem_full;
 	old = mem->mem_base;
@@ -335,14 +329,11 @@ copy_down(mem, dist)
  * overlap with the old area, but we do not want to overwrite them before they
  * are copied.
  */
-static
-copy_up(mem, dist)
-	register struct memory	*mem;
-	ind_t			dist;
+static void copy_up(struct memory *mem, ind_t dist)
 {
-	register char		*old;
-	register char		*new;
-	register ind_t		size;
+	char		*old;
+	char		*new;
+	ind_t		size;
 
 	size = mem->mem_full;
 	old = mem->mem_base + size;
@@ -361,14 +352,11 @@ static int alloctype = NORMAL;
  * how many times the area is moved, because of another allocate, this offset
  * remains valid.
  */
-ind_t
-alloc(piece, size)
-	int			piece;
-	register long		size;
+ind_t alloc(int piece, long size)
 {
-	register ind_t		incr = 0;
-	ind_t			left = mems[piece].mem_left;
-	register ind_t		full = mems[piece].mem_full;
+	ind_t		incr = 0;
+	ind_t		left = mems[piece].mem_left;
+	ind_t		full = mems[piece].mem_full;
 
 	assert(passnumber == FIRST || (!incore && piece == ALLOMODL));
 	if (size == (long)0)
@@ -401,13 +389,10 @@ alloc(piece, size)
  * Same as alloc() but for a piece which really needs it. If the first
  * attempt fails, release the space occupied by other pieces and try again.
  */
-ind_t
-hard_alloc(piece, size)
-	register int	piece;
-	register long	size;
+ind_t hard_alloc(int piece, long size)
 {
-	register ind_t	ret;
-	register int	i;
+	ind_t	ret;
+	int	i;
 
 	if (size != (ind_t)size)
 		return BADOFF;
@@ -449,12 +434,11 @@ hard_alloc(piece, size)
  * at the start of the piece allocated for module contents, thereby
  * overwriting the saved modules, and release its space.
  */
-static
-free_saved_moduls()
+static void free_saved_moduls()
 {
-	register ind_t		size;
-	register char		*old, *new;
-	register struct memory	*mem = &mems[ALLOMODL];
+	ind_t		size;
+	char		*old, *new;
+	struct memory	*mem = &mems[ALLOMODL];
 
 	size = mem->mem_full - core_position;
 	new = mem->mem_base;
@@ -470,8 +454,7 @@ free_saved_moduls()
  * The piece of memory with index `piece' is no longer needed.
  * We take care that it can be used by compact() later, if needed.
  */
-dealloc(piece)
-	register int		piece;
+void dealloc(int piece)
 {
 	/*
 	 * Some pieces need their memory throughout the program.
@@ -484,10 +467,7 @@ dealloc(piece)
 	mems[piece].mem_full = (ind_t)0;
 }
 
-char *
-core_alloc(piece, size)
-	register int	piece;
-	register long	size;
+char *core_alloc(int piece, long size)
 {
 	register ind_t	off;
 
@@ -496,22 +476,20 @@ core_alloc(piece, size)
 	return address(piece, off);
 }
 
-core_free(piece, p)
-	int	piece;
-	char	*p;
+void core_free(int piece, char *p)
 {
 	char	*q = address(piece, mems[piece].mem_full);
 
 	assert(p < q);
-	switch(sizeof(unsigned) == sizeof(char *)) {
-	case 1:
+	if (sizeof(unsigned) == sizeof(char *))
+	{
 		mems[piece].mem_full -= (unsigned) (q - p);
 		mems[piece].mem_left += (unsigned) (q - p);
-		break;
-	default:
+	}
+	else
+	{
 		mems[piece].mem_full -= (ind_t) q - (ind_t) p;
 		mems[piece].mem_left += (ind_t) q - (ind_t) p;
-		break;
 	}
 }
 
@@ -519,9 +497,9 @@ core_free(piece, p)
  * Reset index into piece of memory for modules and
  * take care that the allocated pieces will not be moved.
  */
-freeze_core()
+void freeze_core()
 {
-	register int	i;
+	int i;
 
 	core_position = (ind_t)0;
 
@@ -549,11 +527,11 @@ freeze_core()
  * To transform the various pieces of the output in core to the file format,
  * we must order the bytes in the unsigned shorts and longs as ACK prescribes.
  */
-write_bytes()
+void write_bytes()
 {
 	unsigned short		nsect;
 	long			offchar;
-	register struct memory	*mem;
+	struct memory	*mem;
 	extern unsigned short	NLocals, NGlobals;
 	extern long		NLChars, NGChars;
 	extern int		flagword;
@@ -607,10 +585,7 @@ write_bytes()
 	}
 }
 
-namecpy(name, nname, offchar)
-	register struct outname	*name;
-	register unsigned	nname;
-	register long		offchar;
+void namecpy(struct outname	*name, unsigned int nname, long offchar)
 {
 	while (nname--) {
 		if (name->on_foff)

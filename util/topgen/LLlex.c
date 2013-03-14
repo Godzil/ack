@@ -21,8 +21,9 @@ static struct token aside;	/* to put currrent token aside, when a token
 int	newline, lineno;	/* To keep track of linenumbers */
 extern FILE *input;		/* file descriptor of machine table */
 
-LLlex() {
-	register c;
+int LLlex()
+{
+	int c;
 
 	if (aside.t_tokno) {	/* A token was pushed aside, return it now */
 		dot = aside;
@@ -116,7 +117,8 @@ LLlex() {
 	}
 }
 
-LLmessage(d) {
+void LLmessage(int d)
+{
     static int savlineno;
     
     if (savlineno != lineno) {

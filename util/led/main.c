@@ -14,8 +14,9 @@ static char rcsid[] = "$Id$";
 #include <out.h>
 #include "const.h"
 #include "debug.h"
-#include "defs.h"
+#include "arch.h"
 #include "memory.h"
+#include "defs.h"
 #include "orig.h"
 
 extern bool	incore;
@@ -27,27 +28,26 @@ int			DEB = 0;
 #endif
 int		Verbose = 0;
 
-static			initializations();
-static			first_pass();
-static long		number();
-static			setlign();
-static			setbase();
-static struct outname	*makename();
-static			pass1();
-static			evaluate();
-static			norm_commons();
-static			complete_sections();
-static			change_names();
-static bool		tstbit();
-static			second_pass();
-static			pass2();
+static void initializations(int argc, char *argv[]);
+static void first_pass(char *argv[]);
+static long number(char *s);
+static void setlign(int sectno, bool lign);
+static void setbase(int sectno, long base);
+static struct outname *makename(char *string);
+static void pass1(char *file);
+static void evaluate();
+static void norm_commons();
+static void complete_sections();
+static void change_names();
+static bool tstbit(int indx, char *string);
+static void second_pass(char *argv[]);
+static void pass2(char *file);
 #ifndef NOSTATISTICS
-static			do_statistics();
+static void do_statistics();
 #endif
 
-main(argc, argv)
-	int	argc;
-	char	**argv;
+
+int main(int argc, char *argv[])
 {
 	initializations(argc, argv);
 	first_pass(argv);
@@ -60,13 +60,14 @@ main(argc, argv)
 	second_pass(argv);
 	endoutput();
 	stop();
+
+	return 0;
 }
 
 #ifndef NOSTATISTICS
-static
-do_statistics()
+static void do_statistics()
 {
-	register struct memory *m = mems;
+	struct memory *m = mems;
 
 	while (m <= &mems[NMEMS-1]) {
 		fprintf(stderr, "mem %d: full %lx, free %lx\n",
@@ -84,10 +85,7 @@ struct outhead	outhead;	/* Header of final output file. */
 struct outsect	outsect[MAXSECT];/* Its section table. */
 
 /* ARGSUSED */
-static
-initializations(argc, argv)
-	int		argc;
-	char		*argv[];
+static void initializations(int argc, char *argv[])
 {
 	/*
 	 * Avoid malloc()s.
@@ -115,11 +113,9 @@ int	exitstatus = 0;
  * If the argument starts with a '-', it's a flag, else it is either
  * a plain file to be loaded, or an archive.
  */
-static
-first_pass(argv)
-	register char		**argv;
+static void first_pass(char *argv[])
 {
-	register char		*argp;
+	char		*argp;
 	int			sectno;
 	int			h;
 	extern int		atoi();
@@ -249,13 +245,11 @@ first_pass(argv)
  * else if it starts with 0, it's octal,
  * else it's decimal.
  */
-static long
-number(s)
-	register char	*s;
+static long number(char *s)
 {
-	register int	digit;
-	register long	value = 0;
-	register int	radix = 10;
+	int	digit;
+	long	value = 0;
+	int	radix = 10;
 
 	if (*s == '0') {
 		radix = 8;
@@ -268,7 +262,7 @@ number(s)
 			s++;
 		}
 	}
-	while (digit = *s++) {
+	while ((digit = *s++)) {
 		if (digit >= 'A' && digit <= 'F')
 			digit = digit - 'A' + 10;
 		else if (digit >= 'a' && digit <= 'f')
@@ -294,17 +288,11 @@ static char	lignmap[MAXSECT / WIDTH];
 static long	sect_lign[MAXSECT];
 
 /*
-/*
  * Set the alignment of section `sectno' to `lign', if this doesn't
  * conflict with earlier alignment.
  */
-static
-setlign(sectno, lign)
-	register int	sectno;
-	register long	lign;
+static void setlign(int sectno, bool lign)
 {
-	extern bool	setbit();
-
 	if (setbit(sectno, lignmap) && sect_lign[sectno] != lign)
 		fatal("section has different alignments");
 	if (lign == (long)0)
@@ -316,10 +304,7 @@ setlign(sectno, lign)
  * Set the base of section `sectno' to `base', if no other base has been
  * given yet.
  */
-static
-setbase(sectno, base)
-	register int	sectno;
-	register long	base;
+static void setbase(int sectno, long base)
 {
 	extern bool	setbit();
 
@@ -328,9 +313,7 @@ setbase(sectno, base)
 	sect_base[sectno] = base;
 }
 
-static struct outname *
-makename(string)
-	char	*string;
+static struct outname *makename(char *string)
 {
 	static struct outname	namebuf;
 
@@ -346,16 +329,14 @@ makename(string)
  * extracted. If it is an archive it is examined to see if it defines any
  * undefined symbols.
  */
-static
-pass1(file)
-	char	*file;
+static void pass1(char *file)
 {
 	if (getfile(file) == PLAIN) {
-		debug("%s: plain file\n", file, 0, 0, 0);
+		debug("%s: plain file\n", file);
 		extract();
 	} else {
 		/* It must be an archive. */
-		debug("%s: archive\n", file, 0, 0, 0);
+		debug("%s: archive\n", file);
 		arch();
 	}
 	closefile(file);
@@ -370,8 +351,7 @@ pass1(file)
  * sections. We then add the section bases to the values of names in
  * corresponding sections.
  */
-static
-evaluate()
+static void evaluate()
 {
 	norm_commons();
 	complete_sections();
@@ -395,12 +375,11 @@ long	sect_comm[MAXSECT];
  * just like "normal" names. We also count the total size of common names
  * within each section to be able to compute the final size in the machine.
  */
-static
-norm_commons()
+static void norm_commons()
 {
-	register struct outname	*name;
-	register int		cnt;
-	register int		und = FALSE;
+	struct outname	*name;
+	int		cnt;
+	int		und = FALSE;
 
 	name = (struct outname *)address(ALLOGLOB, (ind_t)0);
 	cnt = NGlobals;
@@ -433,8 +412,8 @@ norm_commons()
 	cnt = NGlobals;
 	while (cnt-- > 0) {
 		if (!ISABSOLUTE(name) && ISCOMMON(name)) {
-			register long	size;
-			register int	sectindex;
+			long	size;
+			int	sectindex;
 
 			size = name->on_valu;	/* XXX rounding? */
 			sectindex = (name->on_type & S_TYP) - S_MIN;
@@ -454,13 +433,12 @@ struct orig	relorig[MAXSECT];
  * Compute the offsets in file and machine that the sections will have.
  * Also set the origins to 0.
  */
-static
-complete_sections()
+static void complete_sections()
 {
-	register long	base = 0;
-	register long	foff;
-	register struct outsect *sc;
-	register int	sectindex;
+	long	base = 0;
+	long	foff;
+	struct outsect *sc;
+	int	sectindex;
 
 	foff = SZ_HEAD + outhead.oh_nsect * SZ_SECT;
 	for (sectindex = 0; sectindex < outhead.oh_nsect; sectindex++) {
@@ -492,11 +470,10 @@ complete_sections()
  * For each name we add the base of its section to its value, unless
  * the output has to be able to be linked again, as indicated by RFLAG.
  */
-static
-change_names()
+static void change_names()
 {
-	register int		cnt;
-	register struct outname	*name;
+	int		cnt;
+	struct outname	*name;
 
 	name = (struct outname *)address(ALLOGLOB, (ind_t)0);
 	cnt = NGlobals;
@@ -523,10 +500,7 @@ change_names()
  * This function sets a bit with index `indx' in string.
  * It returns whether it was already set.
  */
-bool
-setbit(indx, string)
-	int	indx;
-	char	string[];
+bool setbit(int indx, char *string)
 {
 	register int	byte_index, bit_index;
 	register int	byte;
@@ -546,10 +520,7 @@ setbit(indx, string)
 /*
  * This function returns whether the bit given by `indx' is set in `string'.
  */
-static bool
-tstbit(indx, string)
-	int	indx;
-	char	string[];
+static bool tstbit(int indx, char *string)
 {
 	register int	byte_index, bit_index;
 	register int	byte;
@@ -565,8 +536,7 @@ tstbit(indx, string)
 /*
  * Add the base of the section of a name to its value.
  */
-addbase(name)
-	struct outname	*name;
+void addbase(struct outname *name)
 {
 	register int	type = name->on_type & S_TYP;
 	register int	sectindex = type - S_MIN;
@@ -581,7 +551,7 @@ addbase(name)
 		address((name->on_type & S_EXT) ? ALLOGCHR : ALLOLCHR,
 			(ind_t)name->on_foff
 		),
-		name->on_type, name->on_valu, 0
+		name->on_type, name->on_valu
 	);
 }
 
@@ -590,9 +560,7 @@ addbase(name)
 /*
  * Flags have already been processed, so we ignore them here.
  */
-static
-second_pass(argv)
-	char	**argv;
+static void second_pass(char *argv[])
 {
 	passnumber = SECOND;
 	while (*++argv) {
@@ -611,16 +579,14 @@ second_pass(argv)
 	}
 }
 
-static
-pass2(file)
-	char	*file;
+static void pass2(char *file)
 {
 	if (getfile(file) == PLAIN) {
-		debug("%s: plain file\n", file, 0, 0, 0);
+		debug("%s: plain file\n", file);
 		finish();
 	} else {
 		/* It must be an archive. */
-		debug("%s: archive\n", file, 0, 0, 0);
+		debug("%s: archive\n", file);
 		arch2();
 	}
 	closefile(file);

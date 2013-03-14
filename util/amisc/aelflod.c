@@ -224,7 +224,7 @@ void iconvert(char* buf, char* str, char* fmt)
 	int last, i ;
 	uint32_t value ;
 	ni=buf ; no=str ; nf=fmt ;
-	while ( last = *nf++ ) {
+	while (( last = *nf++ )) {
 		last -= '0' ;
 		if ( last<1 || last >9 ) fatal("illegal out.h format string\n");
 		value=0 ;

@@ -5,8 +5,8 @@
  */
 /* S R _ I V . H  */
 
-extern	induc_vars();		/* (loop_p loop; lset *ivars, *vars)
-				 * Find the set of induction variables
+void induc_vars(loop_p loop, lset *ivar_out, lset *vars_out);
+				/* Find the set of induction variables
 				 * of the loop. Also find the set of (local)
 				 * variables that are changed.
 				 */

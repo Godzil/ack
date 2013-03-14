@@ -8,25 +8,25 @@ static char rcsid[] = "$Id$";
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "arch.h"
 #include "out.h"
 #include "const.h"
 #include "debug.h"
-#include "defs.h"
 #include "memory.h"
 #include "orig.h"
 #include "scan.h"
+#include "defs.h"
 
-static		get_names();
-static		process();
-static		getexternal();
-static		redefine();
-static		transfer();
+static void get_names(struct outhead	*head);
+static void process(struct outhead *head);
+static void getexternal(struct outname *name);
+static void redefine(struct outname *new, struct outname *old);
+static void transfer(struct outname	*src, struct outname	*dst);
 
-extern ind_t savechar();
 /*
  * Get section sizes and symboltable information from present module.
  */
-extract()
+void extract()
 {
 	struct outhead	head;
 
@@ -49,9 +49,7 @@ unsigned short	NGlobals = 0;	/* Number of global names. */
  * appear in the final output file if this module is linked.
  * That number will be returned.
  */
-static
-get_names(head)
-	register struct outhead	*head;
+static void get_names(struct outhead	*head)
 {
 	register int	nnames;
 	register ind_t	nameindex, charindex;
@@ -105,14 +103,12 @@ get_names(head)
 
 extern struct orig	relorig[];
 
-static
-process(head)
-	register struct outhead	*head;
+static void process(struct outhead *head)
 {
-	register struct outsect	*sects;
-	register struct outsect	*outsp;
-	register int		nsect;
-	register struct orig	*orig = relorig;
+	struct outsect	*sects;
+	struct outsect	*outsp;
+	int		nsect;
+	struct orig	*orig = relorig;
 	extern struct outhead	outhead;
 	extern struct outsect	outsect[];
 
@@ -149,11 +145,10 @@ process(head)
  * Otherwise we just add the accumulated size of all normal parts in preceding
  * sections with the same size.
  */
-namerelocate(name)
-	register struct outname	*name;
+void namerelocate(struct outname *name)
 {
-	register int	type = name->on_type;
-	register int	sct = type & S_TYP;
+	int	type = name->on_type;
+	int	sct = type & S_TYP;
 
 	if (sct == S_UND || sct == S_ABS || sct == S_CRS)
 		return;
@@ -170,9 +165,7 @@ namerelocate(name)
  * we might need it later on. Otherwise it must confirm to what we already
  * know about it, and eventually add to that knowledge.
  */
-static
-getexternal(name)
-	register struct outname	*name;
+static void getexternal(struct outname *name)
 {
 	register char		*string;
 	register int		h;
@@ -213,9 +206,7 @@ getexternal(name)
  * greatest value so that the common declared name always has enough space.
  * If a common is defined as a not-common, the old definition is ignored.
  */
-static
-redefine(new, old)
-	register struct outname	*new, *old;
+static void redefine(struct outname *new, struct outname *old)
 {
 	if (!ISCOMMON(old)) {
 		if (!ISCOMMON(new))
@@ -241,11 +232,9 @@ redefine(new, old)
 /*
  * Transfer things we want to know from `src' to `dst'.
  */
-static
-transfer(src, dst)
-	register struct outname	*src, *dst;
+static void transfer(struct outname	*src, struct outname	*dst)
 {
-	debug("%s defined here\n", src->on_mptr, 0, 0, 0);
+	debug("%s defined here\n", src->on_mptr);
 	dst->on_valu = src->on_valu;
 	dst->on_type = src->on_type;
 	dst->on_desc = src->on_desc;

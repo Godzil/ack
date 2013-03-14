@@ -6,9 +6,18 @@
 static char rcsid[] = "$Id$";
 #endif
 
+#include <stdio.h>
+#include <out.h>
+#include "const.h"
+#include "assert.h"
+#include "debug.h"
+#include "arch.h"
+#include "memory.h"
+#include "defs.h"
+
 int	infile;	/* The current input file. */
 
-rd_fatal()
+void rd_fatal()
 {
 	fatal("read error");
 }

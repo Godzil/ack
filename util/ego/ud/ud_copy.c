@@ -42,9 +42,7 @@ short nrcopies;		/* number of copies in the current procedure
 #define COUNT 0
 #define MAP 1
 
-STATIC traverse_defs(p,action)
-	proc_p p;
-	int action;
+static void traverse_defs(proc_p p, int action)
 {
 	bblock_p b;
 	line_p l;
@@ -83,8 +81,7 @@ STATIC traverse_defs(p,action)
 
 
 
-STATIC make_copytab(p)
-	proc_p p;
+static void make_copytab(proc_p p)
 {
 	/* Make a table of all copies appearing in procedure p.
 	 * We first count how many there are, because we
@@ -97,14 +94,13 @@ STATIC make_copytab(p)
 
 
 
-STATIC bool is_changed(varl,start,stop)
-	line_p varl, start, stop;
+static bool is_changed(line_p varl, line_p start, line_p stop)
 {
 	/* See if the variable used by instruction varl
 	 * is changed anywhere between 'start' and 'stop'
 	 */
 
-	register line_p l;
+	line_p l;
 	short v;
 	bool found;
 
@@ -121,15 +117,14 @@ STATIC bool is_changed(varl,start,stop)
 
 
 
-STATIC gen_kill_copies(p)
-	proc_p p;
+static void gen_kill_copies(proc_p p)
 {
 	/* Compute C_GEN and C_KILL for every basic block
 	 * of p.
 	 */
 
-	register line_p l;
-	register bblock_p b,n;
+	line_p l;
+	bblock_p b,n;
 	short v;
 	bool found;
 	short copycnt = 1, defcnt = 1;
@@ -165,9 +160,7 @@ STATIC gen_kill_copies(p)
 
 
 
-STATIC intersect_outs(bbset,setp,full_set)
-	lset bbset;
-	cset *setp,full_set;
+static void intersect_outs(lset bbset, cset *setp, cset full_set)
 {
 	/* Take the intersection of C_OUT(b), for all b in bbset,
 	 * and put the result in setp.
@@ -183,9 +176,7 @@ STATIC intersect_outs(bbset,setp,full_set)
 
 
 
-STATIC init_cin(p,full_set)
-	proc_p p;
-	cset full_set;
+static void init_cin(proc_p p, cset full_set)
 {
 	/* Initialize C_IN(b) and C_OUT(b), for every basic block b.
 	 * C_IN of the root of the CFG (i.e. the procedure entry block)
@@ -218,8 +209,7 @@ STATIC init_cin(p,full_set)
 
 
 
-STATIC solve_cin(p)
-	proc_p p;
+static void solve_cin(proc_p p)
 {
 	/* Solve the data flow equations for reaching
 	 * definitions of procedure p.
@@ -233,7 +223,7 @@ STATIC solve_cin(p)
 	 * solve the equations.
 	 */
 
-	register bblock_p b;
+	bblock_p b;
 	bool     change;
 	cset     newin,full_set;
 	short n;
@@ -267,8 +257,7 @@ STATIC solve_cin(p)
 
 
 
-copy_analysis(p)
-	proc_p p;
+void copy_analysis(proc_p p)
 {
 	/* Determine which copies procedure p has. Compute C_IN(b),
 	 * for every basic block b.
@@ -281,8 +270,7 @@ copy_analysis(p)
 
 
 
-bool is_copy(def)
-	line_p def;
+bool is_copy(line_p def)
 {
 	/* See if the definition def is also a 'copy', i.e. an
 	 * statement of the form 'A := B' (or, in EM terminology:
@@ -311,9 +299,7 @@ bool is_copy(def)
 
 
 
-fold_var(old,new,b)
-	line_p old, new;
-	bblock_p b;
+void fold_var(line_p old, line_p new, bblock_p b)
 {
 	/* The variable referenced by the EM instruction 'old'
 	 * must be replaced by the variable referenced by 'new'.
@@ -369,10 +355,7 @@ END DEBUG */
 
 
 
-bool value_retained(copy,defnr,use,b)
-	line_p copy,use;
-	short  defnr;
-	bblock_p b;
+bool value_retained(line_p copy, short defnr, line_p use, bblock_p b)
 {
 	/* See if the right hand side variable of the
 	 * copy still has the same value at 'use'.

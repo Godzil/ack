@@ -23,8 +23,7 @@ FILE	*tf;
 struct outhead buf;
 int	readerror, writeerror;
 
-main(argc, argv)
-char **argv;
+int main(int argc, char *argv[])
 {
 	int	status;
 
@@ -40,8 +39,7 @@ char **argv;
 	exit(status);
 }
 
-strip(name)
-char *name;
+int strip(char *name)
 {
 	long size;
 	int fw;
@@ -113,12 +111,9 @@ char *name;
 	return(0);
 }
 
-copy(fnam, tnam, size, fr, fw)
-char *fnam;
-char *tnam;
-long size;
+int copy(char *fnam, char *tnam, long size, int fr, int fw)
 {
-	register s, n;
+	int s, n;
 	char lbuf[512];
 
 	while(size != (long)0) {
@@ -140,12 +135,12 @@ long size;
 	return(0);
 }
 
-rd_fatal()
+void rd_fatal()
 {
 	readerror = 1;
 }
 
-wr_fatal()
+void wr_fatal()
 {
 	writeerror = 1;
 }

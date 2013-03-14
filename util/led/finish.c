@@ -8,28 +8,29 @@ static char rcsid[] = "$Id$";
 
 #include <out.h>
 #include "const.h"
-#include "defs.h"
+#include "arch.h"
 #include "memory.h"
+#include "defs.h"
 #include "orig.h"
 #include "scan.h"
 
 extern bool	incore;
 extern unsigned short	NLocals;
 extern int	flagword;
-extern struct outname	*searchname();
 
-static		adjust_names();
-static		handle_relos();
-static		put_locals();
-static		compute_origins();
+static void adjust_names(struct outname *name, struct outhead *head, char *chars);
+static void handle_relos(struct outhead *head, struct outsect *sects, struct outname *names);
+static void put_locals(struct outname *name, unsigned int nnames);
+static void compute_origins(struct outsect *sect, unsigned int nsect);
 
+static put_dbug(long offdbug);
 /*
  * We know all there is to know about the current module.
  * Now we relocate the values in the emitted bytes and write
  * those to the final output file. Then we compute the relative origins
  * for the next module.
  */
-finish()
+void finish()
 {
 	struct outhead	*head;
 	struct outsect	*sects;
@@ -56,14 +57,10 @@ finish()
 /*
  * Adjust all local names for the move into core.
  */
-static
-adjust_names(name, head, chars)
-	register struct outname	*name;
-	struct outhead		*head;
-	register char		*chars;
+static void adjust_names(struct outname *name, struct outhead *head, char *chars)
 {
-	register int		cnt;
-	register long		charoff;
+	int		cnt;
+	long		charoff;
 	struct outname		*base = name;
 
 	cnt = head->oh_nname;
@@ -78,11 +75,9 @@ adjust_names(name, head, chars)
 	}
 }
 
-do_crs(base, count)
-	struct outname	*base;
-	unsigned	count;
+void do_crs(struct outname *base, unsigned int count)
 {
-	register struct outname	*name = base;
+	struct outname	*name = base;
 
 	while (count--) {
 		if ((name->on_type & S_TYP) == S_CRS) {
@@ -113,16 +108,12 @@ do_crs(base, count)
  * the relocation table again, because the relocation entries of one section
  * need not be consecutive.
  */
-static
-handle_relos(head, sects, names)
-	struct outhead		*head;
-	struct outsect		*sects;
-	struct outname		*names;
+static void handle_relos(struct outhead *head, struct outsect *sects, struct outname *names)
 {
-	register struct outrelo	*relo;
-	register int		sectindex;
-	register int		nrelo;
-	register char		*emit;
+	struct outrelo	*relo;
+	int		sectindex;
+	int		nrelo;
+	char		*emit;
 	extern char		*getemit();
 	extern struct outrelo	*nextrelo();
 	static long zeros[MAXSECT];
@@ -206,10 +197,7 @@ handle_relos(head, sects, names)
 /*
  * Write out the local names that must be saved.
  */
-static
-put_locals(name, nnames)
-	struct outname		*name;
-	register unsigned	nnames;
+static void put_locals(struct outname *name, unsigned int nnames)
 {
 	register struct outname *oname = name;
 	register struct outname *iname = oname;
@@ -230,10 +218,7 @@ put_locals(name, nnames)
  * Add all flen's and all (size - flen == zero)'s of preceding sections
  * with the same number.
  */
-static
-compute_origins(sect, nsect)
-	register struct outsect	*sect;
-	register unsigned	nsect;
+static void compute_origins(struct outsect *sect, unsigned int nsect)
 {
 	extern struct orig	relorig[];
 	register struct orig	*orig = relorig;
@@ -250,13 +235,11 @@ compute_origins(sect, nsect)
  * Write out what is after the string area. This is likely to be
  * debugging information.
  */
-static
-put_dbug(offdbug)
-	long		offdbug;
+static put_dbug(long offdbug)
 {
 	char		buf[512];
-	register int	nbytes;
-	register long	dbugsize;
+	int	nbytes;
+	long	dbugsize;
 	extern long	objectsize;
 
 	dbugsize = objectsize - offdbug;

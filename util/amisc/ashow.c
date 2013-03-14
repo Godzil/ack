@@ -12,13 +12,21 @@ static char	rcsid[] = "$Id$";
 #define OK	0	/* Return value of gethead if Orl Korekt. */
 #define BMASK	0xFF	/* To extract least significant 8 bits from an int. */
 
+
+void show(struct outhead *headp);
+void showflags(unsigned int flagword);
+void showsect();
+void showname(struct outname *namep);
+void error(char *format, ...);
+void showrelo();
+
+
 /* ARGSUSED */
-main(argc, argv)
-	int	argc;
-	char	*argv[];
-#		define prog	argv[0]
+#define prog	argv[0]
+
+int main(int argc, char *argv[])
 {
-	register char	**arg = argv;
+	char	**arg = argv;
 	struct outhead	header;
 
 	while (*++arg) {
@@ -42,13 +50,12 @@ main(argc, argv)
  * NB. The header has already been read and is in the struct outhead `headp'
  * points to.
  */
-show(headp)
-	register struct outhead	*headp;
+void show(struct outhead *headp)
 {
-	register int		i;
-	register struct outname	*np;
-	register struct outname	*name;	/* Dynamically allocated name-array. */
-	register char		*string;/* Base of string area. */
+	int		i;
+	struct outname	*np;
+	struct outname	*name;	/* Dynamically allocated name-array. */
+	char		*string;/* Base of string area. */
 	extern char		*myalloc();
 
 	printf("Version %d\n", headp->oh_stamp);
@@ -98,8 +105,7 @@ show(headp)
 /*
  * Show flags from header.
  */
-showflags(flagword)
-	unsigned	flagword;
+void showflags(unsigned int flagword)
 {
 	if (flagword & HF_LINK) printf("unresolved references left\n");
 }
@@ -107,7 +113,7 @@ showflags(flagword)
 /*
  * Show a section.
  */
-showsect()
+void showsect()
 {
 	struct outsect	section;
 
@@ -122,7 +128,7 @@ showsect()
 /*
  * Show a relocation record.
  */
-showrelo()
+void showrelo()
 {
 	struct outrelo	relrec;
 
@@ -152,8 +158,7 @@ showrelo()
 /*
  * Show the name in the struct `namep' points to.
  */
-showname(namep)
-	struct outname	*namep;
+void showname(struct outname *namep)
 {
 	if (namep->on_mptr)
 		printf("\t%s\n", namep->on_mptr);
@@ -200,9 +205,7 @@ showname(namep)
 /*
  * Core allocation via malloc() but fatal if no core.
  */
-char *
-myalloc(u)
-	unsigned int	u;
+char *myalloc(unsigned int u)
 {
 	register char	*rcp;
 
@@ -215,14 +218,16 @@ myalloc(u)
 }
 
 /* VARARGS1 */
-error(s, a1, a2, a3, a4)
-	char	*s;
+void error(char *format, ...)
 {
+	va_list ap;
 	fflush(stdout);
-	fprintf(stderr, s, a1, a2, a3, a4);
+	va_start(ap, format);
+	vfprintf(stderr, format, ap);
+	va_end(ap);
 }
 
-rd_fatal()
+void rd_fatal()
 {
 	error("Error in reading the object file\n");
 	exit(1);

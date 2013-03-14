@@ -14,8 +14,10 @@ static char rcsid[] = "$Id$";
 #include <stdio.h>
 #include "out.h"
 #include "const.h"
+#include "arch.h"
 #include "memory.h"
 #include "debug.h"
+#include "defs.h"
 
 /*
  * Symbol table types. Each hash table entry contains the offset of a symbol
@@ -35,9 +37,9 @@ static ind_t	hashtable[NHASH];
 /*
  * Initialize the symbol table. All indices should be noticeably invalid.
  */
-init_symboltable()
+void init_symboltable()
 {
-	register ind_t	*rap;
+	ind_t	*rap;
 
 	for (rap = hashtable; rap < &hashtable[NHASH]; rap++)
 		*rap = BADOFF;
@@ -50,35 +52,32 @@ init_symboltable()
  * in this element of the list is returned. When a match cannot be found,
  * NIL is returned.
  */ 
-struct outname *
-searchname(string, hashval)
-	char			*string;
-	int			hashval;
+struct outname *searchname(char *string, int hashval)
 {
-	register char		*rcp;
-	register char		*namestring;
-	register ind_t		symindex;
-	register struct outname	*name;
-	register struct symbol	*sym;
+	char		*rcp;
+	char		*namestring;
+	ind_t		symindex;
+	struct outname	*name;
+	struct symbol	*sym;
 
 	symindex = hashtable[hashval];
-	debug("looking for %s %d %ld:", string, hashval, hashtable[hashval], 0);
+	debug("looking for %s %d %ld:", string, hashval, hashtable[hashval]);
 	while (symindex != BADOFF) {
 		sym = (struct symbol *)address(ALLOSYMB, symindex);
 		name = (struct outname *)address(ALLOGLOB, sym->sy_name);
 		namestring = address(ALLOGCHR, (ind_t)name->on_foff);
 		rcp = string;
-		debug("comp %s;", namestring, 0, 0, 0);
+		debug("comp %s;", namestring);
 		while (*rcp == *namestring++)
 			if (*rcp++ == '\0') {
 				debug("found %x, %x, %lx\n",
-					name->on_type, name->on_desc, name->on_valu, 0);
+					name->on_type, name->on_desc, name->on_valu);
 				return name;
 			}	
 		symindex = sym->sy_next;
 	}
 	/* Not found. */
-	debug("not found\n", 0, 0, 0, 0);
+	debug("not found\n");
 	return (struct outname *)0;
 }
 
@@ -88,22 +87,18 @@ searchname(string, hashval)
  * destroyed by allocation. However, the string of which name->on_foff is the
  * offset can be destroyed, so we save it first.
  */
-entername(name, hashval)
-	struct outname	*name;
-	int		hashval;
+void entername(struct outname *name, int hashval)
 {
 	ind_t		savindex;
 	ind_t		symindex;
 	ind_t		namindex;
-	register struct symbol	*sym;
+	struct symbol	*sym;
 	struct outname	*newname;
-	extern ind_t	savechar();
-	extern ind_t	hard_alloc();
 
 	debug("entername %s %d %x %x", modulptr((ind_t)name->on_foff), hashval, name->on_type, name->on_desc);
 	savindex = savechar(ALLOGCHR, (ind_t)name->on_foff);
 	symindex = hard_alloc(ALLOSYMB, (long)sizeof(struct symbol));
-	debug("; %ld\n", symindex, 0, 0, 0);
+	debug("; %ld\n", symindex);
 	namindex = hard_alloc(ALLOGLOB, (long)sizeof(struct outname));
 	if (savindex == BADOFF || symindex == BADOFF || namindex == BADOFF)
 		fatal("symbol table overflow");
@@ -120,9 +115,7 @@ entername(name, hashval)
  * Return the index of `name' in the symbol table in the order in which
  * it was entered. We need a REAL index, not a byte offset.
  */
-unsigned
-indexof(name)
-	struct outname	*name;
+unsigned int indexof(struct outname *name)
 {
 	return name - (struct outname *)address(ALLOGLOB, (ind_t)0);
 }
@@ -132,14 +125,12 @@ indexof(name)
  * 0 <= hash(p) < NHASH, so it can - and will - be used
  * as index in a hash table.
  */
-int
-hash(p)
-	register char		*p;
+int hash(char *p)
 {
-	register unsigned short	h = 0;
-	register int		c;
+	unsigned short	h = 0;
+	int		c;
 
-	while (c = *p++) {
+	while ((c = *p++)) {
 		h <<= 2;
 		h += c;
 	}

@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include "misc.h"
 #include "symtab.h"
@@ -31,7 +32,8 @@ static struct pattern *pattable,	/* ptr to pattern array */
 					 * be allocated
 					 */
 
-addpattern(str,l,np,nr) char *str; {
+void addpattern(char *str, int l, int np, int nr)
+{
     /*
      * Just add a pattern to the list.
      * "str" is the constraint, "l" is the line number,
@@ -39,7 +41,7 @@ addpattern(str,l,np,nr) char *str; {
      * "nr" is the number of instructions in the replacement
      * Space is allocated in chunks of 50
      */
-    register struct pattern *p;
+    struct pattern *p;
 
     if (!pattable) {		/* No space allocated yet */
 	pattable = (struct pattern *) malloc(50 * sizeof *pattable);
@@ -61,13 +63,13 @@ addpattern(str,l,np,nr) char *str; {
     p->p_nrepl = nr;
 }
 
-static
-prconstraint(str) char *str; {
+static void prconstraint(char *str)
+{
     /*
      * prints a constraint, with variable names replaced
      */
     char c;
-    register char *p, *q;
+    char *p, *q;
     struct symtab *name;
 
     p = str;
@@ -103,13 +105,14 @@ prconstraint(str) char *str; {
     }
 }
 
-printpatterns() {
+void printpatterns()
+{
     /*
      * Prints the pattern_descr table and generates the routine
      * "check_constraint"
      */
-    register struct pattern *p;
-    register i;
+    struct pattern *p;
+    int i;
 
     p = pattable;
     i = 1;

@@ -41,7 +41,7 @@
  */
 
 
-STATIC lset cand,		/* set of candidates */
+static lset cand,		/* set of candidates */
 	    dism;		/* set of dismissed variables */
 
 
@@ -49,8 +49,7 @@ STATIC lset cand,		/* set of candidates */
 
 
 
-STATIC un_cand(lnp)
-	line_p lnp;
+static void un_cand(line_p lnp)
 {
 	/* remove the variable stored into by lnp from the list of
 	 * candidates (if it was there anyway).
@@ -68,8 +67,7 @@ STATIC un_cand(lnp)
 }
 
 
-STATIC bool is_cand(lnp)
-	line_p lnp;
+static bool is_cand(line_p lnp)
 {
 	/* see if the variable stored into by lnp is a candate */
 
@@ -84,8 +82,7 @@ STATIC bool is_cand(lnp)
 }
 
 
-STATIC make_cand(lnp)
-	line_p lnp;
+static void make_cand(line_p lnp)
 {
 	/* make the variable stored into by lnp a candidate */
 
@@ -96,15 +93,13 @@ STATIC make_cand(lnp)
 
 
 
-STATIC do_dismiss(lnp)
-	line_p lnp;
+static void do_dismiss(line_p lnp)
 {
 	Ladd(lnp,&dism);
 }
 
 
-STATIC dismiss(lnp)
-	line_p lnp;
+static void dismiss(line_p lnp)
 {
 	/* The variable referenced by lnp is turned definitely into
 	 * a non-candidate.
@@ -117,8 +112,7 @@ STATIC dismiss(lnp)
 }
 
 
-STATIC bool not_dismissed(lnp)
-	line_p lnp;
+static bool not_dismissed(line_p lnp)
 {
 	Lindex i;
 
@@ -131,9 +125,7 @@ STATIC bool not_dismissed(lnp)
 }
 
 
-STATIC try_cand(lnp,b)
-	line_p lnp;
-	bblock_p b;
+static void try_cand(line_p lnp, bblock_p b)
 {
 	/* If the variable stored into by lnp was not already a candidate
 	 * and was not dismissed, then it is made a candidate
@@ -151,9 +143,7 @@ STATIC try_cand(lnp,b)
 }
 
 
-candidates(lp,cand_out,vars_out)
-	loop_p lp;
-	lset   *cand_out, *vars_out;
+void candidates(loop_p lp, lset *cand_out, lset *vars_out)
 {
 	/* Find the candidate induction variables.
 	 */

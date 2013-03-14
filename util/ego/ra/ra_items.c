@@ -33,8 +33,7 @@
 /* prevent small constants from being put in a register */
 
 
-clean_tab(items)
-	item_p items[];
+static void clean_tab(item_p items[])
 {
 	int t;
 
@@ -46,8 +45,7 @@ clean_tab(items)
 
 
 
-short item_type(l)
-	line_p l;
+short item_type(line_p l)
 {
 	int instr = INSTR(l);
 	int t;
@@ -60,18 +58,15 @@ short item_type(l)
 
 
 
-bool is_item(l)
-	line_p l;
+bool is_item(line_p l)
 {
 	return item_type(l) != NO_ITEM;
 }
 
 
-item_p item_of(off,items)
-	offset off;
-	item_p items[];
+item_p item_of(offset off, item_p items[])
 {
-	register item_p x;
+	item_p x;
 
 	for (x = items[LOCALVAR]; x != (item_p) 0; x = x->it_next) {
 		if (off == x->i_t.it_off) {
@@ -85,9 +80,7 @@ item_p item_of(off,items)
 
 
 
-fill_item(item,l)
-	item_p item;
-	line_p l;
+void fill_item(item_p item, line_p l)
 {
 	item->it_type = item_type(l); 
 	item->it_desirable = TRUE;
@@ -105,8 +98,7 @@ fill_item(item,l)
 
 
 
-STATIC bool desirable(l)
-	line_p l;
+static bool desirable(line_p l)
 {
 	/* See if it is really desirable to put the item of line l
 	 * in a register. We do not put an item in a register if it
@@ -127,8 +119,7 @@ STATIC bool desirable(l)
 
 
 
-STATIC int cmp_items(a,b)
-	item_p a,b;
+static int cmp_items(item_p a, item_p b)
 {
 	/* This routine defines the <, = and > relations between items,
 	 * used to sort them for fast lookup.
@@ -156,15 +147,13 @@ STATIC int cmp_items(a,b)
 
 
 
-bool same_item(a,b)
-	item_p a,b;
+bool same_item(item_p a, item_p b)
 {
 	return cmp_items(a,b) == 0;
 }
 
 
-STATIC bool lt_item(a,b)
-	item_p a,b;
+static bool lt_item(item_p a, item_p b)
 {
 	return cmp_items(a,b) == -1;
 }
@@ -191,8 +180,7 @@ static item_p items[NRITEMTYPES];  /* items[i] points to the list of type i */
 
 
 
-STATIC short reg_type(item)
-	item_p item;
+static short reg_type(item_p item)
 {
 	/* See which type of register the item should best be assigned to */
 
@@ -210,12 +198,12 @@ STATIC short reg_type(item)
 		default: assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
-STATIC short item_size(item)
-	item_p item;
+static short item_size(item_p item)
 {
 	/* Determine the size of the item (in bytes) */
 
@@ -234,12 +222,12 @@ STATIC short item_size(item)
 		default: assert(FALSE);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 
 
-STATIC init_item(a,b)
-	item_p a,b;
+static void init_item(item_p a, item_p b)
 {
 	a->it_type = b->it_type;
 	switch(a->it_type) {
@@ -260,16 +248,12 @@ STATIC init_item(a,b)
 
 
 
-STATIC add_item(item,t,items)
-	item_p item;
-	time_p t;
-	item_p items[];
+static void add_item(item_p item, time_p t, item_p items[])
 {
 	/* See if there was already a list element for item. In any
 	 * case record the fact that item is used at 't'.
 	 */
-
-	register item_p x, *q;
+	item_p x, *q;
 
 	q = &items[item->it_type]; /* each type has its own list */
 	for (x = *q; x != (item_p) 0; x = *q) {
@@ -296,10 +280,7 @@ STATIC add_item(item,t,items)
 
 
 
-STATIC add_usage(l,b,items)
-	line_p l;
-	bblock_p b;
-	item_p items[];
+static void add_usage(line_p l, bblock_p b, item_p items[])
 {
 	/* An item is used at line l. Add it to the list of items.
 	 * A local variable is only considered to be an item, if
@@ -323,10 +304,7 @@ STATIC add_usage(l,b,items)
 
 
 
-build_itemlist(p,items,nrinstr_out)
-	proc_p p;
-	item_p items[];
-	int    *nrinstr_out;
+void build_itemlist(proc_p p, item_p items[], int *nrinstr_out)
 {
 	/* Make a list of all items used in procedure p.
 	 * An item is anything that can be put in a register,

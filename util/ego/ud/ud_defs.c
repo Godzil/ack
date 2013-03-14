@@ -27,12 +27,11 @@ short nrexpldefs;	/* number of explicit definitions */
 line_p *defs;
 cset *vardefs;
 
-STATIC cset all_globl_defs, all_indir_defs;
+static cset all_globl_defs, all_indir_defs;
 /* auxiliary sets, used by gen_sets */
 
 
-bool does_expl_def(l)
-	line_p l;
+bool does_expl_def(line_p l)
 {
 	/* See if instruction l does an explicit definition */
 
@@ -52,12 +51,12 @@ bool does_expl_def(l)
 			return FALSE;
 	}
 	/* NOTREACHED */
+	return FALSE;
 }
 
 
 
-bool does_impl_def(l)
-	line_p l;
+bool does_impl_def(line_p l)
 {
 	/* See if instruction l does an implicit definition */
 
@@ -77,11 +76,11 @@ bool does_impl_def(l)
 		default:
 			return FALSE;
 	}
+	return FALSE;
 }
 
 
-make_defs(p)
-	proc_p p;
+void make_defs(proc_p p)
 {
 	/* Make a map of all explicit definitions
 	 * occurring in p.
@@ -93,8 +92,8 @@ make_defs(p)
 	 * explicit definition.
 	 */
 
-	register bblock_p b;
-	register  line_p l;
+	bblock_p b;
+	line_p l;
 	short v, i, cnt = 0;
 	bool  found;
 
@@ -134,8 +133,7 @@ make_defs(p)
 
 
 
-STATIC init_gen(nrdefs)
-	short nrdefs;
+static void init_gen(short nrdefs)
 {
 	/* Initializing routine of gen_sets. Compute the set
 	 * of all implicit definitions to global variables
@@ -161,7 +159,7 @@ STATIC init_gen(nrdefs)
 
 
 
-STATIC clean_gen()
+static void clean_gen()
 {
 	Cdeleteset(all_globl_defs);
 	Cdeleteset(all_indir_defs);
@@ -169,9 +167,7 @@ STATIC clean_gen()
 
 
 
-STATIC bool same_target(l,defnr)
-	line_p l;
-	short  defnr;
+static bool same_target(line_p l, short defnr)
 {
 	/* See if l defines the same variable as def */
 
@@ -200,9 +196,7 @@ STATIC bool same_target(l,defnr)
 
 
 
-STATIC rem_prev_defs(l,gen_p)
-	line_p l;
-	cset   *gen_p;
+static void rem_prev_defs(line_p l, cset *gen_p)
 {
 	/* Remove all definitions in gen that define the
 	 * same variable as l.
@@ -223,9 +217,7 @@ STATIC rem_prev_defs(l,gen_p)
 
 
 
-STATIC impl_globl_defs(p,gen_p)
-	proc_p p;
-	cset   *gen_p;
+static void impl_globl_defs(proc_p p, cset *gen_p)
 {
 	/* Add all definitions of global variables
 	 * that are generated implicitly by a call
@@ -249,9 +241,7 @@ STATIC impl_globl_defs(p,gen_p)
 
 
 
-STATIC impl_gen_defs(l,gen_p)
-	line_p l;
-	cset   *gen_p;
+static void impl_gen_defs(line_p l, cset *gen_p)
 {
 	/* Add all definitions generated implicitly by instruction l
 	 * to gen_p. l may be a call or some kind of indirect
@@ -287,16 +277,15 @@ STATIC impl_gen_defs(l,gen_p)
 
 
 
-gen_sets(p)
-	proc_p p;
+void gen_sets(proc_p p)
 {
 	/* Compute for every basic block b of p the
 	 * set GEN(b) of definitions in b (explicit as
 	 * well as implicit) that reach the end of b.
 	 */
 	
-	register bblock_p b;
-	register line_p   l;
+	bblock_p b;
+	line_p   l;
 	short defnr = 1;
 
 	init_gen(nrdefs);  /* compute all_globl_defs and all_indir_defs */
@@ -329,9 +318,7 @@ gen_sets(p)
 
 
 
-STATIC killed_defs(v,b)
-	short v;
-	bblock_p b;
+static void killed_defs(short v, bblock_p b)
 {
 	/* Put all definitions of v occurring outside b
 	 * in KILL(b). In fact, we also put explicit
@@ -355,8 +342,7 @@ STATIC killed_defs(v,b)
 
 
 
-kill_sets(p)
-	proc_p p;
+void kill_sets(proc_p p)
 {
 	/* For every basic block b of p compute the set
 	 * KILL(b) of definitions outside b that define
@@ -365,7 +351,7 @@ kill_sets(p)
 	 * definitions.
 	 */
 
-	register bblock_p b;
+	bblock_p b;
 	Cindex i;
 	short v;
 

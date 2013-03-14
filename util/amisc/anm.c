@@ -35,8 +35,10 @@ long	s_base[S_MAX];	/* for specially encoded bases */
 char	*filename;
 int	narg;
 
-main(argc, argv)
-char **argv;
+void process(int fd);
+void do_file(int fd);
+
+int main(int argc, char *argv[])
 {
 
 	if (--argc>0 && argv[1][0]=='-' && argv[1][1]!=0) {
@@ -96,10 +98,9 @@ char **argv;
 	exit(0);
 }
 
-extern int rd_unsigned2();
+int rd_unsigned2(int fd);
 
-process(fd)
-	int	fd;
+void process(int fd)
 {
 	unsigned int	magic;
 	long		nextpos;
@@ -134,8 +135,7 @@ process(fd)
 	}
 }
 
-do_file(fd)
-	int	fd;
+void do_file(int fd)
 {
 	struct	outname	*nbufp = NULL;
 	struct	outname	nbuf;
@@ -295,8 +295,7 @@ do_file(fd)
 		free((char *)cbufp);
 }
 
-compare(p1, p2)
-struct outname	*p1, *p2;
+int compare(struct outname *p1, struct outname *p2)
 {
 	int	i;
 
@@ -330,7 +329,7 @@ struct outname	*p1, *p2;
 	return(0);
 }
 
-rd_fatal()
+void rd_fatal()
 {
 	fprintf(stderr,"read error on %s\n", filename);
 	read_error = 1;

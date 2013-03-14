@@ -24,9 +24,7 @@
 #define INSIDE_LOOP(b,lp)  Lis_elem(b,lp->LP_BLOCKS)
 
 
-bool is_loopconst(lnp,vars)
-	line_p lnp;
-	lset   vars;
+bool is_loopconst(line_p lnp, lset vars)
 {
 	Lindex i;
 
@@ -41,9 +39,7 @@ bool is_loopconst(lnp,vars)
 }
 
 
-bool is_caddress(lnp,vars)
-	line_p lnp;
-	lset   vars;  /* variables changed in loop */
+bool is_caddress(line_p lnp, lset vars)
 {
 	/* See if lnp is a single instruction (i.e. without arguments)
 	 * that pushes a loop-invariant entity of size pointer-size (ps)
@@ -63,13 +59,12 @@ bool is_caddress(lnp,vars)
 			return FALSE;
 	}
 	/* NOTREACHED */
+	return FALSE;
 }
 
 
 
-STATIC arg_p find_arg(n,list)
-	int n;
-	arg_p list;
+static arg_p find_arg(int n, arg_p list)
 {
 	/* Find the n-th element of the list */
 
@@ -81,8 +76,7 @@ STATIC arg_p find_arg(n,list)
 }
 
 
-int elemsize(lnp)
-	line_p lnp;
+int elemsize(line_p lnp)
 {
 	/* lnp is an instruction that loads the address of an array
 	 * descriptor. Find the size of the elements of the array.
@@ -107,12 +101,11 @@ int elemsize(lnp)
 
 
 
-concatenate(list1,list2)
-	line_p list1,list2;
+void concatenate(line_p list1, line_p list2)
 {
 	/* Append list2 to the end of list1. list1 may not be empty. */
 
-	register line_p l;
+	line_p l;
 
 	assert(list1 != (line_p) 0);
 	for (l =list1; l->l_next != (line_p) 0; l = l->l_next);

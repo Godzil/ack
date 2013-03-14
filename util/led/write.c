@@ -13,13 +13,16 @@ static char rcsid[] = "$Id$";
 #include "const.h"
 #include "assert.h"
 #include "memory.h"
-
+#include "arch.h"
+#include "defs.h"
 extern struct outhead	outhead;
 extern struct outsect	outsect[];
 extern int		flagword;
 extern bool		incore;
 
-wr_fatal()
+static struct outname *sectname(int sectindex);
+
+void wr_fatal()
 {
 	fatal("write error");
 }
@@ -30,7 +33,7 @@ static long		off_char;
  * Open the output file according to the chosen strategy.
  * Write away the header and section table: they will not change anymore.
  */
-begin_write()
+void begin_write()
 {
 	register struct outhead *hd = &outhead;
 
@@ -40,9 +43,7 @@ begin_write()
 	off_char = OFF_CHAR(*hd);
 }
 
-static struct outname *
-sectname(sectindex)
-	int			sectindex;
+static struct outname *sectname(int sectindex)
 {
 	static struct outname	namebuf;
 
@@ -57,10 +58,10 @@ sectname(sectindex)
 /*
  * Write out the symbol table and the section names.
  */
-end_write()
+void end_write()
 {
-	register struct outname	*name;
-	register int		sectindex;
+	struct outname	*name;
+	int		sectindex;
 	extern unsigned short	NGlobals;
 	extern long		NGChars;
 
@@ -75,37 +76,31 @@ end_write()
 	for (sectindex = 0; sectindex < outhead.oh_nsect; sectindex++)
 		wrt_name(sectname(sectindex), 1);
 }
-	
-wrt_emit(emit, sectindex, cnt)
-	char		*emit;
-	int		sectindex;
-	long		cnt;
-{
 
+void wrt_emit(char *emit, int sectindex, long cnt)
+{
 	wr_outsect(sectindex);
 	wr_emit(emit, cnt);
 }
 
-wrt_nulls(sectindex, cnt)
-	register long cnt;
+void wrt_nulls(int sectindex, long cnt)
 {
 	static char nullbuf[BUFSIZ];
 
 	wr_outsect(sectindex);
 	while (cnt) {
-		register int n = cnt >= BUFSIZ ? BUFSIZ : cnt;
+		int n = cnt >= BUFSIZ ? BUFSIZ : cnt;
 		wr_emit(nullbuf, (long)n);
 		cnt -= n;
 	}
 }
 
-wrt_name(name, writename)
-	register struct outname	*name;
+void wrt_name(struct outname *name, int writename)
 {
 	assert(!incore);
 	assert(!(flagword & SFLAG));
 	if (name->on_mptr != (char *)0) {
-		register long	len = strlen(name->on_mptr) + 1;
+		long	len = strlen(name->on_mptr) + 1;
 
 		wr_string(name->on_mptr, len);
 		name->on_foff = off_char;

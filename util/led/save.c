@@ -18,13 +18,13 @@ static char rcsid[] = "$Id$";
 #include "const.h"
 #include "assert.h"
 #include "memory.h"
+#include "defs.h"
 
 extern bool	incore;
-extern char	*core_alloc();
 
-savemagic()
+void savemagic()
 {
-	register char	*p;
+	char	*p;
 
 	if (!incore)
 		return;
@@ -35,10 +35,9 @@ savemagic()
 	}
 }
 
-savehdr(hdr)
-	struct ar_hdr	*hdr;
+void savehdr(struct ar_hdr * hdr)
 {
-	register char	*p;
+	char	*p;
 
 	if (!incore)
 		return;
@@ -57,15 +56,10 @@ long	NGChars = 0;	/* Idem for global names. */
  * Return its offset in this area. We don't use the first char of the string
  * area, so that empty strings can be distinguished from the first string.
  */
-ind_t
-savechar(piece, off)
-	register int	piece;
-	register ind_t	off;
+ind_t savechar(int piece, ind_t off)
 {
-	register long	len;
-	register ind_t	newoff;
-	extern ind_t	alloc();
-	extern ind_t	hard_alloc();
+	long	len;
+	ind_t	newoff;
 
 	if (off == (ind_t)0)
 		return 0;
@@ -91,8 +85,7 @@ savechar(piece, off)
  * allocation, but the string of which name->on_foff is the offset may be
  * destroyed, so we save that first.
  */
-savelocal(name)
-	struct outname	*name;
+void savelocal(struct outname *name)
 {
 	ind_t		savindex;
 	struct outname	*new;

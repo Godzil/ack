@@ -18,8 +18,7 @@
 #include "ra.h"
 #include "ra_interv.h"
 
-interv_p cons_interval(t_start,t_stop)
-	short t_start,t_stop;
+interv_p cons_interval(short t_start, short t_stop)
 {
 	interv_p x;
 
@@ -31,9 +30,7 @@ interv_p cons_interval(t_start,t_stop)
 
 
 
-add_interval(t1,t2,list)
-	short t1,t2;
-	interv_p *list;
+void add_interval(short t1, short t2, interv_p *list)
 {
 	/* Add interval (t1,t2) to the list of intervals (which is
 	 * an in-out parameter!). The list is sorted in 'chronological'
@@ -41,7 +38,7 @@ add_interval(t1,t2,list)
 	 * putting adjacent intervals in one interval.
 	 */
 
-	register interv_p x1, x2, *q;
+	interv_p x1, x2, *q;
 	int adjacent = 0;
 	interv_p x;
 
@@ -82,16 +79,15 @@ add_interval(t1,t2,list)
 
 
 
-interv_p loop_lifetime(lp)
-	loop_p lp;
+interv_p loop_lifetime(loop_p lp)
 {
 	/* Determine the timespan of the loop, expressed as a list
 	 * of intervals.
 	 */
 
 	interv_p lt = 0;
-	register bblock_p b;
-	register Lindex bi;
+	bblock_p b;
+	Lindex bi;
 
 	for (bi = Lfirst(lp->LP_BLOCKS); bi != (Lindex) 0;
 					 bi = Lnext(bi,lp->LP_BLOCKS)) {
@@ -102,12 +98,11 @@ interv_p loop_lifetime(lp)
 }
 
 
-interv_p proc_lifetime(p)
-	proc_p p;
+interv_p proc_lifetime(proc_p p)
 {
 	/* Determine the lifetime of an entire procedure */
 
-	register bblock_p b;
+	bblock_p b;
 
 	for (b = p->p_start; b->b_next != (bblock_p) 0; b = b->b_next) ;
 	return cons_interval(0,b->B_END);
@@ -115,8 +110,7 @@ interv_p proc_lifetime(p)
 
 
 
-STATIC set_min_max(iv1,iv2)
-	interv_p *iv1,*iv2;
+static void set_min_max(interv_p *iv1, interv_p *iv2)
 {
 	/* Auxiliary routine of intersect */
 
@@ -133,8 +127,7 @@ STATIC set_min_max(iv1,iv2)
 
 
 
-interv_p intersect(list1,list2)
-	interv_p list1,list2;
+interv_p intersect(interv_p list1, interv_p list2)
 {
 	/* Intersect two lifetimes, each denoted by a list of intervals.
 	 * We maintain two pointers, pmin and pmax, pointing to the
@@ -177,8 +170,7 @@ interv_p intersect(list1,list2)
 
 
 
-bool not_disjoint(list1,list2)
-	interv_p list1,list2;
+bool not_disjoint(interv_p list1, interv_p list2)
 {
 	/* See if list1 and list2 do overlap somewhere */
 
@@ -200,11 +192,9 @@ bool not_disjoint(list1,list2)
 
 
 
-bool contains(t,timespan)
-	short t;
-	interv_p timespan;
+bool contains(short t, interv_p timespan)
 {
-	register interv_p iv;
+	interv_p iv;
 
 	for (iv = timespan; iv != (interv_p) 0; iv = iv->i_next) {
 		if (t <= iv->i_stop) return (t >= iv->i_start);
@@ -214,8 +204,7 @@ bool contains(t,timespan)
 
 
 
-interv_p copy_timespan(list)
-	interv_p list;
+interv_p copy_timespan(interv_p list)
 {
 	/* copy the time span */
 

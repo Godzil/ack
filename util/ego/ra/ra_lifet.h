@@ -9,8 +9,8 @@
  */
 
 
-extern build_lifetimes();	/* item_p items[]; 
-				 * compute the it_lives attribute of every
+void build_lifetimes(item_p items[]);
+				/* compute the it_lives attribute of every
 				 * item; this is a list of intervals
 				 *  during which the item is live,
 				 * i.e. its current value may be used.

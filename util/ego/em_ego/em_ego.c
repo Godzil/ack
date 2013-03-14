@@ -4,6 +4,9 @@
    optimizer itself one day ...
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <em_path.h>
 #include <signal.h>
 #include <system.h>
@@ -42,10 +45,6 @@ static char *phnames[] = {
 #define MAXARGS		1024		/* mar # of args */
 #define NTEMPS		4		/* # of temporary files; not tunable */
 
-extern char	*mktemp();
-extern char	*strcpy(), *strcat();
-extern char	*strrchr();
-
 static char	ddump[128] = TMP_DIR;	/* data label dump file */
 static char	pdump[128] = TMP_DIR;	/* procedure name dump file */
 static char	tmpbufs[NTEMPS*2][128] = {
@@ -82,8 +81,7 @@ static char	*prog_name;
 
 static int	v_flag;
 
-static void
-cleanup()
+static void cleanup()
 {
   /*	Cleanup temporaries */
 
@@ -100,10 +98,7 @@ cleanup()
 }
 
 /*VARARGS1*/
-static void
-fatal(s, s2)
-  char	*s;
-  char	*s2;
+static void fatal(char *s, char *s2)
 {
   /*	A fatal error occurred; exit gracefully */
 
@@ -115,28 +110,23 @@ fatal(s, s2)
   /*NOTREACHED*/
 }
 
-static void
-add_file(s)
-  char	*s;
+static void add_file(char *s)
 {
   /*	Add an input file to the list */
 
-  if (nfiles >= MAXARGS) fatal("too many files");
+  if (nfiles >= MAXARGS) fatal("too many files", NULL);
   phargs[nfiles++] = s;
 }
 
-static void
-add_uphase(p)
-  int	p;
+static void add_uphase(int p)
 {
   /*	Add an optimizer phase to the list of phases to run */
 
-  if (nuphases >= MAXUPHASES) fatal("too many phases");
+  if (nuphases >= MAXUPHASES) fatal("too many phases", NULL);
   uphases[nuphases++] = p;
 }
 
-static void
-catch()
+static void catch()
 {
   /*	Catch interrupts and exit gracefully */
 
@@ -144,8 +134,7 @@ catch()
   sys_stop(S_EXIT);
 }
 
-static void
-old_infiles()
+static void old_infiles()
 {
   /*	Remove old input files unless we have to keep them around. */
 
@@ -156,8 +145,7 @@ old_infiles()
   for (i = 1; i <= NTEMPS; i++) (void) unlink(phargs[i]);
 }
 
-static void
-get_infiles()
+static void get_infiles()
 {
   /*	Make output temps from previous phase input temps of next phase. */
 
@@ -170,8 +158,7 @@ get_infiles()
   }
 }
 
-static void
-new_outfiles()
+static void new_outfiles()
 {
   static int	tmpindex = 0;
   static int	Bindex = 0;
@@ -197,9 +184,7 @@ new_outfiles()
   }
 }
 
-static void
-run_phase(phase)
-  int	phase;
+static void run_phase(int phase)
 {
   /*	Run one phase of the global optimizer; special cases are
 	IC and CA.
@@ -250,7 +235,7 @@ run_phase(phase)
 	break;
   }
   if ((pid = fork()) < 0) {
-	fatal("Could not fork");
+	fatal("Could not fork", NULL);
   }
   else if (pid == 0) {
 	if (v_flag) {
@@ -278,18 +263,16 @@ run_phase(phase)
   }
 }
 
-main(argc, argv)
-  int	argc;
-  char	*argv[];
+int main(int argc, char *argv[])
 {
-  register int	i = 0;
+	int	i = 0;
 
-  if (signal(SIGHUP, catch) == SIG_IGN) (void) signal(SIGHUP, SIG_IGN);
-  if (signal(SIGQUIT, catch) == SIG_IGN) (void) signal(SIGQUIT, SIG_IGN);
-  if (signal(SIGINT, catch) == SIG_IGN) (void) signal(SIGINT, SIG_IGN);
-  prog_name = argv[0];
-  phase_args = &argv[1];
-  while (--argc > 0) {
+	if (signal(SIGHUP, catch) == SIG_IGN) (void) signal(SIGHUP, SIG_IGN);
+	if (signal(SIGQUIT, catch) == SIG_IGN) (void) signal(SIGQUIT, SIG_IGN);
+	if (signal(SIGINT, catch) == SIG_IGN) (void) signal(SIGINT, SIG_IGN);
+	prog_name = argv[0];
+	phase_args = &argv[1];
+	while (--argc > 0) {
 	argv++;
 	if (argv[0][0] == '-') {
 		switch(argv[0][1]) {
@@ -386,7 +369,7 @@ main(argc, argv)
   }
 
   if (! opt_dir) {
-	fatal("no correct -P flag given");
+	fatal("no correct -P flag given", NULL);
   }
 
   if (keeptemps) {
@@ -418,4 +401,5 @@ main(argc, argv)
   cleanup();
   sys_stop(S_END);
   /*NOTREACHED*/
+  return 0;
 }

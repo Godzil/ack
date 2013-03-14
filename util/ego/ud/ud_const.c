@@ -27,8 +27,7 @@
 #define CALLS_UNKNOWN(p) (p->p_flags1 & (byte) PF_CALUNKNOWN)
 
 
-bool is_use(l)
-	line_p l;
+bool is_use(line_p l)
 {
 	/* See if 'l' is a use of a variable */
 
@@ -42,14 +41,13 @@ bool is_use(l)
 			return FALSE;
 	}
 	/* NOTREACHED  */
+	return FALSE;
 }
 
 
 
 
-bool value_known(def,val_out)
-	line_p def;
-	offset *val_out;
+bool value_known(line_p def, offset *val_out)
 {
 	/* See if the value stored by definition 'def'
 	 * is known statically (i.e. is a constant).
@@ -109,9 +107,7 @@ bool value_known(def,val_out)
 
 
 
-bool affected(use,v,l)
-	line_p use,l;
-	short  v;
+bool affected(line_p use, short v, line_p l)
 {
 	/* See if the variable referenced by 'use' may be
 	 * changed by instruction l, which is either a cal, cai or
@@ -131,10 +127,7 @@ bool affected(use,v,l)
 
 
 
-STATIC search_backwards(use,v,found,def)
-	line_p use, *def;
-	short v;
-	bool *found;
+static void search_backwards(line_p use, short v, bool *found, line_p *def)
 {
 	/* Search backwards in the current basic block,
 	 * starting at 'use', trying to find a definition
@@ -163,8 +156,7 @@ STATIC search_backwards(use,v,found,def)
 
 
 
-STATIC short outer_def(vdefs,in)
-	cset vdefs, in;
+static short outer_def(cset vdefs, cset in)
 {
 	/* See if there is a unique definition of variable
 	 * v reaching the beginning of block b.
@@ -188,10 +180,7 @@ STATIC short outer_def(vdefs,in)
 
 
 
-line_p unique_def(use,b,defnr_out)
-	line_p use;
-	bblock_p b;
-	short *defnr_out;
+line_p unique_def(line_p use, bblock_p b, short *defnr_out)
 {
 	/* See if there is one unique explicit definition
 	 * of the variable used by 'use', that reaches 'use'.
@@ -223,10 +212,7 @@ line_p unique_def(use,b,defnr_out)
 
 
 
-fold_const(l,b,val)
-	line_p l;
-	bblock_p b;
-	offset val;
+void fold_const(line_p l, bblock_p b, offset val)
 {
 	/* Perform the substitutions required for constant folding */
 

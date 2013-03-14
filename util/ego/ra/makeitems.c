@@ -6,6 +6,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /*  MAKE ITEMS TABLE
  *
@@ -22,8 +23,9 @@
 #define TRUE  1
 #define FALSE 0
 
-convert(mnemfile,itemfile)
-	FILE *mnemfile, *itemfile;
+void error(char *s);
+
+void convert(FILE *mnemfile, FILE *itemfile)
 {
 	char mnem1[20], mnem2[20],def[20],itemtype[20];
 	int newcl,opc,index;
@@ -57,17 +59,14 @@ convert(mnemfile,itemfile)
 
 
 
-error(s)
-	char *s;
+void error(char *s)
 {
 	fprintf(stderr,"%s\n",s);
 	exit(-1);
 }
 
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	FILE *f1,*f2;
 

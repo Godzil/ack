@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <em_spec.h>
 #include "../share/types.h"
 #include "ud.h"
@@ -39,8 +40,7 @@ int Svalue,Svariable;
 
 cond_p globl_cond_tab,local_cond_tab;
 
-STATIC cond_p getcondtab(f)
-	FILE *f;
+static cond_p getcondtab(FILE *f)
 {
 	int l,i;
 	cond_p tab;
@@ -56,11 +56,10 @@ STATIC cond_p getcondtab(f)
 }
 
 
-STATIC ud_machinit(f)
-	FILE *f;
+static int ud_machinit(void *param)
 {
 	char s[100];
-
+	FILE *f = (FILE *)param;
 	for (;;) {
 		while(getc(f) != '\n');
 		fscanf(f,"%s",s);
@@ -68,13 +67,13 @@ STATIC ud_machinit(f)
 	}
 	globl_cond_tab = getcondtab(f);
 	local_cond_tab = getcondtab(f);
+
+	return 0;
 }
 
 
 
-STATIC bool test_cond(cond,val)
-	short cond;
-	offset val;
+static bool test_cond(short cond, offset val)
 {
 	switch(cond) {
 		case DEFAULT:
@@ -84,13 +83,11 @@ STATIC bool test_cond(cond,val)
 	}
 	assert(FALSE);
 	/* NOTREACHED */
+	return FALSE;
 }
 
 
-STATIC short map_value(tab,val,time)
-	struct cond_tab tab[];
-	offset val;
-	bool time;
+static short map_value(struct cond_tab tab[], offset val, bool time)
 {
 	cond_p p;
 
@@ -102,8 +99,7 @@ STATIC short map_value(tab,val,time)
 }
 
 
-STATIC init_root(root)
-	bblock_p root;
+static int init_root(void *param)
 {
 	/* Initialise the IN OUT sets of the entry block of the
 	 * current procedure. Global variables and parameters
@@ -112,7 +108,7 @@ STATIC init_root(root)
 	 * to all global variables and parameters are
 	 * put in IN.
 	 */
-
+	bblock_p root = (bblock_p)param;
 	short v;
 
 	for (v = 1; v <= nrglobals; v++) {
@@ -127,14 +123,14 @@ STATIC init_root(root)
 	Ccopy_set(IN(root),&OUT(root));
 	Csubtract(KILL(root),&OUT(root));
 	Cjoin(GEN(root),&OUT(root));
+
+	return 0;
 }
 
 
 
 
-STATIC unite_outs(bbset,setp)
-	lset bbset;
-	cset *setp;
+static void unite_outs(lset bbset, cset *setp)
 {
 	/* Take the union of OUT(b), for all b in bbset,
 	 * and put the result in setp.
@@ -150,8 +146,7 @@ STATIC unite_outs(bbset,setp)
 
 
 
-STATIC solve_equations(p)
-	proc_p p;
+static void solve_equations(proc_p p)
 {
 	/* Solve the data flow equations for reaching
 	 * definitions of procedure p.
@@ -163,7 +158,7 @@ STATIC solve_equations(p)
 	 * solve the equations.
 	 */
 
-	register bblock_p b;
+	bblock_p b;
 	bool     change;
 	cset     newin;
 
@@ -203,14 +198,13 @@ STATIC solve_equations(p)
 
 
 
-short global_addr_cost()
+static short global_addr_cost()
 {
 	return add_timespace(map_value(globl_cond_tab,(offset) 0,TRUE),
 			     map_value(globl_cond_tab,(offset) 0,FALSE));
 }
 
-short local_addr_cost(off)
-	offset off;
+short local_addr_cost(offset off)
 {
 	return add_timespace(map_value(local_cond_tab,off,TRUE),
 			     map_value(local_cond_tab,off,FALSE));
@@ -218,8 +212,7 @@ short local_addr_cost(off)
 
 
 
-STATIC bool fold_is_desirable(old,new)
-	line_p old,new;
+static bool fold_is_desirable(line_p old, line_p new)
 {
 	/* See if it is desirable to replace the variable used by the
 	 * EM instruction 'old' by the variable used by 'new'.
@@ -264,7 +257,8 @@ STATIC bool fold_is_desirable(old,new)
 #ifdef TRACE
 /*********** TRACING ROUTINES ***********/
 
-pr_localtab() {
+static void pr_localtab()
+{
 	short i;
 	local_p lc;
 
@@ -278,7 +272,7 @@ pr_localtab() {
 	}
 }
 
-pr_globals()
+void pr_globals()
 {
 	dblock_p d;
 	obj_p obj;
@@ -296,7 +290,7 @@ pr_globals()
 
 extern char em_mnem[];
 
-pr_defs()
+static void pr_defs()
 {
 	short i;
 	line_p l;
@@ -323,10 +317,7 @@ pr_defs()
 }
 
 
-pr_set(name,k,s,n)
-	char *name;
-	cset s;
-	short k,n;
+static void pr_set(char *name, short k, cset s, short n)
 {
 	short i;
 
@@ -339,8 +330,7 @@ pr_set(name,k,s,n)
 	printf ("}\n");
 }
 
-pr_blocks(p)
-	proc_p p;
+static void pr_blocks(proc_p p)
 {
 	bblock_p b;
 	short n;
@@ -356,7 +346,7 @@ pr_blocks(p)
 	}
 }
 
-pr_copies()
+static void pr_copies()
 {
 	short i;
 
@@ -368,8 +358,7 @@ pr_copies()
 	}
 }
 
-pr_cblocks(p)
-	proc_p p;
+static void pr_cblocks(proc_p p)
 {
 	bblock_p b;
 	short n;
@@ -388,8 +377,7 @@ pr_cblocks(p)
 
 #endif
 
-STATIC ud_analysis(p)
-	proc_p p;
+static void ud_analysis(proc_p p)
 {
 	/* Perform use-definition analysis on procedure p */
 
@@ -413,27 +401,25 @@ STATIC ud_analysis(p)
 
 
 
-STATIC clean_maps()
+static void clean_maps()
 {
 	local_p *p;
 	cset *v;
 
-	oldmap(defs,nrexpldefs);
+	oldmap((short **)defs,nrexpldefs);
 	for (p = &locals[1]; p <= &locals[nrlocals]; p++) {
 		oldlocal(*p);
 	}
-	oldmap(locals,nrlocals);
+	oldmap((short **)locals,nrlocals);
 	for (v = &vardefs[1]; v <= &vardefs[nrvars]; v++) {
 		Cdeleteset(*v);
 	}
-	oldmap(vardefs,nrvars);
+	oldmap((short **)vardefs,nrvars);
 }
 
 
 
-STATIC bool try_optim(l,b)
-	line_p l;
-	bblock_p b;
+static bool try_optim(line_p l, bblock_p b)
 {
 	/* Try copy propagation and constant propagation */
 
@@ -467,8 +453,7 @@ STATIC bool try_optim(l,b)
 
 
 
-value_propagation(p)
-	proc_p p;
+void value_propagation(proc_p p)
 {
 	/* Apply value propagation to procedure p */
 
@@ -493,13 +478,12 @@ value_propagation(p)
 			}
 		}
 	}
-	oldmap(copies,nrcopies);
-	oldtable(def_to_copynr,nrdefs);
+	oldmap((short **)copies,nrcopies);
+	oldtable((short **)def_to_copynr,nrdefs);
 }
 
 
-STATIC ud_extend(p)
-	proc_p p;
+static void ud_extend(proc_p p)
 {
 	/* Allocate extended data structures for Use Definition analysis */
 
@@ -511,8 +495,7 @@ STATIC ud_extend(p)
 }
 
 
-STATIC ud_cleanup(p)
-	proc_p p;
+static void ud_cleanup(proc_p p)
 {
 	/* Deallocate extended data structures for Use Definition analysis */
 
@@ -531,10 +514,10 @@ STATIC ud_cleanup(p)
 }
 
 
-ud_optimize(p)
-	proc_p p;
+static int ud_optimize(void *param)
 {
-	if (IS_ENTERED_WITH_GTO(p)) return;
+	proc_p p = (proc_p)param;
+	if (IS_ENTERED_WITH_GTO(p)) return 0;
 	ud_extend(p);
 	locals = (local_p *) 0;
 	vardefs = (cset *) 0;
@@ -548,6 +531,8 @@ ud_optimize(p)
 	value_propagation(p);
 	ud_cleanup(p);
 	clean_maps();
+
+	return 0;
 }
 
 main(argc,argv)

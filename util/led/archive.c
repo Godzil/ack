@@ -13,14 +13,14 @@ static char rcsid[] = "$Id$";
 #include "ranlib.h"
 #include "const.h"
 #include "debug.h"
-#include "defs.h"
 #include "memory.h"
+#include "defs.h"
 
 #define ENDLIB		((long)0)
 
-extern ind_t		hard_alloc();
-
 static struct ar_hdr	arhdr;
+
+static void notelib(long pos);
 
 /*
  * First read a long telling how many ranlib structs there are, then
@@ -29,25 +29,24 @@ static struct ar_hdr	arhdr;
  * We keep only one ranlib table in core, so this table always starts at offset
  * (ind_t)0 from its base.
  */
-static long
-getsymdeftable()
+static long getsymdeftable()
 {
-	register ind_t		off;
-	register struct ranlib	*ran;
-	register long		count;
-	register long		nran, nchar;
+	ind_t		off;
+	struct ranlib	*ran;
+	long		count;
+	long		nran, nchar;
 	extern long		rd_long();
 	extern int		infile;
 
 	count = nran = rd_long(infile);
-	debug("%ld ranlib structs, ", nran, 0, 0, 0);
+	debug("%ld ranlib structs, ", nran);
 	off = hard_alloc(ALLORANL, nran * sizeof(struct ranlib));
 	if (off == BADOFF)
 		fatal("no space for ranlib structs");
 	ran = (struct ranlib *)address(ALLORANL, off);
 	rd_ranlib(infile, ran, count);
 	nchar = rd_long(infile);
-	debug("%ld ranlib chars\n", nchar, 0, 0, 0);
+	debug("%ld ranlib chars\n", nchar);
 	if ((off = hard_alloc(ALLORANL, nchar)) == BADOFF)
 		fatal("no space for ranlib strings");
 	rd_bytes(infile, address(ALLORANL, off), nchar);
@@ -77,7 +76,7 @@ extern char	*modulname;
  * scan the table again. We perform these actions as long as new symbols
  * are defined.
  */
-arch()
+void arch()
 {
 	long	nran;
 	bool	resolved;
@@ -89,7 +88,7 @@ arch()
 		register ind_t	ranindex;
 		register long	count;
 
-		debug("(re)scan ranlib table\n", 0, 0, 0, 0);
+		debug("(re)scan ranlib table\n");
 		ranindex = (ind_t)0;
 		count = nran;
 		resolved = FALSE;
@@ -112,7 +111,7 @@ arch()
 			seek(ran->ran_pos);
 			get_archive_header(&arhdr);
 			modulname = arhdr.ar_name;
-			verbose("defines %s", string, 0, 0, 0);
+			verbose("defines %s", string);
 			resolved = TRUE;
 			/*
 			 * This archive member is going to be linked,
@@ -139,10 +138,9 @@ arch()
  * An archive member that will be loaded is remembered by storing its position
  * in the archive into the table of positions.
  */
-notelib(pos)
-	long		pos;
+static void notelib(long pos)
 {
-	register ind_t	off;
+	ind_t	off;
 
 	if ((off = hard_alloc(ALLOARCH, (long)sizeof(long))) == BADOFF)
 		fatal("no space for archive position");
@@ -161,10 +159,10 @@ static ind_t		posindex = (ind_t)0;
  * that we've processed all needed modules in this archive. Each group of
  * positions of an archive is terminated with ENDLIB.
  */
-arch2()
+void arch2()
 {
-	register long	*pos;
-	register ind_t	localpos;
+	long	*pos;
+	ind_t	localpos;
 
 	localpos = posindex;
 	for (	pos = (long *)address(ALLOARCH, localpos);
@@ -174,7 +172,7 @@ arch2()
 		seek(*pos);
 		get_archive_header(&arhdr);
 		modulname = arhdr.ar_name;
-		debug("%s: archive member\n", modulname, 0, 0, 0);
+		debug("%s: archive member\n", modulname);
 		finish();
 	}
 	localpos += sizeof(long);	/* Skip ENDLIB. */

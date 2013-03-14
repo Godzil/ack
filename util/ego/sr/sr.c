@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "../share/types.h"
 #include "sr.h"
 #include "../share/debug.h"
@@ -51,12 +52,11 @@ int sli_threshold;
 
 int Ssr;  /* #optimizations found */
 
-sr_machinit(f)
-	FILE *f;
+static int sr_machinit(void *param)
 {
 	/* Read target machine dependent information */
 	char s[100];
-
+	FILE *f = (FILE*)param;
 
 	for (;;) {
 		while(getc(f) != '\n');
@@ -66,10 +66,11 @@ sr_machinit(f)
 	fscanf(f,"%d",&ovfl_harmful);
 	fscanf(f,"%d",&arrbound_harmful);
 	fscanf(f,"%d",&sli_threshold);
+
+	return 0;
 }
 
-STATIC del_ivs(ivs)
-	lset ivs;
+static void del_ivs(lset ivs)
 {
 	/* Delete the set of iv structs */
 
@@ -82,8 +83,7 @@ STATIC del_ivs(ivs)
 }
 
 
-STATIC do_loop(loop)
-	loop_p loop;
+static void do_loop(loop_p loop)
 {
 	lset ivs, vars;
 
@@ -110,13 +110,12 @@ STATIC do_loop(loop)
 
 
 
-STATIC loopblocks(p)
-	proc_p p;
+static void loopblocks(proc_p p)
 {
 	/* Compute the LP_BLOCKS sets for all loops of p */
 
-	register bblock_p b;
-	register Lindex i;
+	bblock_p b;
+	Lindex i;
 
 	for (b = p->p_start; b != (bblock_p) 0; b = b->b_next) {
 		for (i = Lfirst(b->b_loops); i != (Lindex) 0;
@@ -128,8 +127,7 @@ STATIC loopblocks(p)
 
 
 
-STATIC opt_proc(p)
-	proc_p p;
+static void opt_proc(proc_p p)
 {
 	/* Optimize all loops of one procedure. We first do all
 	 * outer loops at the lowest nesting level and proceed
@@ -160,8 +158,7 @@ STATIC opt_proc(p)
 
 
 
-STATIC bblock_p header(lp)
-	loop_p lp;
+static bblock_p header(loop_p lp)
 {
 	/* Try to determine the 'header' block of loop lp.
 	 * If 'e' is the entry block of loop L, then block 'b' is
@@ -172,22 +169,21 @@ STATIC bblock_p header(lp)
 
 	bblock_p x = lp->lp_entry->b_idom;
 
-	if (x != (bblock_p) 0 && Lnrelems(x->b_succ) == 1 &&
-	    (bblock_p) Lelem(Lfirst(x->b_succ)) == lp->lp_entry) {
+	if ( (x != NULL) && (Lnrelems(x->b_succ) == 1) &&
+	    ((bblock_p) Lelem(Lfirst(x->b_succ)) == lp->lp_entry) ) {
 		return x;
 	}
-	return (bblock_p) 0;
+	return NULL;
 }
 
 
 
-STATIC sr_extproc(p)
-	proc_p p;
+static void sr_extproc(proc_p p)
 {
 	/* Allocate the extended data structures for procedure p */
 
-	register loop_p lp;
-	register Lindex pi;
+	loop_p lp;
+	Lindex pi;
 
 	for (pi = Lfirst(p->p_loops); pi != (Lindex) 0;
 	   pi = Lnext(pi,p->p_loops)) {
@@ -201,13 +197,12 @@ STATIC sr_extproc(p)
 }
 
 
-STATIC sr_cleanproc(p)
-	proc_p p;
+static void sr_cleanproc(proc_p p)
 {
 	/* Remove the extended data structures for procedure p */
 
-	register loop_p lp;
-	register Lindex pi;
+	loop_p lp;
+	Lindex pi;
 
 
 	for (pi = Lfirst(p->p_loops); pi != (Lindex) 0;
@@ -218,21 +213,21 @@ STATIC sr_cleanproc(p)
 }
 
 
-sr_optimize(p)
-	proc_p p;
+static int sr_optimize(void *param)
 {
-	if (IS_ENTERED_WITH_GTO(p)) return;
+	proc_p p = (proc_p)param;
+	if (IS_ENTERED_WITH_GTO(p)) return 0;
 	sr_extproc(p);
 	loopblocks(p);
 	opt_proc(p);
 	sr_cleanproc(p);
+
+	return 0;
 }
 
 
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	go(argc,argv,no_action,sr_optimize,sr_machinit,no_action);
 	report("strength reductions",Ssr);

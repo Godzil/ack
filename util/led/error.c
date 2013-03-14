@@ -15,7 +15,7 @@ static char rcsid[] = "$Id$";
 static short	nerrors = 0;
 static void	diag(char *, char *, va_list);
 
-stop()
+void stop()
 {
 	extern char	*outputname;
 	extern int	exitstatus;
@@ -29,8 +29,7 @@ stop()
 }
 
 /* VARARGS1 */
-void
-fatal(char *format, ...)
+void fatal(char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -40,8 +39,7 @@ fatal(char *format, ...)
 }
 
 /* VARARGS1 */
-void
-warning(char *format, ...)
+void warning(char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -50,8 +48,7 @@ warning(char *format, ...)
 }
 
 /* VARARGS1 */
-void
-error(char *format, ...)
+void error(char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -61,17 +58,16 @@ error(char *format, ...)
 }
 
 /* VARARGS1 */
-void
-do_verbose(char *format, ...)
+int do_verbose(char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 	diag((char *) 0, format, ap);
 	va_end(ap);
+	return (0==0);
 }
 
-static void
-diag(char *tail, char *format, va_list ap)
+static void diag(char *tail, char *format, va_list ap)
 {
 	extern char	*progname, *archname, *modulname; 
 

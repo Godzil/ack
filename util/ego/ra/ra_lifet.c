@@ -33,8 +33,7 @@
 #define is_deadmsg(l)	(INSTR(l) == ps_mes && aoff(ARG(l),0) == ms_ego && \
 			 aoff(ARG(l),1) == ego_dead)
 
-build_lifetimes(items)
-	item_p items[];
+void build_lifetimes(item_p items[])
 {
 	/* compute the it_lives attribute of every item; this is
 	 * a list of intervals during which the item is live,
@@ -52,8 +51,8 @@ build_lifetimes(items)
 	 * dead-message that is not a live -or dead message.
 	 */
 
-	register line_p l;
-	register short now;
+	line_p l;
+	short now;
 	item_p item;
 	short last_code;
 

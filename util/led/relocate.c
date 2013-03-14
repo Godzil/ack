@@ -11,19 +11,22 @@ static char rcsid[] = "$Id$";
 #include "out.h"
 #include "const.h"
 #include "debug.h"
+#include "memory.h"
+#include "arch.h"
 #include "defs.h"
 #include "orig.h"
 
 #define UBYTE(x)	((x) & BYTEMASK)
 
+static long getvalu(char addr[], char type);
+static void putvalu(long valu, char addr[], char type);
+static unsigned int addrelo(struct outrelo *relo, struct outname *names, long *valu_out);
+
 /*
  * The bits in type indicate how many bytes the value occupies and what
  * significance should be attributed to each byte.
  */
-static long
-getvalu(addr, type)
-	char	addr[];
-	char	type;
+static long getvalu(char addr[], char type)
 {
 	unsigned short	word0, word1;
 
@@ -51,6 +54,7 @@ getvalu(addr, type)
 		fatal("bad relocation size");
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 /*
@@ -58,11 +62,7 @@ getvalu(addr, type)
  * significance should be attributed to each byte.
  * We do not check for overflow.
  */
-static
-putvalu(valu, addr, type)
-	long	valu;
-	char	addr[];
-	char	type;
+static void putvalu(long valu, char addr[], char type)
 {
 	unsigned short	word0, word1;
 
@@ -120,24 +120,20 @@ extern struct orig	relorig[];
  * Second case: we must update the value by the change
  * in position of the section of local.
  */
-static unsigned
-addrelo(relo, names, valu_out)
-	struct outrelo		*relo;
-	struct outname		*names;
-	long			*valu_out;	/* Out variable. */
+static unsigned int addrelo(struct outrelo *relo, struct outname *names, long *valu_out)
 {
-	register struct outname	*local = &names[relo->or_nami];
-	register unsigned short		index = NLocals;
-	register long		valu = *valu_out;
+	struct outname	*local = &names[relo->or_nami];
+	unsigned short		index = NLocals;
+	long		valu = *valu_out;
 
 	if ((local->on_type & S_SCT)) {
-		register int	sectindex = (local->on_type & S_TYP) - S_MIN;
+		int	sectindex = (local->on_type & S_TYP) - S_MIN;
 
 		valu += relorig[sectindex].org_size;
 		valu += outsect[sectindex].os_base;
 		index += NGlobals + sectindex;
 	} else {
-		register struct outname	*name;
+		struct outname	*name;
 		extern int		hash();
 		extern struct outname	*searchname();
 		extern unsigned 	indexof();
@@ -147,7 +143,7 @@ addrelo(relo, names, valu_out)
 		if (name == (struct outname *)0)
 			fatal("name %s not found in pass 2", local->on_mptr);
 		if (ISCOMMON(name) || ISUNDEFINED(name)) {
-			debug("can't relocate from %s\n",local->on_mptr,0,0,0);
+			debug("can't relocate from %s\n",local->on_mptr);
 			index += indexof(name);
 		} else {
 			valu += name->on_valu;
@@ -167,12 +163,7 @@ addrelo(relo, names, valu_out)
  * which the header is pointed to by `head'. Relocation is relative to the
  * names in `names'; `relo' tells how to relocate.
  */
-relocate(head, emit, names, relo, off)
-	struct outhead	*head;
-	char		*emit;
-	struct outname	names[];
-	struct outrelo	*relo;
-	long		off;
+void relocate(struct outhead *head, char *emit, struct outname names[], struct outrelo *relo, long off)
 {
 	long		valu;
 	int		sectindex = relo->or_sect - S_MIN;

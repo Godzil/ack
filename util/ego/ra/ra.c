@@ -35,6 +35,8 @@
 #define oldrabx(x)	oldstruct(bext_ra,x)
 #define oldralpx(x)	oldstruct(lpext_ra,x)
 
+void stat_regusage(alloc_p list);
+
 short alloc_id;
 static item_p items[NRITEMTYPES];
 int nrinstrs;
@@ -100,10 +102,11 @@ void get_otab(FILE *f, cond_p tab[NRREGTYPES])
 
 
 
-static void ra_machinit(FILE *f)
+static int ra_machinit(void *param)
 {
 	/* Read target machine dependent information for this phase */
 	char s[100];
+	FILE *f = (FILE *)param;
 
 	for (;;) {
 		while(getc(f) != '\n');
@@ -127,6 +130,8 @@ static void ra_machinit(FILE *f)
 	oglobaltab = getcondtab(f);
 	oproctab = getcondtab(f);
 	regsav_cost = getcondtab(f);
+
+	return 0;
 }
 
 
@@ -171,10 +176,10 @@ static void ra_extproc(proc_p p)
 
 
 
-static void ra_cleanproc(proc_p p)
+static int ra_cleanproc(void *param)
 {
 	/* Allocate the extended data structures for procedure p */
-
+	proc_p p = (proc_p)param;
 	loop_p lp;
 	Lindex pi;
 	bblock_p b;
@@ -187,6 +192,8 @@ static void ra_cleanproc(proc_p p)
 	for (b = p->p_start; b != (bblock_p) 0; b = b->b_next) {
 		oldrabx(b->b_extend);
 	}
+
+	return 0;
 }
 
 
@@ -325,20 +332,22 @@ static void cleanitems(item_p list)
 }
 
 
-void ra_initialize()
+int ra_initialize(void *dummy)
 {
 	init_replacements(ps,ws);
+	return 0;
 }
 
 
-void ra_optimize(proc_p p)
+int ra_optimize(void *param)
 {
+	proc_p p = (proc_p)param;
 	item_p itemlist;
 	alloc_p alloclist,packed,unpacked;
 	offset locls;
 	bool time_opt = (time_space_ratio == 100);
 
-	if (IS_ENTERED_WITH_GTO(p)) return;
+	if (IS_ENTERED_WITH_GTO(p)) return 0;
 	ra_extproc(p);
 	loop_blocks(p);
 	alloc_id =0;
@@ -369,8 +378,9 @@ void ra_optimize(proc_p p)
 	clean_allocs(unpacked);
 	clean_allocs(packed);
 	cleanitems(itemlist);
-	oldmap(instrmap,nrinstrs-1);
+	oldmap((short **)instrmap,nrinstrs-1);
 	ra_cleanproc(p);
+	return 0;
 }
 
 

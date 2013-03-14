@@ -11,6 +11,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "misc.h"
 
 struct hlist {			/* linear list of pattern numbers */
@@ -23,10 +24,10 @@ static struct hlist *hashtable[129];	/* an array of ptr's to these lists,
 					 * result of hashing
 					 */
 
-static unsigned
-hash(string) char *string; {
-	register char *p;
-	register unsigned i,sum;
+static unsigned hash(char *string)
+{
+	char *p;
+	unsigned int i,sum;
 
 	if (strcmp(string,"ANY") == 0) return 128;
 	for (sum=i=0,p=string;*p;i += 3)
@@ -35,7 +36,8 @@ hash(string) char *string; {
 }
 
 
-addtohashtable(s,n) char *s; {
+void addtohashtable(char *s, int n)
+{
     /*
      * Add a new pattern number to the hashtable. 
      * s is the key, n the pattern number
@@ -55,8 +57,8 @@ addtohashtable(s,n) char *s; {
     hashtable[hval] = p;
 }
 
-static
-prhlist(p) struct hlist *p; {
+static void prhlist(struct hlist *p)
+{
     /*
      * Print a list in reversed order (see comment above)
      */
@@ -67,13 +69,14 @@ prhlist(p) struct hlist *p; {
     }
 }
  
-printhashtable() {
+void printhashtable()
+{
     /*
      * Print the linear lists, and also output an array of
      * pointers to them
      */
-    register i;
-    register struct hlist *p;
+    int i;
+    struct hlist *p;
 
     for (i = 1; i <= 128; i++) {
 	fprintf(genc,"int hash%d[] = { ",i);

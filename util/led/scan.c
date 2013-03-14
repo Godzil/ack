@@ -8,6 +8,7 @@ static char rcsid[] = "$Id$";
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #ifdef SYMDBUG
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,6 +21,7 @@ static char rcsid[] = "$Id$";
 #include "memory.h"
 #include "scan.h"
 #include "debug.h"
+#include "defs.h"
 
 #define READ	0
 
@@ -40,20 +42,21 @@ char		*modulname;	/* Name of object module. */
 long		objectsize;
 #endif /* SYMDBUG */
 
-static long	align();
+static long align(long size);
 static char	*modulbase;
-static long	modulsize();
-static		scan_modul();
-static bool	all_alloc();
-static bool	direct_alloc();
-static bool	indirect_alloc();
-static bool	putemitindex();
-static bool	putreloindex();
+static long modulsize(struct outhead *head);
+
+static void scan_modul();
+static bool all_alloc();
+static bool direct_alloc(struct outhead *head);
+static bool indirect_alloc(struct outhead *head);
+static bool putemitindex(ind_t sectindex, ind_t emitoff, int allopiece);
+static bool putreloindex(ind_t relooff, long nrelobytes);
 #ifdef SYMDBUG
-static bool	putdbugindex();
+static bool putdbugindex(ind_t dbugoff, long ndbugbytes);
 #endif /* SYMDBUG */
-static		get_indirect();
-static		read_modul();
+static void get_indirect(struct outhead *head, struct outsect *sect);
+static void read_modul();
 
 /*
  * Open the file with name `filename' (if necessary) and examine the first
@@ -61,9 +64,7 @@ static		read_modul();
  * In case of a plain file, the file pointer is repositioned after the
  * examination. Otherwise it is at the beginning of the table of contents.
  */
-int
-getfile(filename)
-	char		*filename;
+int getfile(char *filename)
 {
 	unsigned int	rd_unsigned2();
 	struct ar_hdr	archive_header;
@@ -113,18 +114,17 @@ getfile(filename)
 		fatal("%s: wrong magic number", filename);
 	}
 	/* NOTREACHED */
+	return 0;
 }
 
 /* ARGSUSED */
-closefile(filename)
-	char	*filename;
+void closefile(char *filename)
 {
 	if (passnumber == FIRST || !incore)
 		close(infile);
 }
 
-get_archive_header(archive_header)
-	register struct ar_hdr	*archive_header;
+void get_archive_header(struct ar_hdr *archive_header)
 {
 	if (passnumber == FIRST || !incore) {
 		rd_arhdr(infile, archive_header);
@@ -139,7 +139,7 @@ get_archive_header(archive_header)
 #endif /* SYMDBUG */
 }
 
-get_modul()
+void get_modul()
 {
 	if (passnumber == FIRST) {
 		rd_fdopen(infile);
@@ -155,8 +155,7 @@ get_modul()
  * to keep everything in core is abandoned, but we will always put the header,
  * the section table, and the name and string table into core.
  */
-static
-scan_modul()
+static void scan_modul()
 {
 	bool		space;
 	struct outhead	*head;
@@ -187,8 +186,7 @@ scan_modul()
  * If possible, allocate space for the rest of the module. Return whether
  * this was possible.
  */
-static bool
-all_alloc()
+static bool all_alloc()
 {
 	struct outhead	head;
 	extern ind_t	hard_alloc();
@@ -208,12 +206,10 @@ all_alloc()
  * First allocate the section table and read it in, then allocate the rest
  * and return whether this succeeded.
  */
-static bool
-direct_alloc(head)
-	struct outhead	*head;
+static bool direct_alloc(struct outhead *head)
 {
 	ind_t		sectindex = IND_SECT(*head);
-	register struct outsect *sects;
+	struct outsect *sects;
 	unsigned short	nsect = head->oh_nsect;
 	long		size, rest;
 	extern ind_t	hard_alloc();
@@ -247,11 +243,9 @@ direct_alloc(head)
  * Allocate space for the indirectly accessed pieces: the section contents and
  * the relocation table, and put their indices in the right place.
  */
-static bool
-indirect_alloc(head)
-	struct outhead	*head;
+static bool indirect_alloc(struct outhead *head)
 {
-	register int	allopiece;
+	int	allopiece;
 	unsigned short	nsect = head->oh_nsect;
 	unsigned short	nrelo = head->oh_nrelo;
 	ind_t		sectindex = IND_SECT(*head);
@@ -284,17 +278,13 @@ indirect_alloc(head)
  * at offset `sectindex'. Put the offset of the allocated piece at offset
  * `emitoff'.
  */
-static bool
-putemitindex(sectindex, emitoff, allopiece)
-	ind_t		sectindex;
-	ind_t		emitoff;
-	int		allopiece;
+static bool putemitindex(ind_t sectindex, ind_t emitoff, int allopiece)
 {
 	long		flen;
 	ind_t		emitindex;
 	extern ind_t	alloc();
 	static long	zeros[MAXSECT];
-	register long	 zero  = zeros[allopiece - ALLOEMIT];
+	long	 zero  = zeros[allopiece - ALLOEMIT];
 
 	/*
 	 * Notice that "sectindex" is not a section number!
@@ -306,9 +296,9 @@ putemitindex(sectindex, emitoff, allopiece)
 	flen = ((struct outsect *)modulptr(sectindex))->os_flen;
 	if (flen && zero) {
 		if ((emitindex = alloc(allopiece, zero)) != BADOFF){
-			register char *p = address(allopiece, emitindex);
+			char *p = address(allopiece, emitindex);
 
-			debug("Zeros %ld\n", zero, 0,0,0);
+			debug("Zeros %ld\n", zero);
 			while (zero--) *p++ = 0;
 		}
 		else	 return FALSE;
@@ -327,10 +317,7 @@ putemitindex(sectindex, emitoff, allopiece)
  * Allocate space for a relocation table with `nrelobytes' bytes, and put the
  * offset at `relooff'.
  */
-static bool
-putreloindex(relooff, nrelobytes)
-	ind_t		relooff;
-	long		nrelobytes;
+static bool putreloindex(ind_t relooff, long nrelobytes)
 {
 	ind_t		reloindex;
 	extern ind_t	alloc();
@@ -345,10 +332,7 @@ putreloindex(relooff, nrelobytes)
 /*
  * Allocate space for debugging information and put the offset at `dbugoff'.
  */
-static bool
-putdbugindex(dbugoff, ndbugbytes)
-	ind_t		relooff;
-	long		ndbugbytes;
+static bool putdbugindex(ind_t dbugoff, long ndbugbytes)
 {
 	ind_t		dbugindex;
 	extern ind_t	alloc();
@@ -365,16 +349,11 @@ putdbugindex(dbugoff, ndbugbytes)
  * Compute addresses and read in. Remember that the contents of the sections
  * and also the relocation table are accessed indirectly.
  */
-static
-get_indirect(head, sect)
-	struct outhead	*head;		/* not register! Won't compile on
-					   SCO Xenix 386 if it is!
-					*/
-	register struct outsect	*sect;
+static void get_indirect(struct outhead *head, struct outsect *sect)
 {
-	register ind_t		*emitindex;
-	register int		nsect;
-	register int		piece;
+	ind_t		*emitindex;
+	int		nsect;
+	int		piece;
 	ind_t			*reloindex;
 
 	emitindex = (ind_t *)modulptr(IND_EMIT(*head));
@@ -393,8 +372,7 @@ get_indirect(head, sect)
 /*
  * Set the file pointer at `pos'.
  */
-seek(pos)
-	long		pos;
+void seek(long pos)
 {
 	if (passnumber == FIRST || !incore)
 		lseek(infile, pos, 0);
@@ -405,10 +383,9 @@ seek(pos)
  * is not. That's why we do it here. If we don't keep everything in core,
  * we give the space allocated for a module back.
  */
-skip_modul(head)
-	struct outhead	*head;
+void skip_modul(struct outhead *head)
 {
-	register ind_t	skip = modulsize(head);
+	ind_t	skip = modulsize(head);
 
 	if (incore) {
 		core_position += int_align(skip);
@@ -423,11 +400,10 @@ skip_modul(head)
 /*
  * Read in what we need in pass 2, because we couldn't keep it in core.
  */
-static
-read_modul()
+static void read_modul()
 {
 	struct outhead	*head;
-	register struct outsect	*sects;
+	struct outsect	*sects;
 	struct outname	*names;
 	char		*chars;
 	ind_t		sectindex, nameindex, charindex;
@@ -473,9 +449,7 @@ read_modul()
  * Align `size' to a multiple of the size of a double.
  * This is assumed to be a power of 2.
  */
-static long
-align(size)
-	register long	size;
+static long align(long size)
 {
 	return (size + (sizeof(double) - 1)) & ~(int)(sizeof(double) - 1);
 }
@@ -493,9 +467,7 @@ align(size)
  *	6. the offset of the debugging information.
 #endif
  */
-static long
-modulsize(head)
-	register struct outhead	*head;
+static long modulsize(struct outhead *head)
 {
 	return	sizeof(struct outhead) +			/* 0 */
 		head->oh_nsect * sizeof(struct outsect) +	/* 1 */
@@ -522,10 +494,9 @@ static unsigned short cnt_relos;
 static unsigned short relind;
 #define _RELSIZ	64
 
-startrelo(head)
-	register struct outhead	*head;
+void startrelo(struct outhead *head)
 {
-	ind_t		reloindex;
+	ind_t reloindex;
 
 	if (incore) {
 		reloindex = *(ind_t *)(modulbase + IND_RELO(*head));
@@ -538,8 +509,7 @@ startrelo(head)
 	}
 }
 
-struct outrelo *
-nextrelo()
+struct outrelo *nextrelo()
 {
 	static struct outrelo	relobuf[_RELSIZ];
 
@@ -562,11 +532,7 @@ nextrelo()
  * Get the section contents in core of which the describing struct has index
  * `sectindex'. `Head' points to the header of the module.
  */
-char *
-getemit(head, sects, sectindex)
-	struct outhead	*head;
-	struct outsect	*sects;
-	int		sectindex;
+char *getemit(struct outhead *head, struct outsect *sects, int sectindex)
 {
 	char		*ret;
 	ind_t		off;
@@ -588,11 +554,7 @@ getemit(head, sects, sectindex)
 	return address(ALLOEMIT + sectindex, off);
 }
 
-char *
-getblk(totalsz, pblksz, sectindex)
-	long	totalsz;
-	long	*pblksz;
-	int	sectindex;
+char *getblk(long totalsz, long *pblksz, int sectindex)
 {
 	char	*ret;
 	long	sz = (1L << 30);
@@ -613,8 +575,7 @@ getblk(totalsz, pblksz, sectindex)
 	return (char *) 0;
 }
 
-endemit(emit)
-	char	*emit;
+void endemit(char *emit)
 {
 	core_free(ALLOMODL, emit);
 }

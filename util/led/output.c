@@ -10,7 +10,7 @@ static char rcsid[] = "$Id$";
 #include "const.h"
 #include "memory.h"
 
-static			generate_section_names();
+static void generate_section_names();
 
 extern struct outhead	outhead;
 extern bool		incore;
@@ -22,7 +22,7 @@ extern int		flagword;
  * flag was given.
  * If this flag is given we don't need the string table either.
  */
-beginoutput()
+void beginoutput()
 {
 	extern unsigned short	NLocals, NGlobals;
 	extern long	NLChars, NGChars;
@@ -51,12 +51,11 @@ beginoutput()
  * Generate names for all sections and put them after the global names.
  * Section names are used for relocation.
  */
-static
-generate_section_names()
+static void generate_section_names()
 {
-	register struct outname	*name;
-	register int		sectindex;
-	register long		size;
+	struct outname	*name;
+	int		sectindex;
+	long		size;
 	extern struct outsect	outsect[];
 	extern char		*core_alloc();
 
@@ -78,7 +77,7 @@ generate_section_names()
  * written out, and we just finish that.
  * If we did, we write out our pieces of core.
  */
-endoutput()
+void endoutput()
 {
 	if (!incore) {
 		if (!(flagword & SFLAG))
