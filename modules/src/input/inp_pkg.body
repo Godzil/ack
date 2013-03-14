@@ -100,7 +100,7 @@ INP_PRIVATE struct INP_buffer_header *INP_head, *INP_free;
 _PROTOTYPE(INP_PRIVATE int INP_rdfile, (File *, char *, long *, char **));
 
 #if __STDC__
-INP_PRIVATE int INP_rdfile(File *fd, char *fn, long size, char **pbuf)
+INP_PRIVATE int INP_rdfile(File *fd, char *fn, long *size, char **pbuf)
 #else
 INP_PRIVATE int
 INP_rdfile(fd, fn, size, pbuf)

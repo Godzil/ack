@@ -13,6 +13,8 @@
 
 char *symbol2str(int tok);
 
+void insert_token(int tk);
+
 void LLmessage(tk)
 {
 	err_occurred = 1;
@@ -35,8 +37,7 @@ void LLmessage(tk)
 	tk_nmb_at_last_syn_err = token_nmb;
 }
 
-insert_token(tk)
-	int tk;
+void insert_token(int tk)
 {
 	aside = dot;
 

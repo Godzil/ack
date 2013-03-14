@@ -51,6 +51,7 @@ static void do_line(unsigned int l);
 static int getparams(char *buf[], char parbuf[]);
 static int macroeq(char *s, char *t);
 void macro_def(struct idf *id, char *text, int nformals, int length, int flags);
+static char *get_text(char *formals[], int *length);
 
 /* Externel dependency */
 char * getwdir(char *fn);
@@ -314,7 +315,6 @@ static void do_define()
 	char *repl_text;	/* start of the replacement text	*/
 	int length;		/* length of the replacement text	*/
 	register ch;
-	char *get_text();
 
 	/* read the #defined macro's name	*/
 	if (!(str = GetIdentifier())) {
