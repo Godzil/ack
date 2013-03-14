@@ -129,7 +129,7 @@ void printpatterns()
     while (p < current) {
 	if (p->p_constraint) {
 	    /* The pattern has a constraint */	
-	    fprintf(genc,"\tcase %d :\n",p - pattable);
+	    fprintf(genc,"\tcase %ld :\n",(long)(p - pattable));
 	    fprintf(genc,linedir,p->p_lineno,inpfile);	/* linedirective */
 	    fputs("\tr = (",genc);
 	    prconstraint(p->p_constraint);

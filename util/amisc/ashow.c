@@ -98,7 +98,7 @@ void show(struct outhead *headp)
 	 * Now we can show all names.
 	 */
 	for (np = &name[0]; np < &name[headp->oh_nname]; np++) {
-		printf("Name %d:\n", np - name);
+		printf("Name %ld:\n",(long)(np - name));
 		showname(np);
 	}
 }
