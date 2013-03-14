@@ -11,9 +11,10 @@
 #include	"LLlex.h"
 #include	"Lpars.h"
 
-extern char *symbol2str();
+char *symbol2str(int tok);
 
-LLmessage(tk)	{
+void LLmessage(tk)
+{
 	err_occurred = 1;
 	if (tk < 0)	{
 		error("end of file expected");

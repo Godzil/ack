@@ -21,7 +21,7 @@
 
 extern char options[];
 extern arith full_mask[/*MAXSIZE + 1*/];	/* cstoper.c */
-char *symbol2str();
+char *symbol2str(int tok);
 
 ch3mon(oper, expp)
 	register struct expr **expp;

@@ -62,7 +62,7 @@ static LexSP = 0;
 	E.g. at the invocation of a sub-parser that uses LLlex(), the
 	state of the current parser should be saved.
 */
-PushLex()
+void PushLex()
 {
 	ASSERT(LexSP < MAX_LL_DEPTH);
 	ASSERT(ASIDE == 0);	/* ASIDE = 0;	*/
@@ -70,15 +70,14 @@ PushLex()
 	LexStack[LexSP++] = dot;
 }
 
-PopLex()
+void PopLex()
 {
 	ASSERT(LexSP > 0);
 	dot = LexStack[--LexSP];
 }
 #endif	/* NOPP */
 
-int
-LLlex()
+int LLlex()
 {
 	/*	LLlex() plays the role of Lexical Analyzer for the C parser.
 		The look-ahead and putting aside of tokens are taken into
@@ -108,12 +107,13 @@ LLlex()
 }
 
 
-char	*string_token();
-arith	char_constant();
+char *string_token(char *nm, int stop_char, int *plen);
+arith char_constant(char *nm);
+void skipcomment();
+void strint2tok(char intbuf[], struct token *ptok);
+void strflt2tok(char fltbuf[], struct token *ptok);
 
-int
-GetToken(ptok)
-	register struct token *ptok;
+int GetToken(struct token *ptok)
 {
 	/*	GetToken() is the actual token recognizer. It calls the
 		control line interpreter if it encounters a "\n{w}*#"
@@ -121,7 +121,7 @@ GetToken(ptok)
 		needed.
 	*/
 	char buf[(IDFSIZE > NUMSIZE ? IDFSIZE : NUMSIZE) + 1];
-	register int ch, nch;
+	int ch, nch;
 
 	token_nmb++;
 
@@ -227,8 +227,7 @@ garbage:
 		case '<':
 			if (AccFileSpecifier) {
 				UnGetChar();	/* pushback nch */
-				ptok->tk_bts = string_token("file specifier",
-							'>', &(ptok->tk_len));
+				ptok->tk_bts = string_token("file specifier", '>', &(ptok->tk_len));
 				return ptok->tk_symb = FILESPECIFIER;
 			}
 			if (nch == '<') {
@@ -312,10 +311,10 @@ garbage:
 		/* fallthrough */
 	case STIDF:
 	{
-		register char *tg = &buf[0];
-		register int pos = -1;
-		register struct idf *idef;
-		extern int idfsize;		/* ??? */
+		char *tg = &buf[0];
+		int pos = -1;
+		struct idf *idef;
+		int idfsize;		/* ??? */
 #ifndef	NOPP
 		int NoExpandNext = 0;
 
@@ -361,8 +360,8 @@ garbage:
 	}
 	case STNUM:				/* a numeric constant	*/
 	{
-		register int siz_left = NUMSIZE - 1;
-		register char *np = &buf[0];
+		int siz_left = NUMSIZE - 1;
+		char *np = &buf[0];
 		int flags = 0;
 
 #define	store(ch)	if (--siz_left >= 0)		\
@@ -444,10 +443,11 @@ garbage:
 		crash("bad class for char 0%o", ch);
 	}
 	/*NOTREACHED*/
+	return 0;
 }
 
 #ifndef	NOPP
-skipcomment()
+void skipcomment()
 {
 	/*	The last character read has been the '*' of '/_*'.  The
 		characters, except NL and EOI, between '/_*' and the first
@@ -459,7 +459,7 @@ skipcomment()
 		EOI is returned by LoadChar only on encountering EOF of the
 		top-level file...
 	*/
-	register int c, oldc = '\0';
+	int c, oldc = '\0';
 
 	NoUnstack++;
 	c = GetChar();
@@ -501,12 +501,10 @@ skipcomment()
 }
 #endif	/* NOPP */
 
-arith
-char_constant(nm)
-	char *nm;
+arith char_constant(char *nm)
 {
-	register arith val = 0;
-	register int ch;
+	arith val = 0;
+	int ch;
 	int size = 0;
 
 	ch = GetChar();
@@ -534,15 +532,12 @@ char_constant(nm)
 	return val;
 }
 
-char *
-string_token(nm, stop_char, plen)
-	char *nm;
-	int *plen;
+char *string_token(char *nm, int stop_char, int *plen)
 {
-	register int ch;
-	register int str_size;
-	register char *str = Malloc((unsigned) (str_size = ISTRSIZE));
-	register int pos = 0;
+	int ch;
+	int str_size;
+	char *str = Malloc((unsigned) (str_size = ISTRSIZE));
+	int pos = 0;
 	
 	ch = GetChar();
 	while (ch != stop_char) {
@@ -567,9 +562,7 @@ string_token(nm, stop_char, plen)
 	return str;
 }
 
-int
-quoted(ch)
-	register int ch;
+int quoted(int ch)
 {	
 	/*	quoted() replaces an escaped character sequence by the
 		character meant.
@@ -628,9 +621,7 @@ quoted(ch)
 }
 
 
-int
-hex_val(ch)
-	register int ch;
+int hex_val(int ch)
 {
 	return is_dig(ch) ? ch - '0'
 			: is_hex(ch) ? (ch - 'a' + 10) & 017
@@ -638,13 +629,12 @@ hex_val(ch)
 }
 
 
-int
-GetChar()
+int GetChar()
 {
 	/*	The routines GetChar and trigraph parses the trigraph
 		sequences and removes occurences of \\\n.
 	*/
-	register int ch;
+	int ch;
 
 #ifndef NOPP
 again:
@@ -671,10 +661,9 @@ again:
 }
 
 #ifndef NOPP
-int
-trigraph()
+int trigraph()
 {
-	register int ch;
+	int ch;
 
 	LoadChar(ch);
 	if (ch == '?') {
@@ -718,11 +707,9 @@ trigraph()
 /* strflt2tok only checks the syntax of the floating-point number and
  * selects the right type for the number.
  */
-strflt2tok(fltbuf, ptok)
-char fltbuf[];
-struct token *ptok;
+void strflt2tok(char fltbuf[], struct token *ptok)
 {
-	register char *cp = fltbuf;
+	char *cp = fltbuf;
 	int malformed = 0;
 
 	while (is_dig(*cp)) cp++;
@@ -757,11 +744,9 @@ struct token *ptok;
 	}
 }
 
-strint2tok(intbuf, ptok)
-char intbuf[];
-struct token *ptok;
+void strint2tok(char intbuf[], struct token *ptok)
 {
-	register char *cp = intbuf;
+	char *cp = intbuf;
 	int base = 10;
 	arith val = 0, dig, ubound;
 	int uns_flg = 0, lng_flg = 0, malformed = 0, ovfl = 0;
