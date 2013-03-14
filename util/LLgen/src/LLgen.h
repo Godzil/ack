@@ -29,29 +29,7 @@ typedef struct lngth {
 } t_length, *p_length;
 
 void do_compute(void);
-void createsets(void);
-void walk(p_set u, p_gram p);
-void co_trans(int (*fc)(p_nont));
-int nempty(p_nont p);
 int empty(p_gram p);
-int nfirst(p_nont p);
-int first(p_set setp, p_gram p, int flag);
-int nfollow(p_nont p);
-int follow(p_set setp, p_gram p);
-void co_dirsymb(p_set setp, p_gram p);
-void co_others(p_gram p);
-int ncomplength(p_nont p);
-int nc_nfirst(p_nont p);
-STATIC int nc_nfollow(p_nont p);
-void do_lengthcomp(void);
-void complength(p_gram p, p_length le);
-void add(p_length a, int c, int v);
-int compare(p_length a, p_length b);
-void setdefaults(p_gram p);
-void do_contains(p_nont n);
-void contains(p_gram p, p_set set);
-int nsafes(p_nont p);
-int do_safes(p_gram p, int safe, int *ch);
 int t_safety(int rep, int count, int persistent, int safety);
 int t_after(int rep, int count, int outsafety);
 
@@ -157,5 +135,8 @@ void skipcomment(int flag);
 char * vallookup(int s);
 char * cpy(int s, char * p, int inserted);
 void LLmessage(int d);
+
+/* grammar.c */
+void save_grammar(FILE *f);
 
 #endif /* LLGEN_H */
