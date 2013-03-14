@@ -2,3 +2,4 @@
 *.o
 .*
 -.gitignore
+/pattern.c
