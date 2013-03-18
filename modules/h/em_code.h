@@ -11,6 +11,14 @@
 
 void C_flush();
 void C_internal_error();
+void C_putbyte(int c);
+
+#ifndef arith
+#define arith long
+#endif
+#ifndef label
+#define label unsigned int
+#endif
 
 _PROTOTYPE(void C_ms_com, (char *));
 _PROTOTYPE(void C_ms_ego, (int, arith, arith, int));

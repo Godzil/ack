@@ -14,12 +14,7 @@
 #include "data.h"
 #include <em_path.h>
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-#endif
-
-void file_final(path *file);
-void disc_inputs(trf *phase);
+#include <unistd.h>
 
 char *add_u(int part, char *ptr)
 {

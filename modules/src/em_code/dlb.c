@@ -1,11 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_dlb(l, val)
-	label l;
-	arith val;
+void CC_dlb(label l, arith val)
 {
 	COMMA();
 	DOFF(l, val);

@@ -5,6 +5,9 @@
  */
 /* F I L E   I N F O R M A T I O N   S T R U C T U R E */
 
+#ifndef UTIL_CPP_FILE_INFO_H
+#define UTIL_CPP_FILE_INFO_H
+
 struct file_info {
 	unsigned int	fil_lino;
 	char		*fil_name;
@@ -16,3 +19,5 @@ struct file_info {
 #define WorkingDir	finfo.fil_wdir
 
 extern struct file_info finfo;	/* input.c */
+
+#endif /* UTIL_CPP_FILE_INFO_H */

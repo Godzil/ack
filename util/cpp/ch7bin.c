@@ -5,6 +5,7 @@
  */
 /* EVALUATION OF BINARY OPERATORS */
 
+#include "LLlex.h"
 #include	"Lpars.h"
 #include	<em_arith.h>
 

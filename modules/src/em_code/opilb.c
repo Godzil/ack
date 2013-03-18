@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_opilb(opcode, ilb)
-	label ilb;
+void CC_opilb(int opcode, label ilb)
 {
 	/*	Instruction with instruction label argument
 		Argument types: b

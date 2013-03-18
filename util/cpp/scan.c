@@ -20,6 +20,8 @@
 #include	"interface.h"
 #include	"file_info.h"
 
+#include "LLlex.h"
+
 #define	EOS		'\0'
 #define	overflow()	(fatal("actual parameter buffer overflow"))
 

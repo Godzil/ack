@@ -7,10 +7,6 @@
 #include <string.h>
 #include "ack.h"
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-#endif
-
 /*      The processing of string valued variables,
 	this is an almost self contained module.
 

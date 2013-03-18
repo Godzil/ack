@@ -27,9 +27,6 @@ int AccFileSpecifier = 0;	/* return filespecifier <...>		*/
 int AccDefined = 0;		/* accept "defined(...)"		*/
 int UnknownIdIsZero = 0;	/* interpret unknown id as integer 0	*/
 
-char *string_token(char *nm, int stop_char);
-void skipcomment();
-
 void PushLex()
 {
 	DOT = 0;
@@ -42,6 +39,10 @@ int LLlex()
 {
 	return (DOT != EOF) ? GetToken(&dot) : EOF;
 }
+
+#ifdef BUFSIZ
+#undef BUFSIZ
+#endif
 
 #define BUFSIZ 1024
 

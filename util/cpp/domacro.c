@@ -51,7 +51,6 @@ static void do_undef();
 static void do_line(unsigned int l);
 static int getparams(char *buf[], char parbuf[]);
 static int macroeq(char *s, char *t);
-void macro_def(struct idf *id, char *text, int nformals, int length, int flags);
 static char *get_text(char *formals[], int *length);
 
 /* Externel dependency */
@@ -84,7 +83,7 @@ char *GetIdentifier()
 void domacro()
 {
 	struct token tk;	/* the token itself			*/
-	register struct idf *id;
+	struct idf *id;
 
 	switch(GetToken(&tk)) {		/* select control line action	*/
 	case IDENTIFIER:		/* is it a macro keyword?	*/
@@ -169,8 +168,8 @@ static void skip_block(int to_endif)
 			#ifndef or #elif until the corresponding #endif is
 			seen.
 	*/
-	register int ch;
-	register int skiplevel = nestlevel; /* current nesting level	*/
+	int ch;
+	int skiplevel = nestlevel; /* current nesting level	*/
 	struct token tk;
 	struct idf *id;
 
@@ -315,7 +314,7 @@ static void do_define()
 	char parbuf[PARBUFSIZE];		/* names of formals	*/
 	char *repl_text;	/* start of the replacement text	*/
 	int length;		/* length of the replacement text	*/
-	register ch;
+	int ch;
 
 	/* read the #defined macro's name	*/
 	if (!(str = GetIdentifier())) {
@@ -403,7 +402,7 @@ static void do_if()
 
 static void do_ifdef(int how)
 {
-	register struct idf *id;
+	struct idf *id;
 	char *str;
 
 	/*	how == 1 : ifdef; how == 0 : ifndef
@@ -432,8 +431,8 @@ static void do_ifdef(int how)
 
 static void do_undef()
 {
-	register struct idf *id;
-	register char *str = GetIdentifier();
+	struct idf *id;
+	char *str = GetIdentifier();
 
 	/* Forget a macro definition.	*/
 	if (str) {
@@ -475,10 +474,10 @@ static int getparams(char *buf[], char parbuf[])
 		Note that the '(' has already been eaten.
 		The names of the formal parameters are stored into parbuf.
 	*/
-	register char **pbuf = &buf[0];
-	register int c;
-	register char *ptr = &parbuf[0];
-	register char **pbuf2;
+	char **pbuf = &buf[0];
+	int c;
+	char *ptr = &parbuf[0];
+	char **pbuf2;
 
 	LoadChar(c);
 	c = skipspaces(c,0);
@@ -536,7 +535,7 @@ void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 		table entry belonging to the name of the macro.
 		A warning is given if the definition overwrites another.
 	*/
-	register struct macro *newdef = id->id_macro;
+	struct macro *newdef = id->id_macro;
 	
 	if (newdef) {		/* is there a redefinition?	*/
 		if (macroeq(newdef->mc_text, text))
@@ -545,7 +544,7 @@ void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 	}
 	else {
 #ifdef DOBITS
-		register char *p = id->id_text;
+		unsigned char *p = (unsigned char *)id->id_text;
 #define setbit(bx)	if (!*p) goto go_on; bits[*p++] |= (bx)
 		setbit(bit0);
 		setbit(bit1);
@@ -573,7 +572,7 @@ static int find_name(char *nm, char *index[])
 		"index" if it can be found there.  0 is returned if it is
 		not there.
 	*/
-	register char **ip = &index[0];
+	char **ip = &index[0];
 
 	while (*ip)
 		if (strcmp(nm, *ip++) == 0)
@@ -599,10 +598,10 @@ static char *get_text(char *formals[], int *length)
 		identifiers, because they might be replaced by some actual
 		parameter.  Other tokens will not be seen as such.
 	*/
-	register int c;
-	register unsigned int text_size;
+	int c;
+	unsigned int text_size;
 	char *text = Malloc(text_size = ITEXTSIZE);
-	register unsigned int pos = 0;
+	unsigned int pos = 0;
 
 	LoadChar(c);
 
@@ -639,7 +638,7 @@ static char *get_text(char *formals[], int *length)
 		else
 		if (formals && class(c) == STIDF) {
 			char id_buf[IDFSIZE + 1];
-			register char *idp = id_buf;
+			char *idp = id_buf;
 			int n;
 
 			/* read identifier: it may be a formal parameter */

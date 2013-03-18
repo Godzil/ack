@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_pspnam(op, pnam)
-	char *pnam;
+void CC_pspnam(int op, char *pnam)
 {
 	/*	Pseudo with procedure name
 	*/

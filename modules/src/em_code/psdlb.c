@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_psdlb(op, dlb)
-	label dlb;
+void CC_psdlb(int op, label dlb)
 {
 	/*	Pseudo with numeric datalabel
 	*/

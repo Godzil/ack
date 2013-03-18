@@ -7,30 +7,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "ack.h"
 #include "list.h"
 #include "trans.h"
+#include "system.h"
+#include "print.h"
 #include <local.h>
 #include "data.h"
 #include <signal.h>
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-static char rcs_ack[] = RCS_ACK ;
-#endif
-
 static int sigs[] = { SIGINT, SIGHUP, SIGTERM, 0 } ;
 static int arg_count;
-
-void varinit();
-void vieuwargs(int argc, char *argv[]);
-void firstarg(char *argp);
-void block(trf *first);
-void keephead(char *suffix);
-void keeptail(char *suffix);
-void scanneeds();
-void setneeds(char *suffix, int tail);
-
 
 int main(int argc, char *argv[])
 {
@@ -297,15 +287,15 @@ int process(char *arg)
 	p_basename= keeps(basename(arg)) ;
 	/* Try to find a path through the transformations */
 	switch( getpath(&phase) ) {
-	case F_NOPATH :
+	case FP_NOPATH :
 		error("Cannot produce the desired file from %s",arg) ;
 		if ( linker ) add_input(&orig,linker) ;
 		return 1 ;
-	case F_NOMATCH :
+	case FP_NOMATCH :
 		if ( stopsuffix ) werror("Unknown suffix in %s",arg) ;
 		if ( linker ) add_input(&orig,linker) ;
 		return 1 ;
-	case F_OK :
+	case FP_OK :
 		break ;
 	}
 	if ( !phase ) return 1 ;
@@ -457,7 +447,7 @@ void setneeds(char *suffix, int tail)
 
 	p_suffix= suffix ;
 	switch ( getpath(&phase) ) {
-	case F_OK :
+	case FP_OK :
 		for ( ; phase ; phase= phase->t_next ) {
 			if ( phase->t_needed ) {
 				if ( tail )
@@ -467,10 +457,10 @@ void setneeds(char *suffix, int tail)
 			}
 		}
 		break ;
-	case F_NOMATCH :
+	case FP_NOMATCH :
 		werror("\"%s\": unrecognized suffix",suffix) ;
 		break ;
-	case F_NOPATH :
+	case FP_NOPATH :
 		werror("sorry, cannot produce the desired file(s) from %s files",
 			suffix) ;
 		break ;

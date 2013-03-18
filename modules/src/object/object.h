@@ -9,6 +9,14 @@
 #ifndef __OBJECT_INCLUDED__
 #define __OBJECT_INCLUDED__
 
+struct fil;
+struct outhead;
+struct outsect;
+struct outname;
+struct ar_hdr;
+struct ranlib;
+struct outrelo;
+
 _PROTOTYPE(int wr_open, (char *f));
 _PROTOTYPE(void wr_close, (void));
 _PROTOTYPE(void wr_ohead, (struct outhead *h));
@@ -24,6 +32,7 @@ _PROTOTYPE(void wr_ranlib, (int fd, struct ranlib *r, long cnt));
 _PROTOTYPE(void wr_int2, (int fd, int i));
 _PROTOTYPE(void wr_long, (int fd, long l));
 _PROTOTYPE(void wr_bytes, (int fd, char *buf, long l));
+_PROTOTYPE(void __wr_flush, (struct fil *ptr));
 _PROTOTYPE(int rd_open, (char *f));
 _PROTOTYPE(int rd_fdopen, (int f));
 _PROTOTYPE(void rd_close, (void));
@@ -38,6 +47,7 @@ _PROTOTYPE(void rd_string, (char *s, long c));
 _PROTOTYPE(int rd_arhdr, (int fd, struct ar_hdr *a));
 _PROTOTYPE(void rd_ranlib, (int fd, struct ranlib *r, long cnt));
 _PROTOTYPE(int rd_int2, (int fd));
+_PROTOTYPE(unsigned int rd_unsigned2, (int fd));
 _PROTOTYPE(long rd_long, (int fd));
 _PROTOTYPE(void rd_bytes, (int fd, char *buf, long l));
 _PROTOTYPE(int rd_fd, (void));

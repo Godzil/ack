@@ -6,16 +6,18 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
 #include "ack.h"
 #include "list.h"
 #include "trans.h"
 #include "grows.h"
 #include "data.h"
 #include <signal.h>
-
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-#endif
+#include <unistd.h>
 
 #define ARG_MORE  40            /* The size of args chunks to allocate */
 

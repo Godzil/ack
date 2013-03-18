@@ -6,8 +6,6 @@
 /* Made into arch/aal by Ceriel Jacobs
  */
 
-static char RcsId[] = "$Id$";
-
 /*
  * Usage: [arch|aal] [qdprtx][vlcu] archive [file] ...
  *	  v: verbose
@@ -35,6 +33,13 @@ static char RcsId[] = "$Id$";
 #include <arch.h>
 #include <ranlib.h>
 #include <unistd.h>
+#include <fcntl.h>
+
+#include "system.h"
+#include "print.h"
+#include "object.h"
+#include <missing_proto.h>
+
 #ifdef AAL
 #include <out.h>
 #define MAGIC_NUMBER	AALMAG
@@ -458,7 +463,7 @@ void add(char *name, int fd, char *mess)
 	return;
   }
   else if (u_fl && status.st_mtime <= member.ar_date) {
-	wr_arhdr(fd, member);
+	wr_arhdr(fd, &member);
 	copy_member(&member, ar_fd, fd, 0);
 	return;
   }

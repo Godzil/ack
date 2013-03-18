@@ -9,12 +9,14 @@
 
 #include <ctype.h>
 
+/* Since isascii is not standard, as c89 or C99, privide another method */
+#define IsAscii(_c) (((_c) & ~0x7f) == 0)
+
 /* get16, get32: read a signed constant
 */
-PRIVATE int
-get16()
+static int get16()
 {
-	register int l_byte, h_byte;
+	int l_byte, h_byte;
 
 	l_byte = getbyte();
 	h_byte = getbyte();
@@ -22,11 +24,10 @@ get16()
 	return l_byte | (h_byte << 8);
 }
 
-PRIVATE arith
-get32()
+static arith get32()
 {
-	register arith l;
-	register int h_byte;
+	arith l;
+	int h_byte;
 
 	l = getbyte();
 	l |= ((unsigned) getbyte() << 8);
@@ -36,16 +37,14 @@ get32()
 	return l | ((arith) h_byte << 24);
 }
 
-PRIVATE struct string *getstring();
+static struct string *getstring();
 
 /* getarg : read an argument of any type, and check it against "typset"
    if neccesary. Put result in "ap".
 */
-PRIVATE void
-getarg(typset, ap)
-	register struct e_arg *ap;
+static void getarg(int typset, struct e_arg *ap)
 {
-	register int i = getbyte();
+	int i = getbyte();
 #ifdef CHECKING
 	int argtyp;
 #endif /* CHECKING */
@@ -106,7 +105,7 @@ getarg(typset, ap)
 
 	case sp_pnam:	/* A procedure name */
 	{
-		register struct string *p;
+		struct string *p;
 
 		p = getstring(1);
 		ap->ema_pnam = p->str;
@@ -116,7 +115,7 @@ getarg(typset, ap)
 
 	case sp_dnam:	/* A Non-numeric data label */
 	{
-		register struct string *p;
+		struct string *p;
 
 		p = getstring(1);
 		ap->ema_dnam = p->str;
@@ -139,7 +138,7 @@ getarg(typset, ap)
 	case sp_ucon:	/* An unsigned constant */
 	case sp_fcon:	/* A floating constant */
 	{
-		register struct string *p;
+		struct string *p;
 
 		getarg(cst_ptyp, ap);
 		ap->ema_szoroff = ap->ema_cst;
@@ -151,7 +150,7 @@ getarg(typset, ap)
 
 	case sp_scon:	/* A string constant */
 	{
-		register struct string *p;
+		struct string *p;
 
 		p = getstring(0);
 		ap->ema_argtype = str_ptyp;
@@ -190,20 +189,18 @@ getarg(typset, ap)
 #ifdef CHECKING
 /* checkident: check that a string indeed represents an identifier
 */
-PRIVATE int
-checkident(s)
-	register struct string *s;
+static int checkident(struct string *s)
 {
-	register char *p;
-	register int n;
+	char *p;
+	int n;
 
 	p = s->str;
-	if (!isascii(*p) || (!isalpha(*p) && *p != '_')) {
+	if (!IsAscii(*p) || (!isalpha(*p) && *p != '_')) {
 		return 0;
 	}
 	p++;
 	for (n = s->length; --n > 0; p++) {
-		if (!isascii(*p) || (!isalnum(*p) && *p != '_')) {
+		if (!IsAscii(*p) || (!isalnum(*p) && *p != '_')) {
 			return 0;
 		}
 	}
@@ -214,12 +211,11 @@ checkident(s)
 /* getstring: read a string from the input
 */
 /*ARGSUSED*/
-PRIVATE struct string *
-getstring(isident)
+static struct string *getstring(int isident)
 {
-	register char *p;
-	register int n;
-	register struct string *s = &string;
+	char *p;
+	int n;
+	struct string *s = &string;
 	struct e_arg dummy;
 
 	getarg(cst_ptyp, &dummy);
@@ -259,11 +255,9 @@ getstring(isident)
 
 /* gethead: read the start of an EM-line
 */
-PRIVATE void
-gethead(p)
-	register struct e_instr *p;
+static void gethead(struct e_instr *p)
 {
-	register int i;
+	int i;
 
 	EM_lineno++;
 

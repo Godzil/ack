@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_dfilb(l)
-	label l;
+void CC_dfilb(label l)
 {
 	/*	Define instruction label
 	*/

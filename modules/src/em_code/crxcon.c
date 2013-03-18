@@ -1,11 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_crxcon(op, spec, v, s)
-	char *v;
-	arith s;
+void CC_crxcon(int op, int spec, char *v, arith s)
 {
 	/*	CON or ROM with argument ICON(v,z)
 	*/

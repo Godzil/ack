@@ -11,6 +11,7 @@
 #include <em_arith.h>
 #include <assert.h>
 #include <system.h>
+#include "LLlex.h"
 #include "file_info.h"
 #include "idfsize.h"
 #include "idf.h"

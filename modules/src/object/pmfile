@@ -22,7 +22,8 @@ module_object = clibrary {
 
 	outputs = {"%U%/lib_object.a"},
 	install = {
-		pm.install(LIBDIR.."libobject.a")
+		pm.install(LIBDIR.."libobject.a"),
+		pm.install(d.."object.h", "%HEADERDIR%object.h")
 	}
 }
 --[[

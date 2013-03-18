@@ -27,12 +27,11 @@ void Xflush()
 	if (do_preprocess) sys_write(STDOUT, _obuf, OBUFSIZE);
 }
 
-void preprocess(fn)
-	char *fn;
+void preprocess(char *fn)
 {
-	register int c;
-	register char *op = _obuf;
-	register char *ob = &_obuf[OBUFSIZE];
+	int c;
+	char *op = _obuf;
+	char *ob = &_obuf[OBUFSIZE];
 	char Xbuf[256];
 	int lineno = 0;
 	extern char options[];
@@ -45,7 +44,7 @@ void preprocess(fn)
 		/* Generate a line directive communicating the
 		   source filename
 		*/
-		register char *p = Xbuf;
+		char *p = Xbuf;
 
 		sprint(p, "%s 1 \"%s\"\n",
 			LINE_PREFIX,
@@ -68,7 +67,7 @@ void preprocess(fn)
 			fn = FileName;
 			lineno = LineNumber;
 			if (! options['P']) {
-				register char *p = Xbuf;
+				char *p = Xbuf;
 
 				sprint(p, "%s %d \"%s\"\n",
 					LINE_PREFIX,
@@ -140,7 +139,7 @@ void preprocess(fn)
 				break;
 			case STSTR:
 			case STCHAR: {
-				register int stopc = c;
+				int stopc = c;
 				int escaped;
 	
 				do {
@@ -199,9 +198,9 @@ void preprocess(fn)
 			    case STIDF: {
 				extern int idfsize;		/* ??? */
 				char buf[IDFSIZE + 1];
-				register char *tg = &buf[0];
-				register char *maxpos = &buf[idfsize];
-				register struct idf *idef;
+				char *tg = &buf[0];
+				char *maxpos = &buf[idfsize];
+				struct idf *idef;
 
 #define tstmac(bx)	if (!(bits[c] & bx)) goto nomac
 #define cpy		if (Unstacked) EnableMacros(); *tg++ = c

@@ -18,10 +18,6 @@
 #include <ctype.h>
 #include "ack.h"
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-#endif
-
 extern  char    *progname ;
 extern  int     w_flag ;
 extern  int     n_error;
@@ -32,10 +28,7 @@ extern  int     n_error;
 # define STDOUT stderr
 #endif
 
-void fuerror(const char *fmt, ...);
-void werror(const char *fmt, ...);
-void quit(int code);
-
+#define IsAscii(_c) (((_c) & ~0x7f) == 0)
 
 char *basename(char *string)
 {
@@ -53,7 +46,7 @@ char *basename(char *string)
 		case '/'     : last_start=fetch+1 ; break ;
 		case  0      : goto out ;
 		}
-		if ( !isascii(ctoken) || !isprint(ctoken) ) {
+		if ( !IsAscii(ctoken) || !isprint(ctoken) ) {
 			werror("non-ascii characters in argument %s",string) ;
 		}
 	}

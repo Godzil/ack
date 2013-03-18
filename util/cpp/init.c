@@ -8,6 +8,7 @@
 #include	<string.h>
 #include	<system.h>
 #include	<alloc.h>
+#include 	"LLlex.h"
 #include	"class.h"
 #include	"macro.h"
 #include	"idf.h"

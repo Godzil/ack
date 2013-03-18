@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_end(l)
-	arith l;
+void CC_end(arith l)
 {
 	/*	END pseudo of procedure with l locals
 	*/

@@ -10,15 +10,6 @@
 #include "list.h"
 #include "data.h"
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-#endif
-
-void start_scan();
-void scan_found();
-void find_cpp();
-void try(list_elem *f_scan, char *suffix);
-
 enum f_path getpath(trf **first)
 {
 	/* Try to find a transformation path */
@@ -225,7 +216,7 @@ enum f_path scan_end(trf **first)
 #ifdef DEBUG
 	if ( debug>=3 ) vprint("End_scan\n");
 #endif
-	if ( last_ncount== -1 ) return suf_found ? F_NOPATH : F_NOMATCH ;
+	if ( last_ncount== -1 ) return suf_found ? FP_NOPATH : FP_NOMATCH ;
 #ifdef DEBUG
 	if ( debug>=2 ) vprint("Transformation found\n");
 #endif
@@ -240,7 +231,7 @@ enum f_path scan_end(trf **first)
 				*first= curr ;
 			}
 			if ( curr->t_next ) {
-				return F_OK ;
+				return FP_OK ;
 			}
 			prev=curr ;
 		}
@@ -252,7 +243,7 @@ enum f_path scan_end(trf **first)
 	if ( prev ) {
 		prev->t_keep=YES ;
 	}
-	return F_OK ;
+	return FP_OK ;
 }
 
 void find_cpp()

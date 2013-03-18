@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_msstart(cst)
-	int cst;
+void CC_msstart(int cst)
 {
 	/*	start of message
 	*/

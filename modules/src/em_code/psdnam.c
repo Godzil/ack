@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_psdnam(op, dnam)
-	char *dnam;
+void CC_psdnam(int op, char *dnam)
 {
 	/*	Pseudo with data label
 	*/

@@ -5,8 +5,7 @@
  */
 #include <system.h>
 
-void
-C_internal_error()
+void C_internal_error()
 {
 	sys_write(STDERR,"internal error\n",15);
 	sys_stop(S_EXIT);

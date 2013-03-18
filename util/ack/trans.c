@@ -12,11 +12,6 @@
 #include "grows.h"
 #include "data.h"
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-static char rcs_trans[] = RCS_TRANS ;
-#endif
-
 /****************************************************************************/
 /*      Routines for transforming from one file type to another             */
 /****************************************************************************/
@@ -25,12 +20,6 @@ static growstring head ;
 static int        touch_head= NO ;
 static growstring tail ;
 static int        touch_tail= NO ;
-
-void set_Rflag(char *argp);
-void condit(growstring *line, list_head *fsuff, list_head *lsuff, char *tailval);
-void doassign(char *line, char *star, int length);
-void getcallargs(trf *phase);
-void discardargs(trf *phase);
 
 int transform(trf *phase)
 {

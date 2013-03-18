@@ -12,6 +12,12 @@
  */
 
 #include "obj.h"
+#include "object.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 /*
  * Parts of the output file.
@@ -50,11 +56,13 @@ void __wr_flush(struct fil *ptr)
 	ptr->pbegin = ptr->pbuf;
 }
 
-static void
-OUTWRITE(p, b, n)
-	int		p;	/* part number */
-	register char	*b;	/* buffer pointer */
-	long		n;	/* write count */
+#if 0
+	int		p		part number
+	char	*b		buffer pointer
+	long	number	write count
+#endif
+static void OUTWRITE(int p, char *b, long n)
+
 {
 	register struct fil *ptr = &__parts[p];
 	register char *pn = ptr->pnow;
@@ -116,10 +124,12 @@ OUTWRITE(p, b, n)
 	}
 }
 
-static void
-BEGINSEEK(p, o)
-	int		p;	/* part number */
-	long		o;	/* offset in file */
+/*
+	int		p;	 part number 
+	long	o;	 offset in file 
+*/
+static void BEGINSEEK(int p, long o)
+
 {
 	register struct fil *ptr = &__parts[p];
 
@@ -160,10 +170,9 @@ wr_open(f)
 	return 1;
 }
 
-void
-wr_close()
+void wr_close()
 {
-	register struct fil *ptr;
+	struct fil *ptr;
 
 	for (ptr = &__parts[PARTEMIT]; ptr < &__parts[NPARTS]; ptr++) {
 		__wr_flush(ptr);
@@ -178,12 +187,10 @@ wr_close()
 #endif /* OUTSEEK */
 }
 
-void
-wr_ohead(head)
-	register struct outhead	*head;
+void wr_ohead(struct outhead *head)
 {
 	{
-		register long off = OFF_RELO(*head);
+		long off = OFF_RELO(*head);
 
 		BEGINSEEK(PARTEMIT, 0L);
 		BEGINSEEK(PARTRELO, off);
@@ -200,7 +207,7 @@ wr_ohead(head)
 	{
 		char buf[SZ_HEAD];
 
-		register char *c = &buf[0];
+		char *c = &buf[0];
 
 		put2(head->oh_magic, c);	c += 2;
 		put2(head->oh_stamp, c);	c += 2;
@@ -215,12 +222,10 @@ wr_ohead(head)
 	else OUTWRITE(PARTEMIT, (char *)head, (long)SZ_HEAD);
 }
 
-void
-wr_sect(sect, cnt)
-	register struct outsect	*sect;
-	register unsigned int	cnt;
+void wr_sect(struct outsect	*sect, unsigned int cnt)
 {
-	{	register unsigned int i = cnt;
+	{
+		unsigned int i = cnt;
 
 		while (i--) {
 			if (offcnt >= 1 && offcnt < SECTCNT) {
@@ -236,8 +241,8 @@ wr_sect(sect, cnt)
 #endif
 	while (cnt)
 	{
-		register char *c;
-		register unsigned int i;
+		char *c;
+		unsigned int i;
 
 		i = __parts[PARTEMIT].cnt/SZ_SECT;
 		c = __parts[PARTEMIT].pnow;
@@ -264,11 +269,10 @@ wr_sect(sect, cnt)
 #endif
 }
 
-void
-wr_outsect(s)
-	int		s;	/* section number */
+/* s => section number */
+void wr_outsect(int s)
 {
-	register struct fil *ptr = &__parts[PARTEMIT + getsect(sectionnr)];
+	struct fil *ptr = &__parts[PARTEMIT + getsect(sectionnr)];
 
 	if (s != sectionnr && s >= (SECTCNT-1) && sectionnr >= (SECTCNT-1)) {
 #ifdef OUTSEEK
@@ -297,27 +301,20 @@ wr_outsect(s)
 /*
  * We don't have to worry about byte order here.
  */
-void
-wr_emit(emit, cnt)
-	char		*emit;
-	long		cnt;
+void wr_emit(char *emit, long cnt)
 {
 	OUTWRITE(PARTEMIT + getsect(sectionnr) , emit, cnt);
 }
 
-void
-wr_relo(relo, cnt)
-	register struct outrelo	*relo;
-	unsigned int cnt;
+void wr_relo(struct outrelo *relo, unsigned int cnt)
 {
-
 #if BYTE_ORDER == 0x0123
 	if (sizeof(struct outrelo) != SZ_RELO)
 #endif
 	while (cnt)
 	{
-		register char *c;
-		register unsigned int i;
+		char *c;
+		unsigned int i;
 
 		i = __parts[PARTRELO].cnt/SZ_RELO;
 		c = __parts[PARTRELO].pnow;
@@ -343,18 +340,15 @@ wr_relo(relo, cnt)
 #endif
 }
 
-void
-wr_name(name, cnt)
-	register struct outname	*name;
-	unsigned int cnt;
+void wr_name(struct outname *name, unsigned int cnt)
 {
 #if BYTE_ORDER == 0x0123
 	if (sizeof(struct outname) != SZ_NAME)
 #endif
 	while (cnt)
 	{
-		register char *c;
-		register unsigned int i;
+		char *c;
+		unsigned int i;
 
 		i = __parts[PARTNAME].cnt/SZ_NAME;
 		c = __parts[PARTNAME].pnow;
@@ -379,10 +373,7 @@ wr_name(name, cnt)
 
 }
 
-void
-wr_string(addr, len)
-	char *addr;
-	long len;
+void wr_string(char *addr, long len)
 {
 	
 	OUTWRITE(PARTCHAR, addr, len);
@@ -390,10 +381,7 @@ wr_string(addr, len)
 
 #ifdef SYMDBUG
 
-void
-wr_dbug(buf, size)
-	char		*buf;
-	long		size;
+void wr_dbug(char *buf, long size)
 {
 	OUTWRITE(PARTDBUG, buf, size);
 }

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include	<alloc.h>
+#include	"LLlex.h"
 #include	"idfsize.h"
 #include	"class.h"
 #include	"macro.h"
@@ -29,7 +30,7 @@ void do_option(char *text)
 {
 	switch(*text++)	{
 	case '-':
-		options[*text] = 1;
+		options[*(unsigned char *)text] = 1;
 		break;
 	case 'u':
 		if (! strcmp(text,"ndef")) {
@@ -42,7 +43,7 @@ void do_option(char *text)
 		break;
 	case 'C' :	/* comment output		*/
 	case 'P' :	/* run preprocessor stand-alone, without #'s	*/
-		options[*(text-1)] = 1;
+		options[*(unsigned char *)(text-1)] = 1;
 		break;
 	case 'A' :	/* for Amake */
 	case 'd' :	/* dependency generation */
@@ -56,7 +57,7 @@ void do_option(char *text)
 		break;
 	case 'm':
 	case 'i':
-		options[*(text-1)] = 1;
+		options[*(unsigned char *)(text-1)] = 1;
 		break;
 
 	case 'D' :	/* -Dname :	predefine name		*/

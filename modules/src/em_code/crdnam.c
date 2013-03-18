@@ -1,11 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_crdnam(op, s, off)
-	char *s;
-	arith off;
+void CC_crdnam(int op, char *s, arith off)
 {
 	/*	CON or ROM with argument DNAM(s, off)
 	*/

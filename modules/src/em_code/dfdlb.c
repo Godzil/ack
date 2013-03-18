@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_dfdlb(l)
-	label l;
+void CC_dfdlb(label l)
 {
 	/*	Define numeric data label
 	*/

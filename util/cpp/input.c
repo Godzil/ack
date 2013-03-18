@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "LLlex.h"
 #include "file_info.h"
 #include "input.h"
 #define INP_TYPE	struct file_info

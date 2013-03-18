@@ -1,10 +1,9 @@
+#include "em_code.h"
 #include "em_private.h"
 
 /* $Id$ */
 
-void
-CC_crpnam(op, p)
-	char *p;
+void CC_crpnam(int op, char *p)
 {
 	/*	CON or ROM with argument PNAM(p)
 	*/

@@ -9,9 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-#endif
+#define IsAscii(_c) (((_c) & ~0x7f) == 0)
 
 char *fname = 0 ;
 char dname[200] ;
@@ -80,9 +78,9 @@ FILE *do_open(char *file)
 
 void readm()
 {
-	register int i ;
-	register int token ;
-	register FILE *in ;
+	int i ;
+	int token ;
+	FILE *in ;
 
 	in=do_open(fname) ;
 	if ( in==NULL ) {
@@ -101,7 +99,7 @@ void readm()
 		} else {
 			fprintf(intab," ") ;
 		}
-		if ( !isascii(token) || !(isprint(token) || isspace(token)) ){
+		if ( !IsAscii(token) || !(isprint(token) || isspace(token)) ){
 			if ( token!=EOF ) {
 			  fprintf(stderr,"warning: non-ascii in %s\n",fname) ;
 			  fprintf(intab,"%4d,",token) ;

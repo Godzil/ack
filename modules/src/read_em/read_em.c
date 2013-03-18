@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <alloc.h>
 #include <system.h>
+#include <ctype.h>
 #include <em_label.h>
 #include <em_arith.h>
 #include <em_pseu.h>
@@ -40,8 +41,7 @@
 static File *fd;
 static char *_ich;
 
-PRIVATE int
-_fill()
+static int _fill()
 {
 	static char text[BUFSIZ + 1];
 	static int sz;
@@ -79,7 +79,7 @@ static int state;		/* What state are we in? */
 
 static int EM_initialized;	/* EM_open called? */
 
-static long wordmask[] = {	/* allowed bits in a word */
+long wordmask[] = {	/* allowed bits in a word */
 	0x00000000,
 	0x000000FF,
 	0x0000FFFF,
@@ -99,18 +99,14 @@ static char *argrange = "Argument range error";
 /* Error handling
 */
 
-PRIVATE void
-xerror(s)
-	char *s;
+static void xerror(char *s)
 {
 	if (emhead->em_type != EM_FATAL) emhead->em_type = EM_ERROR;
 	if (!EM_error) EM_error = s;
 }
 
 #ifdef COMPACT
-PRIVATE void
-xfatal(s)
-	char *s;
+void xfatal(char *s)
 {
 	emhead->em_type = EM_FATAL;
 	if (!EM_error) EM_error = s;
@@ -123,9 +119,8 @@ xfatal(s)
 
 /* EM_open: Open input file, get magic word if COMPACT.
 */
-EXPORT int
-EM_open(filename)
-	char *filename;
+
+int EM_open(char *filename)
 {
 	if (EM_initialized) {
 		EM_error = "EM_open already called";
@@ -157,10 +152,8 @@ EM_open(filename)
 
 /* EM_close: Close input file
 */
-EXPORT void
-EM_close()
+void EM_close()
 {
-	
 	if (fd != STDIN) {
 		sys_close(fd);
 		fd = STDIN;
@@ -175,11 +168,8 @@ EM_close()
 	again, but also to deliver the arguments on next calls to EM_getinstr.
 	This is indicated by the variable "argp".
 */
-PRIVATE void
-startmes(p)
-	register struct e_instr *p;
+static void startmes(struct e_instr *p)
 {
-
 	getarg(cst_ptyp, &(p->em_arg));
 	state = MES;
 
@@ -206,11 +196,8 @@ startmes(p)
 
 /* EM_getinstr: read an "EM_line"
 */
-EXPORT int
-EM_getinstr(p)
-	register struct e_instr *p;
+int EM_getinstr(struct e_instr *p)
 {
-
 	EM_error = 0;
 	if (ahead) {
 		register int i;

@@ -15,11 +15,6 @@
 #include "ack.h"
 #include "grows.h"
 
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-static char rcs_grows[] = RCS_GROWS ;
-#endif
-
 void gr_add(growstring *id, char c)
 {
 	if ( id->gr_size==id->gr_max) {

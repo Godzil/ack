@@ -4,6 +4,7 @@
  *
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "ack.h"
@@ -14,11 +15,6 @@
 #include "dmach.h"
 #include "data.h"
 #include <stdio.h>
-
-#ifndef NORCSID
-static char rcs_id[] = "$Id$" ;
-static char rcs_dmach[] = RCS_DMACH ;
-#endif
 
 /************************************************************************/
 /*                                                                      */
@@ -51,10 +47,6 @@ static char rcs_dmach[] = RCS_DMACH ;
 static char *ty_name ;
 static char *bol ;
 static char *inname ;
-
-void intrf();
-void open_in(char *name);
-void close_in();
 
 void setlist(char *name)
 {

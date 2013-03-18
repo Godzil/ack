@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "alloc.h"
+#include "system.h"
 #include "print.h"
 #include "em_arith.h"
 #include "insert.h"
