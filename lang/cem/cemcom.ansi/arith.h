@@ -30,3 +30,13 @@
 #define	arith_size	(sizeof(arith))
 #define	arith_sign	((arith) 1 << (arith_size * 8 - 1))
 #define	max_arith	(~arith_sign)
+
+struct expr;
+struct type;	
+
+void erroneous2int(struct expr **expp);
+int int2int(struct expr **expp, struct type *tp);
+void int2float(struct expr **expp, struct type *tp);
+void float2float(struct expr**expp, struct type *tp);
+void field2arith(struct expr **expp);
+void ch3pointer(struct expr **expp, int oper, struct type *tp);

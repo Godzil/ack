@@ -26,6 +26,7 @@
 #include	"expr.h"
 #include	"type.h"
 #include	"sizes.h"
+#include	"code_c.h"
 
 extern char options[];
 

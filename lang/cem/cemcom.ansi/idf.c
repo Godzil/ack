@@ -31,6 +31,9 @@
 #include	"sizes.h"
 #include	"Lpars.h"
 #include	"assert.h"
+#include 	"ch3.h"
+#include	"code_c.h"
+#include	"conversion.h"
 
 extern char options[];
 extern arith NewLocal();

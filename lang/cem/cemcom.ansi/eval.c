@@ -30,6 +30,8 @@
 #include	"align.h"
 #include	"mes.h"
 #include	"atw.h"
+#include	"blocks.h"
+#include	"conversion.h"
 #include	"specials.h"
 
 #define	CRASH()		crash("EVAL: CRASH at line %u", __LINE__)

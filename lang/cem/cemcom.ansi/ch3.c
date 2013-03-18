@@ -20,26 +20,32 @@
 #include	"Lpars.h"
 #include	"assert.h"
 #include	"file_info.h"
+#include 	"ch3.h"
+#include	"ch3bin.h"
+#include	"decspecs.h"
+#include	"conversion.h"
+#include	<symbol2str.h>
 
 extern char options[];
-extern char *symbol2str();
-extern struct type *qualifier_type();
+
+static int check_pseudoproto(struct proto *pl, struct proto *opl, int diag);
+static int legal_mixture(struct type *tp, struct type *otp, int diag);
+static int equal_proto(struct proto *pl, struct proto *opl, int diag);
+static int is_arith_type(struct type *tp);
 
 /*	Most expression-handling routines have a pointer to a
 	(struct type *) as first parameter. The object under the pointer
 	gets updated in the process.
 */
 
-ch3sel(expp, oper, idf)
-	struct expr **expp;
-	struct idf *idf;
+void ch3sel(struct expr **expp, int oper, struct idf *idf)
 {
 	/*	The selector idf is applied to *expp; oper may be '.' or
 		ARROW.
 	*/
-	register struct expr *exp;
-	register struct type *tp;
-	register struct sdef *sd;
+	struct expr *exp;
+	struct type *tp;
+	struct sdef *sd;
 
 	any2opnd(expp, oper);
 	exp = *expp;
@@ -162,8 +168,7 @@ ch3sel(expp, oper, idf)
 	*expp = exp;
 }
 
-ch3incr(expp, oper)
-	struct expr **expp;
+void ch3incr(struct expr **expp, int oper)
 {
 	/*	The monadic prefix/postfix incr/decr operator oper is
 		applied to *expp.
@@ -171,17 +176,15 @@ ch3incr(expp, oper)
 	ch3asgn(expp, oper, intexpr((arith)1, INT));
 }
 
-ch3cast(expp, oper, tp)
-	register struct expr **expp;
-	register struct type *tp;
+void ch3cast(struct expr **expp, int oper, struct type *tp)
 {
 	/*	The expression *expp is cast to type tp; the cast is
 		caused by the operator oper.  If the cast has
 		to be passed on to run time, its left operand will be an
 		expression of class Type.
 	*/
-	register struct type *oldtp;
-	register struct expr *exp = *expp;
+	struct type *oldtp;
+	struct expr *exp = *expp;
 	int qual_lev, ascompat = 0;
 
 	if (oper == RETURN && tp->tp_fund == VOID) {
@@ -410,9 +413,7 @@ ch3cast(expp, oper, tp)
 
 /*	Determine whether two types are equal.
 */
-equal_type(tp, otp, qual_lev, diag)
-	register struct type *tp, *otp;
-	int qual_lev, diag;
+int equal_type(struct type *tp, struct type *otp, int qual_lev, int diag)
 {
 	 if (tp == otp)
 		return 1;
@@ -473,8 +474,7 @@ equal_type(tp, otp, qual_lev, diag)
 	}
 }
 
-check_pseudoproto(pl, opl, diag)
-	register struct proto *pl, *opl;
+static int check_pseudoproto(struct proto *pl, struct proto *opl, int diag)
 {
 	int retval = 1;
 
@@ -517,13 +517,11 @@ check_pseudoproto(pl, opl, diag)
 	return retval;
 }
 
-legal_mixture(tp, otp, diag)
-	struct type *tp, *otp;
-	int diag;
+static int legal_mixture(struct type *tp, struct type *otp, int diag)
 {
 	struct proto *pl = tp->tp_proto, *opl = otp->tp_proto;
 	int retval = 1;
-	register struct proto *prot;
+	struct proto *prot;
 	int fund;
 
 	ASSERT( (pl != 0) ^ (opl != 0));
@@ -560,9 +558,7 @@ legal_mixture(tp, otp, diag)
 	return retval;
 }
 
-equal_proto(pl, opl, diag)
-	register struct proto *pl, *opl;
-	int diag;
+static int equal_proto(struct proto *pl, struct proto *opl, int diag)
 {
 	if (pl == opl)
 		return 1;
@@ -584,11 +580,9 @@ equal_proto(pl, opl, diag)
 }
 
 /* check if a type has a consqualified member */
-recurqual(tp, qual)
-struct type *tp;
-int qual;
+int recurqual(struct type *tp, int qual)
 {
-	register struct sdef *sdf;
+	struct sdef *sdf;
 
 	ASSERT(tp);
 
@@ -608,9 +602,7 @@ int qual;
 	return 0;
 }
 
-ch3asgn(expp, oper, expr)
-	struct expr **expp;
-	struct expr *expr;
+void ch3asgn(struct expr **expp, int oper, struct expr *expr)
 {
 	/*	The assignment operators.
 		"f op= e" should be interpreted as
@@ -625,7 +617,7 @@ ch3asgn(expp, oper, expr)
 			      f     (typeof (f op e))e
 		EVAL should however take care of evaluating (typeof (f op e))f
 	*/
-	register struct expr *exp = *expp;
+	struct expr *exp = *expp;
 	int fund = exp->ex_type->tp_fund;
 	struct type *tp;
 	char *oper_string = symbol2str(oper);
@@ -685,9 +677,7 @@ ch3asgn(expp, oper, expr)
 
 /*	Some interesting (?) questions answered.
 */
-int
-is_integral_type(tp)
-	register struct type *tp;
+int is_integral_type(struct type *tp)
 {
 	switch (tp->tp_fund)	{
 	case CHAR:
@@ -705,9 +695,7 @@ is_integral_type(tp)
 	}
 }
 
-int
-is_arith_type(tp)
-	register struct type *tp;
+static int is_arith_type(struct type *tp)
 {
 	switch (tp->tp_fund)	{
 	case CHAR:

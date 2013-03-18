@@ -22,6 +22,7 @@
 #include	"use_tmp.h"
 #include	"dataflow.h"
 #include	"dbsymtab.h"
+#include	"conversion.h"
 
 #ifndef NOPP
 extern char **inctable;

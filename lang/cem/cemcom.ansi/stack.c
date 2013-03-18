@@ -24,7 +24,7 @@
 #include	"struct.h"
 #include	"level.h"
 #include	"mes.h"
-
+#include	"code_c.h"
 /* #include	<em_reg.h> */
 
 extern char options[];

@@ -26,8 +26,9 @@
 #include	"type.h"
 #include	"level.h"
 #include	"l_state.h"
+#include	"conversion.h"
+#include 	<symbol2str.h>
 
-extern char *symbol2str();
 extern struct type *func_type;
 
 PRIVATE lint_enum_arith();

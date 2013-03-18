@@ -18,13 +18,15 @@
 #include	"idf.h"
 #include	"def.h"
 #include	"sizes.h"
+#include 	"ch3.h"
+#include 	"ch3mon.h"
+#include    <symbol2str.h>
 
 extern char options[];
 extern arith full_mask[/*MAXSIZE + 1*/];	/* cstoper.c */
-char *symbol2str(int tok);
 
-ch3mon(oper, expp)
-	register struct expr **expp;
+
+void ch3mon(int oper, struct expr **expp)
 {
 	/*	The monadic prefix operator oper is applied to *expp.
 	*/

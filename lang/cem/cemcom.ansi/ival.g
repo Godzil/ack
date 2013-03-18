@@ -34,6 +34,8 @@
 #include	"def.h"
 #include	"LLlex.h"
 #include	"estack.h"
+#include	"conversion.h"
+#include "cstopen.h"
 
 #define con_nullbyte()	C_con_ucon("0", (arith)1)
 #define aggregate_type(tp) ((tp)->tp_fund == ARRAY || (tp)->tp_fund == STRUCT)

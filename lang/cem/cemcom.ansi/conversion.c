@@ -27,13 +27,12 @@
 		C??
 */
 
-static int convtype();
+static int convtype(struct type *tp);
 
-conversion(from_type, to_type)
-	register struct type *from_type, *to_type;
+void conversion(struct type *from_type, struct type *to_type)
 {
-	register arith from_size = from_type->tp_size;
-	register arith to_size = to_type->tp_size;
+	arith from_size = from_type->tp_size;
+	arith to_size = to_type->tp_size;
 	int from_cnvtype = convtype(from_type);
 	int to_cnvtype = convtype(to_type);
 
@@ -126,9 +125,7 @@ conversion(from_type, to_type)
 /*	convtype() returns in which category a given type falls:
 	signed, unsigned or floating
 */
-static int
-convtype(tp)
-	register struct type *tp;
+static int convtype(struct type *tp)
 {
 	switch (tp->tp_fund)	{
 	case CHAR:

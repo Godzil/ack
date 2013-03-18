@@ -20,13 +20,12 @@ extern struct type *qualifier_type();
 
 struct decspecs null_decspecs;
 
-do_decspecs(ds)
-	register struct decspecs *ds;
+void do_decspecs(struct decspecs *ds)
 {
 	/*	The provisional decspecs ds as obtained from the program
 		is turned into a legal consistent decspecs.
 	*/
-	register struct type *tp = ds->ds_type;
+	struct type *tp = ds->ds_type;
 	
 	ASSERT(level != L_FORMAL1);
 	
@@ -67,7 +66,7 @@ do_decspecs(ds)
 		tp = int_type;
 	}
 	if (ds->ds_size) {
-		register int ds_isshort = (ds->ds_size == SHORT);
+		int ds_isshort = (ds->ds_size == SHORT);
 
 		if (ds->ds_typedef) goto SIZE_ERROR;		/* yes */
 		if (tp == int_type) {
@@ -82,7 +81,7 @@ do_decspecs(ds)
 		ds->ds_notypegiven = 0;
 	}
 	if (ds->ds_unsigned) {
-		register int ds_isunsigned = (ds->ds_unsigned == UNSIGNED);
+		int ds_isunsigned = (ds->ds_unsigned == UNSIGNED);
 
 		if (ds->ds_typedef) goto SIGN_ERROR;		/* yes */
 		/*
@@ -113,13 +112,10 @@ do_decspecs(ds)
 	In case of a complex type the top of the type list will be
 	replaced by a qualified version.
 */
-struct type *
-qualifier_type(tp, typequal)
-	register struct type *tp;
-	int typequal;
+struct type *qualifier_type(struct type *tp, int typequal)
 {
-	register struct type *dtp = tp;
-	register int fund = tp->tp_fund;
+	struct type *dtp = tp;
+	int fund = tp->tp_fund;
 
 	while (dtp && dtp->tp_typequal != typequal)
 		dtp = dtp->next;

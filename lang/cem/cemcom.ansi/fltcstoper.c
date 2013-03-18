@@ -18,9 +18,11 @@
 #include	"expr.h"
 #include	"sizes.h"
 #include	"Lpars.h"
+#include	"cstoper.h"
+
+#include 	<symbol2str.h>
 
 extern int ResultKnown;
-extern char *symbol2str();
 
 fltcstbin(expp, oper, expr)
 	register struct expr **expp, *expr;

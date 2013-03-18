@@ -14,6 +14,8 @@
  * to terminate the compilation process.
  */
 
+#include "blocks.h"
+
 #define	store_block(sz, al)
 #define	load_block(sz, al)
 

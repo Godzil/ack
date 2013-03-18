@@ -24,8 +24,10 @@
 #include	"sizes.h"
 #include	"level.h"
 #include	"use_tmp.h"
+#include	"cstoper.h"
 
-extern char *symbol2str();
+#include	<symbol2str.h>
+
 extern char options[];
 extern int InSizeof;
 

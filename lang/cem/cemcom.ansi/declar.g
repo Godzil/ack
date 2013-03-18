@@ -28,6 +28,7 @@
 #include	"expr.h"
 #include	"sizes.h"
 #include	"level.h"
+#include "code_c.h"
 #ifdef	LINT
 #include	"l_lint.h"
 #endif	/* LINT */

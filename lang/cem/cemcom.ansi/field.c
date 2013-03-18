@@ -26,6 +26,7 @@
 #include	"align.h"
 #include	"Lpars.h"
 #include	"field.h"
+#include	"conversion.h"
 
 arith NewLocal();		/* util.c	*/
 extern arith full_mask[];	/* cstoper.c	*/

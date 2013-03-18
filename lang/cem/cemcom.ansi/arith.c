@@ -27,15 +27,15 @@
 #include	"field.h"
 #include	"mes.h"
 #include	"assert.h"
+#include	"ch3.h"
+#include	"ch3bin.h"
+#include 	"code_c.h"
+#include	"conversion.h"
+#include	"cstoper.h"
 
-extern char *symbol2str();
 extern char options[];
-extern arith flt_flt2arith();
-extern label code_string();
 
-arithbalance(e1p, oper, e2p)	/* 3.1.2.5 */
-	register struct expr **e1p, **e2p;
-	int oper;
+void arithbalance(struct expr **e1p, int oper, struct expr **e2p)	/* 3.1.2.5 */
 {
 	/*	The expressions *e1p and *e2p are balanced to be operands
 		of the arithmetic operator oper.
@@ -44,16 +44,16 @@ arithbalance(e1p, oper, e2p)	/* 3.1.2.5 */
 		have a floating type, in which case the flags shouldn't
 		travel upward in the expression tree.
 	*/
-	register int t1, t2, u1, u2;
+   int t1, t2, u1, u2;
 	int shifting = (oper == LEFT || oper == RIGHT
-			|| oper == LEFTAB || oper == RIGHTAB);
+			         || oper == LEFTAB || oper == RIGHTAB);
 	int ptrdiff = 0;
 
 	t1 = any2arith(e1p, oper);
 	t2 = any2arith(e2p, oper);
 
 	if (int_size != pointer_size) {
-		if (ptrdiff = ((*e1p)->ex_flags & EX_PTRDIFF)
+		if ((ptrdiff = ((*e1p)->ex_flags & EX_PTRDIFF))
 			    || ((*e2p)->ex_flags & EX_PTRDIFF)) {
 			if (!((*e1p)->ex_flags & EX_PTRDIFF) && t1 == LONG)
 				ptrdiff = 0;
@@ -82,10 +82,16 @@ arithbalance(e1p, oper, e2p)	/* 3.1.2.5 */
 		return;
 	} else if (t2 == LNGDBL) {
 		if (t1 != LNGDBL)
-		    if (t1 == DOUBLE || t1 == FLOAT)
-			float2float(e1p, lngdbl_type);
-		    else
-			int2float(e1p, lngdbl_type);
+		{
+			if (t1 == DOUBLE || t1 == FLOAT)
+		    {
+				float2float(e1p, lngdbl_type);
+			}
+			else
+			{
+				int2float(e1p, lngdbl_type);
+			}
+		}
 		return;
 	}
 
@@ -173,8 +179,7 @@ arithbalance(e1p, oper, e2p)	/* 3.1.2.5 */
 	}
 }
 
-relbalance(e1p, oper, e2p)
-	register struct expr **e1p, **e2p;
+void relbalance(struct expr **e1p, int oper, struct expr **e2p)
 {
 	/*	The expressions *e1p and *e2p are balanced to be operands
 		of the relational operator oper, or the ':'.
@@ -183,7 +188,7 @@ relbalance(e1p, oper, e2p)
 		allows assignments of a null-pointer to a function
 		pointer.
 	*/
-	register struct expr *e1 = *e1p, *e2 = *e2p;
+	struct expr *e1 = *e1p, *e2 = *e2p;
 	struct expr *tmpexpr;
 
 	if (e1->ex_type->tp_fund == POINTER
@@ -206,15 +211,13 @@ relbalance(e1p, oper, e2p)
 		arithbalance(e1p, oper, e2p);
 }
 
-ch3pointer(expp, oper, tp)
-	struct expr **expp;
-	register struct type *tp;
+void ch3pointer(struct expr **expp, int oper, struct type *tp)
 {
 	/*	Checks whether *expp may be compared to tp using oper,
 		as described in chapter 3.3.8 and 3.3.9.
 		tp is known to be a pointer.
 	*/
-	register struct expr *exp = *expp;
+	struct expr *exp = *expp;
 
 	if (exp->ex_type->tp_fund == POINTER)	{
 		if (exp->ex_type != tp)
@@ -239,10 +242,7 @@ ch3pointer(expp, oper, tp)
 	}
 }
 
-int
-any2arith(expp, oper)
-	register struct expr **expp;
-	register int oper;
+int any2arith(struct expr **expp, int oper)
 {
 	/*	Turns any expression into int_type, long_type,
 		float_type, double_type or lngdbl_type.
@@ -297,8 +297,7 @@ any2arith(expp, oper)
 	return (*expp)->ex_type->tp_fund;
 }
 
-erroneous2int(expp)
-	struct expr **expp;
+void erroneous2int(struct expr **expp)
 {
 	/*	the (erroneous) expression *expp is replaced by an
 		int expression
@@ -312,16 +311,12 @@ erroneous2int(expp)
 	*expp = exp;
 }
 
-struct expr *
-arith2arith(tp, oper, expr)
-	struct type *tp;
-	int oper;
-	register struct expr *expr;
+struct expr *arith2arith(struct type *tp, int oper, struct expr *expr)
 {
 	/*	arith2arith constructs a new expression containing a
 		run-time conversion between some arithmetic types.
 	*/
-	register struct expr *new = new_expr();
+	struct expr *new = new_expr();
 	
 	new->ex_file = expr->ex_file;
 	new->ex_line = expr->ex_line;
@@ -330,18 +325,15 @@ arith2arith(tp, oper, expr)
 	return new_oper(tp, new, oper, expr);
 }
 
-int
-int2int(expp, tp)
-	struct expr **expp;
-	register struct type *tp;
+int int2int(struct expr **expp, struct type *tp)
 {
 	/*	The expression *expp, which is of some integral type, is
 		converted to the integral type tp.
 	*/
-	register struct expr *exp = *expp;
+	struct expr *exp = *expp;
 	
 	if (is_cp_cst(exp))	{
-		register struct type *tp1 = exp->ex_type;
+		struct type *tp1 = exp->ex_type;
 
 		exp->ex_type = tp;
 		if (! tp1->tp_unsigned && tp->tp_unsigned) {
@@ -371,14 +363,12 @@ int2int(expp, tp)
 /* With compile-time constants, we don't set fp_used, since this is done
  * only when necessary in eval.c.
  */
-int2float(expp, tp)
-	register struct expr **expp;
-	struct type *tp;
+void int2float(struct expr **expp, struct type *tp)
 {
 	/*	The expression *expp, which is of some integral type, is
 		converted to the floating type tp.
 	*/
-	register struct expr *exp = *expp;
+	struct expr *exp = *expp;
 	int uns = exp->ex_type->tp_unsigned;
 	
 	if (is_cp_cst(exp)) {
@@ -392,14 +382,12 @@ int2float(expp, tp)
 	}
 }
 
-float2int(expp, tp)
-	struct expr **expp;
-	struct type *tp;
+void float2int(struct expr **expp, struct type *tp)
 {
 	/*	The expression *expp, which is of some floating type, is
 		converted to the integral type tp.
 	*/
-	register struct expr *ex = *expp;
+	struct expr *ex = *expp;
 	
 	if (is_fp_cst(ex)) {
 		arith ar = flt_flt2arith(&ex->FL_ARITH, tp->tp_unsigned);
@@ -420,9 +408,7 @@ float2int(expp, tp)
 	}
 }
 
-float2float(expp, tp)
-	register struct expr **expp;
-	struct type *tp;
+void float2float(struct expr**expp, struct type *tp)
 {
 	/*	The expression *expp, which is of some floating type, is
 		converted to the floating type tp.
@@ -438,8 +424,7 @@ float2float(expp, tp)
 	}
 }
 
-array2pointer(exp)
-	register struct expr *exp;
+void array2pointer(struct expr *exp)
 {
 	/*	The expression, which must be an array, is converted
 		to a pointer.
@@ -449,8 +434,7 @@ array2pointer(exp)
 				    , (arith)0, NO_PROTO);
 }
 
-function2pointer(exp)
-	register struct expr *exp;
+void function2pointer(struct expr *exp)
 {
 	/*	The expression, which must be a function, is converted
 		to a pointer to the function.
@@ -459,8 +443,7 @@ function2pointer(exp)
 				     (arith)0, NO_PROTO);
 }
 
-string2pointer(ex)
-	register struct expr *ex;
+void string2pointer(struct expr *ex)
 {
 	/*	The expression, which must be a string constant, is converted
 		to a pointer to the string-containing area.
@@ -474,11 +457,9 @@ string2pointer(ex)
 	ex->VL_VALUE = (arith)0;
 }
 
-opnd2integral(expp, oper)
-	register struct expr **expp;
-	int oper;
+void opnd2integral(struct expr **expp, int oper)
 {
-	register int fund = (*expp)->ex_type->tp_fund;
+	int fund = (*expp)->ex_type->tp_fund;
 
 	if (fund != INT && fund != LONG)	{
 		expr_error(*expp, "%s operand to %s",
@@ -488,9 +469,7 @@ opnd2integral(expp, oper)
 	}
 }
 
-opnd2logical(expp, oper)
-	register struct expr **expp;
-	int oper;
+void opnd2logical(struct expr **expp, int oper)
 {
 	int fund = (*expp)->ex_type->tp_fund;
 
@@ -526,8 +505,7 @@ opnd2logical(expp, oper)
 	}
 }
 
-opnd2test(expp, oper)
-	register struct expr **expp;
+void opnd2test(struct expr **expp, int oper)
 {
 	opnd2logical(expp, oper);
 	if ((*expp)->ex_class == Oper) {
@@ -551,8 +529,7 @@ opnd2test(expp, oper)
 	ch3bin(expp, NOTEQUAL, intexpr((arith)0, INT));
 }
 
-any2opnd(expp, oper)
-	register struct expr **expp;
+void any2opnd(struct expr **expp, int oper)
 {
 	if (!*expp)
 		return;
@@ -563,7 +540,9 @@ any2opnd(expp, oper)
 	case CHAR:
 	case SHORT:
 	case ENUM:
-	/* case FLOAT:	/* not necessary anymore */
+#if 0
+    case FLOAT:	/* not necessary anymore */
+#endif
 		any2arith(expp, oper);
 		break;
 	case ARRAY:
@@ -584,8 +563,7 @@ any2opnd(expp, oper)
 	}
 }
 
-any2parameter(expp)
-	register struct expr **expp;
+void any2parameter(struct expr **expp)
 {
 	/*	To handle default argument promotions
 	*/
@@ -598,14 +576,13 @@ any2parameter(expp)
 }
 
 #ifndef NOBITFIELD
-field2arith(expp)
-	register struct expr **expp;
+void field2arith(struct expr **expp)
 {
 	/*	The expression to extract the bitfield value from the
 		memory word is put in the tree.
 	*/
-	register struct type *tp = (*expp)->ex_type->tp_up;
-	register struct field *fd = (*expp)->ex_type->tp_field;
+	struct type *tp = (*expp)->ex_type->tp_up;
+	struct field *fd = (*expp)->ex_type->tp_field;
 
 	(*expp)->ex_type = word_type;
 
@@ -630,8 +607,7 @@ field2arith(expp)
 /*	switch_sign_fp() negates the given floating constant expression,
  *	and frees the string representing the old value.
  */
-switch_sign_fp(expr)
-	register struct expr *expr;
+void switch_sign_fp(struct expr *expr)
 {
 	flt_umin(&(expr->FL_ARITH));
 }

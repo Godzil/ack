@@ -28,6 +28,7 @@
 #include	"code.h"
 #include	"stack.h"
 #include	"def.h"
+#include "code_c.h"
 #ifdef DBSYMTAB
 #include	<stb.h>
 #endif /* DBSYMTAB */

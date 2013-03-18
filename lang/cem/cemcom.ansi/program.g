@@ -59,6 +59,7 @@
 #include	"code.h"
 #include	"expr.h"
 #include	"def.h"
+#include "code_c.h"
 #ifdef	LINT
 #include	"l_lint.h"
 #endif	/* LINT */

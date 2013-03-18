@@ -17,5 +17,8 @@ struct decspecs	{
 	int ds_typequal;	/* type qualifiers - see type.str */
 };
 
-extern struct type *qualifier_type();
 extern struct decspecs null_decspecs;
+
+void do_decspecs(struct decspecs *ds);
+struct type *qualifier_type(struct type *tp, int typequal);
+

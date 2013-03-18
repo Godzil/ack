@@ -40,6 +40,12 @@
 #include	"assert.h"
 #include	"LLlex.h"
 #include	"align.h"
+#include 	"blocks.h"
+#include	"code_c.h"
+#include	"conversion.h"
+
+#include <symbol2str.h>
+
 #ifdef	LINT
 #include	"l_lint.h"
 #endif	/* LINT */
@@ -51,7 +57,6 @@ label lab_count = 1;
 label datlab_count = 1;
 
 int fp_used;
-extern arith NewLocal();	/* util.c	*/
 
 /* global function info */
 char *func_name;
@@ -66,12 +71,14 @@ static int	pro_id;
 #endif /* USE_TMP */
 
 extern char options[];
-extern char *symbol2str();
 extern char *source;
 
+static void def_strings(struct string_cst *sc);
+static void prc_entry(char *name);
+static void prc_exit();
+
 #ifndef	LINT
-init_code(dst_file)
-	char *dst_file;
+void init_code(char *dst_file)
 {
 	/*	init_code() initialises the output file on which the
 		compact EM code is written
@@ -108,10 +115,7 @@ init_code(dst_file)
 
 struct string_cst *str_list = 0;
 
-label
-code_string(val, len)
-	char *val;
-	int len;
+label code_string(char *val, int len)
 {
 	register struct string_cst *sc = new_string_cst();
 	label dlb = data_label();
@@ -125,8 +129,7 @@ code_string(val, len)
 	return dlb;
 }
 
-def_strings(sc)
-	register struct string_cst *sc;
+static void def_strings(struct string_cst *sc)
 {
 	while (sc) {
 		struct string_cst *sc1 = sc;
@@ -140,7 +143,8 @@ def_strings(sc)
 }
 
 /* flush_strings() is called from program.g after each external definition */
-flush_strings() {
+void flush_strings()
+{
 	if (str_list) {
 		def_strings(str_list);
 		str_list = 0;
@@ -148,7 +152,7 @@ flush_strings() {
 }
 
 #ifndef	LINT
-end_code()
+void end_code()
 {
 	/*	end_code() performs the actions to be taken when closing
 		the output stream.
@@ -163,19 +167,19 @@ end_code()
 #endif	/* LINT */
 
 #ifdef	PREPEND_SCOPES
-prepend_scopes()
+void prepend_scopes()
 {
 	/*	prepend_scopes() runs down the list of global idf's
 		and generates those exa's, exp's, ina's and inp's
 		that superior hindsight has provided.
 	*/
-	register struct stack_entry *se = local_level->sl_entry;
+	struct stack_entry *se = local_level->sl_entry;
 
 #ifdef USE_TMP
 	C_beginpart(tmp_id);
 #endif /* USE_TMP */
 	while (se != 0)	{
-		register struct def *df = se->se_idf->id_def;
+		struct def *df = se->se_idf->id_def;
 		
 		if (df && (df->df_initialized || df->df_used || df->df_alloc)) {
 			code_scope(se->se_idf->id_text, df);
@@ -188,9 +192,7 @@ prepend_scopes()
 }
 #endif	/* PREPEND_SCOPES */
 
-code_scope(text, def)
-	char *text;
-	register struct def *def;
+void code_scope(char *text, struct def *def)
 {
 	/*	generates code for one name, text, of the storage class
 		as given by def, if meaningful.
@@ -221,9 +223,8 @@ static int struct_return;
 static char *last_fn_given = (char *)0;
 static label file_name_label;
 
-begin_proc(ds, idf)		/* to be called when entering a procedure */
-	struct decspecs *ds;
-	struct idf *idf;
+/* to be called when entering a procedure */
+void begin_proc(struct decspecs *ds, struct idf *idf)
 {
 	/*	begin_proc() is called at the entrance of a new function
 		and performs the necessary code generation:
@@ -233,8 +234,8 @@ begin_proc(ds, idf)		/* to be called when entering a procedure */
 			does not fit in the return area
 		-	a fil pseudo instruction
 	*/
-	register char *name = idf->id_text;
-	register struct def *def = idf->id_def;
+	char *name = idf->id_text;
+	struct def *def = idf->id_def;
 
 	/* idf->id_def does not indicate the right def structure
 	 * when the function being defined has a parameter of the
@@ -320,8 +321,7 @@ begin_proc(ds, idf)		/* to be called when entering a procedure */
 #endif
 }
 
-end_proc(fbytes)
-	arith fbytes;
+void end_proc(arith fbytes)
 {
 	/*	end_proc() deals with the code to be generated at the end of
 		a function, as there is:
@@ -391,7 +391,7 @@ end_proc(fbytes)
 	options['n'] = optionsn;
 }
 
-do_return()
+void do_return()
 {
 	/*	do_return handles the case of a return without expression.
 		This version branches to the return label, which is
@@ -404,8 +404,7 @@ do_return()
 	C_bra(return2_label);
 }
 
-do_return_expr(expr)
-	struct expr *expr;
+void do_return_expr(struct expr *expr)
 {
 	/*	do_return_expr() generates the expression and the jump for
 		a return statement with an expression.
@@ -420,11 +419,12 @@ do_return_expr(expr)
 	return_expr_occurred = 1;
 }
 
-code_declaration(idf, expr, lvl, sc)
-	register struct idf *idf;	/* idf to be declared	*/
-	struct expr *expr;	/* initialisation; NULL if absent	*/
-	int lvl;		/* declaration level	*/
-	int sc;			/* storage class, as in the declaration */
+/* struct idf *idf	 	idf to be declared
+ * struct expr *expr	initialisation; NULL if absent
+ * int lvl				declaration level
+ * int sc				storage class, as in the declaration
+ */
+void code_declaration(struct idf *idf, struct expr *expr, int lvl, int sc)
 {
 	/*	code_declaration() does the actual declaration of the
 		variable indicated by "idf" on declaration level "lvl".
@@ -445,8 +445,8 @@ code_declaration(idf, expr, lvl, sc)
 		The sc is the actual storage class, as given in the
 		declaration.
 	*/
-	register struct def *def = idf->id_def;
-	register arith size = def->df_type->tp_size;
+	struct def *def = idf->id_def;
+	arith size = def->df_type->tp_size;
 	int fund = def->df_type->tp_fund;
 	int def_sc = def->df_sc;
 	
@@ -532,17 +532,15 @@ code_declaration(idf, expr, lvl, sc)
 	}
 }
 
-loc_init(expr, id)
-	struct expr *expr;
-	struct idf *id;
+void loc_init(struct expr *expr, struct idf *id)
 {
 	/*	loc_init() generates code for the assignment of
 		expression expr to the local variable described by id.
 		It frees the expression afterwards.
 	*/
-	register struct expr *e = expr;
-	register struct def *df = id->id_def;
-	register struct type *tp = df->df_type;
+	struct expr *e = expr;
+	struct def *df = id->id_def;
+	struct type *tp = df->df_type;
 	static arith tmpoffset = 0;
 	static arith unknownsize = 0;
 	
@@ -610,12 +608,11 @@ loc_init(expr, id)
 	}
 }
 
-bss(idf)
-	register struct idf *idf;
+void bss(struct idf *idf)
 {
 	/*	bss() allocates bss space for the global idf.
 	*/
-	register struct def *df = idf->id_def;
+	struct def *df = idf->id_def;
 	
 #ifndef	PREPEND_SCOPES
 	code_scope(idf->id_text, df);
@@ -641,15 +638,13 @@ bss(idf)
 	}
 }
 
-formal_cvt(hasproto,df)
-	int hasproto;
-	register struct def *df;
+void formal_cvt(int hasproto, struct def *df)
 {
 	/*	formal_cvt() converts a formal parameter of type char or
 		short from int to that type. It also converts a formal
 		parameter of type float from a double to a float.
 	*/
-	register struct type *tp = df->df_type;
+	struct type *tp = df->df_type;
 
 	if (tp->tp_size != int_size &&
 		(tp->tp_fund == CHAR || tp->tp_fund == SHORT)
@@ -673,9 +668,7 @@ formal_cvt(hasproto,df)
 #ifdef	LINT
 /*ARGSUSED*/
 #endif	/* LINT */
-code_expr(expr, val, code, tlbl, flbl)
-	struct expr *expr;
-	label tlbl, flbl;
+void code_expr(struct expr *expr, int val, int code, label tlbl, label flbl)
 {
 	/*	code_expr() is the parser's interface to the expression code
 		generator.  If line number trace is wanted, it generates a
@@ -708,9 +701,9 @@ static struct stmt_block *stmt_stack;	/* top of statement stack */
 	which are the only ones that are stacked, only the top of
 	the stack is interesting.
 */
-code_break()
+void code_break()
 {
-	register struct stmt_block *stmt_block = stmt_stack;
+	struct stmt_block *stmt_block = stmt_stack;
 
 #ifdef DBSYMTAB
 	if (options['g']) db_line(dot.tk_file, dot.tk_line);
@@ -726,9 +719,9 @@ code_break()
 	it generates a branch instruction to the continue label of the
 	innermost statement in which continue has a meaning.
 */
-code_continue()
+void code_continue()
 {
-	register struct stmt_block *stmt_block = stmt_stack;
+	struct stmt_block *stmt_block = stmt_stack;
 
 	while (stmt_block)	{
 		if (stmt_block->st_continue)	{
@@ -743,10 +736,9 @@ code_continue()
 	error("continue not inside for, while or do");
 }
 
-stack_stmt(break_label, cont_label)
-	label break_label, cont_label;
+void stack_stmt(label break_label, label cont_label)
 {
-	register struct stmt_block *stmt_block = new_stmt_block();
+	struct stmt_block *stmt_block = new_stmt_block();
 
 	stmt_block->next = stmt_stack;
 	stmt_block->st_break = break_label;
@@ -754,7 +746,7 @@ stack_stmt(break_label, cont_label)
 	stmt_stack = stmt_block;
 }
 
-unstack_stmt()
+void unstack_stmt()
 {
 	/*	unstack_stmt() unstacks the data of a statement
 		which may contain break or continue
@@ -766,8 +758,7 @@ unstack_stmt()
 
 static label prc_name;
 
-prc_entry(name)
-	char *name;
+static void prc_entry(char *name)
 {
 	if (options['p']) {
 		C_df_dlb(prc_name = data_label());
@@ -778,7 +769,7 @@ prc_entry(name)
 	}
 }
 
-prc_exit()
+static void prc_exit()
 {
 	if (options['p']) {
 		C_lae_dlb(prc_name, (arith) 0);
@@ -788,9 +779,7 @@ prc_exit()
 }
 
 #ifdef DBSYMTAB
-db_line(file, line)
-	char		*file;
-	unsigned int	line;
+void db_line(char *file, unsigned int line)
 {
 	static unsigned oldline;
 	static char	*oldfile;

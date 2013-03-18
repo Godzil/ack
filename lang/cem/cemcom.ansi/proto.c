@@ -27,6 +27,7 @@
 #include	"decspecs.h"
 #include	"proto.h"
 #include	"assert.h"
+#include	"conversion.h"
 
 extern char options[];
 

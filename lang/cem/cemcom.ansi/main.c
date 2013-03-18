@@ -29,9 +29,12 @@
 #include	"align.h"
 #include	"macro.h"
 #include	"assert.h"
+#include	"code_c.h"
+#include	"cstoper.h"
+
+#include	<symbol2str.h>
 
 extern struct tokenname tkidf[];
-extern char *symbol2str();
 extern char options[128];
 
 #ifndef NOPP

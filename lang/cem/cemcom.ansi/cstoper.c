@@ -15,6 +15,7 @@
 #include	"sizes.h"
 #include	"Lpars.h"
 #include	"assert.h"
+#include	"cstoper.h"
 
 /* full_mask[1] == 0XFF, full_mask[2] == 0XFFFF, .. */
 arith full_mask[MAXSIZE + 1];
@@ -24,15 +25,14 @@ arith max_unsigned;	/* maximum unsigned on target machine	*/
 #endif /* NOCROSS */
 extern int ResultKnown;
 
-cstbin(expp, oper, expr)
-	register struct expr **expp, *expr;
+void cstbin(struct expr **expp, int oper, struct expr *expr)
 {
 	/*	The operation oper is performed on the constant
 		expressions *expp(ld) and expr(ct), and the result restored in
 		*expp.
 	*/
-	register arith o1 = (*expp)->VL_VALUE;
-	register arith o2 = expr->VL_VALUE;
+	arith o1 = (*expp)->VL_VALUE;
+	arith o2 = expr->VL_VALUE;
 	int uns = (*expp)->ex_type->tp_unsigned;
 
 	ASSERT(is_ld_cst(*expp) && is_cp_cst(expr));
@@ -205,13 +205,12 @@ cstbin(expp, oper, expr)
 	free_expression(expr);
 }
 
-cut_size(expr)
-	register struct expr *expr;
+void cut_size(struct expr *expr)
 {
 	/*	The constant value of the expression expr is made to
 		conform to the size of the type of the expression.
 	*/
-	register arith o1 = expr->VL_VALUE;
+	arith o1 = expr->VL_VALUE;
 	int uns = expr->ex_type->tp_unsigned;
 	int size = (int) expr->ex_type->tp_size;
 
@@ -241,10 +240,10 @@ cut_size(expr)
 	expr->VL_VALUE = o1;
 }
 
-init_cst()
+void init_cst()
 {
-	register int i = 0;
-	register arith bt = (arith)0;
+	int i = 0;
+	arith bt = (arith)0;
 
 	while (!(bt < 0))	{
 		bt = (bt << 8) + 0377, i++;
