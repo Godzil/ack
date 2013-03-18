@@ -5,14 +5,16 @@
  */
 #include "obj.h"
 
-int
-rd_arhdr(fd, arhdr)
-	register struct ar_hdr	*arhdr;
+void rd_fatal();
+
+#include <unistd.h>
+
+int rd_arhdr(int fd, struct ar_hdr	*arhdr)
 {
 	char buf[AR_TOTAL];
-	register char *c = buf;
-	register char *p = arhdr->ar_name;
-	register int i;
+	char *c = buf;
+	char *p = arhdr->ar_name;
+	int i;
 
 	i = read(fd, c, AR_TOTAL);
 	if (i == 0) return 0;

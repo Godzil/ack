@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "alloc.h"
+#include "print.h"
 #include "em_arith.h"
 #include "insert.h"
 #include "em_private.h"
@@ -31,7 +32,6 @@ File		*C_ofp;
 #ifndef INCORE
 File		*C_tfr;
 char		*C_tmpfile;
-char		*strcpy(), *strcat();
 char		*C_ibuf = 0;
 long		C_current_out;
 #endif

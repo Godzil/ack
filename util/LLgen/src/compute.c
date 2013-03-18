@@ -579,6 +579,7 @@ static int nc_nfollow(p_nont p)
 	return follow(p->n_nc_follow, p->n_rule);
 }
 
+#if 0
 static int nc_follow(p_set setp, p_gram p)
 {
 	/*
@@ -650,6 +651,7 @@ static int nc_follow(p_set setp, p_gram p)
 		p++;
 	}
 }
+#endif
 
 #endif
 

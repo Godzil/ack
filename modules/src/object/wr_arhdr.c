@@ -5,14 +5,12 @@
  */
 #include "obj.h"
 
-void
-wr_arhdr(fd, arhdr)
-	register struct ar_hdr	*arhdr;
+void wr_arhdr(int fd, struct ar_hdr *arhdr)
 {
 	char buf[AR_TOTAL];
-	register char *c = buf;
-	register char *p = arhdr->ar_name;
-	register int i = 14;
+	char *c = buf;
+	char *p = arhdr->ar_name;
+	int i = 14;
 
 	while (i--) {
 		*c++ = *p++;

@@ -8,6 +8,13 @@
 
 #include <ansi.h>
 
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <missing_proto.h>
+
 struct _sys_fildes {
 	int o_fd;	/* UNIX filedescriptor */
 	int o_flags;	/* flags for open; 0 if not used */

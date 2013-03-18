@@ -27,9 +27,7 @@ int			__sectionnr;
 #define sectionnr	__sectionnr
 static int		offcnt;
 
-void
-__wr_flush(ptr)
-	register struct fil *ptr;
+void __wr_flush(struct fil *ptr)
 {
 #ifdef OUTSEEK
 	/* seek to correct position even if we aren't going to write now */

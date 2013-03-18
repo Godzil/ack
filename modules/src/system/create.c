@@ -8,11 +8,7 @@
 
 extern File *_get_entry();
 
-int
-sys_create(filep, path, mode)
-	File **filep;
-	char *path;
-	int mode;
+int sys_create(File **filep, char *path, int mode)
 {
 	register fd;
 	register File *fp;

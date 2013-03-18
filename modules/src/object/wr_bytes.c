@@ -6,6 +6,10 @@
 
 #include "obj.h"
 
+#include <unistd.h>
+
+void wr_fatal();
+
 #define MININT		(1 << (sizeof(int) * 8 - 1))
 #define MAXCHUNK	(~MININT)	/* Highest count we write(2).	*/
 /* Notice that MAXCHUNK itself might be too large with some compilers.
@@ -17,14 +21,10 @@ static int maxchunk = MAXCHUNK;
 /*
  * Just write "cnt" bytes to file-descriptor "fd".
  */
-void
-wr_bytes(fd, string, cnt)
-	register char	*string;
-	register long	cnt;
+void wr_bytes(int fd, char *string, long cnt)
 {
-
 	while (cnt) {
-		register int n = cnt >= maxchunk ? maxchunk : cnt;
+		int n = cnt >= maxchunk ? maxchunk : cnt;
 
 		if (write(fd, string, n) != n)
 			wr_fatal();

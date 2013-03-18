@@ -24,16 +24,9 @@
 
 #include "LLgen.h"
 
-# ifndef NORCSID
-static string rcsid5 = "$Id$";
-# endif
-
 /* In this file the following routines are defined: */
-/* extern	UNLINK(); */
-/* extern	RENAME(); */
-/* extern string	libpath(); */
-
-void UNLINK(string x) {
+void UNLINK(string x)
+{
 	/* Must remove the file "x" */
 
 #ifdef USE_SYS

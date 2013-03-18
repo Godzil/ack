@@ -387,10 +387,6 @@ static short LL_index[] = {0,0,
  * This file is copied into Lpars.c.
  */
 
-#ifndef lint
-static char *rcsid = "$Id$";
-#endif
-
 unsigned int	LLtcnt[LL_NTERMINALS];
 unsigned int	LLscnt[LL_NSETS];
 int		LLcsymb, LLsymb;

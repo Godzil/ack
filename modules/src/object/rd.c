@@ -5,6 +5,11 @@
  */
 #include "obj.h"
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 /*
  * Parts of the output file.
  */
@@ -39,12 +44,9 @@ static long		rd_base;
 
 static int sectionnr;
 
-static void
-OUTREAD(p, b, n)
-	char *b;
-	long n;
+static void OUTREAD(int p, char *b, long n)
 {
-	register long l = outseek[p];
+	long l = outseek[p];
 
 	if (currpos != l) {
 		lseek(outfile, l, 0);
@@ -58,9 +60,7 @@ OUTREAD(p, b, n)
 /*
  * Open the output file according to the chosen strategy.
  */
-int
-rd_open(f)
-	char *f;
+int rd_open(char *f)
 {
 
 	if ((outfile = open(f, 0)) < 0)
@@ -70,10 +70,9 @@ rd_open(f)
 
 static int offcnt;
 
-int
-rd_fdopen(fd)
+int rd_fdopen(int fd)
 {
-	register int i;
+	int i;
 
 	for (i = 0; i < NPARTS; i++) outseek[i] = 0;
 	offcnt = 0;
@@ -88,32 +87,28 @@ rd_fdopen(fd)
 	return 1;
 }
 
-void
-rd_close()
+void rd_close()
 {
 
 	close(outfile);
 	outfile = -1;
 }
 
-int
-rd_fd()
+int rd_fd()
 {
 	return outfile;
 }
 
-void
-rd_ohead(head)
-	register struct outhead	*head;
+void rd_ohead(struct outhead *head)
 {
-	register long off;
+	long off;
 
 	OUTREAD(PARTEMIT, (char *) head, (long) SZ_HEAD);
 #if BYTE_ORDER == 0x0123
 	if (sizeof(struct outhead) != SZ_HEAD)
 #endif
 	{
-		register char *c = (char *) head + (SZ_HEAD-4);
+		char *c = (char *) head + (SZ_HEAD-4);
 		
 		head->oh_nchar = get4(c);
 		c -= 4; head->oh_nemit = get4(c);
@@ -136,21 +131,16 @@ rd_ohead(head)
 #endif
 }
 
-void
-rd_rew_relos(head)
-	register struct outhead *head;
+void rd_rew_relos(struct outhead *head)
 {
-	register long off = OFF_RELO(*head) + rd_base;
+	long off = OFF_RELO(*head) + rd_base;
 
 	BEGINSEEK(PARTRELO, off);
 }
 
-void
-rd_sect(sect, cnt)
-	register struct outsect	*sect;
-	register unsigned int	cnt;
+void rd_sect(struct outsect *sect, unsigned int cnt)
 {
-	register char *c = (char *) sect + cnt * SZ_SECT;
+	char *c = (char *) sect + cnt * SZ_SECT;
 
 	OUTREAD(PARTEMIT, (char *) sect, (long)cnt * SZ_SECT);
 	sect += cnt;
@@ -171,8 +161,7 @@ rd_sect(sect, cnt)
 	}
 }
 
-void
-rd_outsect(s)
+void rd_outsect(int s)
 {
 	OUTSECT(s);
 	sectionnr = s;
@@ -181,27 +170,20 @@ rd_outsect(s)
 /*
  * We don't have to worry about byte order here.
  */
-void
-rd_emit(emit, cnt)
-	char		*emit;
-	long		cnt;
+void rd_emit(char *emit, long cnt)
 {
 	OUTREAD(PARTEMIT, emit, cnt);
 	offset[sectionnr] += cnt;
 }
 
-void
-rd_relo(relo, cnt)
-	register struct outrelo	*relo;
-	register unsigned int cnt;
+void rd_relo(struct outrelo *relo, unsigned int cnt)
 {
-
 	OUTREAD(PARTRELO, (char *) relo, (long) cnt * SZ_RELO);
 #if BYTE_ORDER == 0x0123
 	if (sizeof(struct outrelo) != SZ_RELO)
 #endif
 	{
-		register char *c = (char *) relo + (long) cnt * SZ_RELO;
+		char *c = (char *) relo + (long) cnt * SZ_RELO;
 
 		relo += cnt;
 		while (cnt--) {
@@ -214,18 +196,14 @@ rd_relo(relo, cnt)
 	}
 }
 
-void
-rd_name(name, cnt)
-	register struct outname	*name;
-	register unsigned int cnt;
+void rd_name(struct outname *name, unsigned int cnt)
 {
-
 	OUTREAD(PARTNAME, (char *) name, (long) cnt * SZ_NAME);
 #if BYTE_ORDER == 0x0123
 	if (sizeof(struct outname) != SZ_NAME)
 #endif
 	{
-		register char *c = (char *) name + (long) cnt * SZ_NAME;
+		char *c = (char *) name + (long) cnt * SZ_NAME;
 
 		name += cnt;
 		while (cnt--) {
@@ -238,20 +216,13 @@ rd_name(name, cnt)
 	}
 }
 
-void
-rd_string(addr, len)
-	char *addr;
-	long len;
+void rd_string(char *addr, long len)
 {
-	
 	OUTREAD(PARTCHAR, addr, len);
 }
 
 #ifdef SYMDBUG
-void
-rd_dbug(buf, size)
-	char		*buf;
-	long		size;
+void rd_dbug(char *buf, long size)
 {
 	OUTREAD(PARTDBUG, buf, size);
 }

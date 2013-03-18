@@ -20,10 +20,6 @@
 # include "extern.h"
 # include "io.h"
 
-# ifndef NORCSID
-static string rcsid4 = "$Id$";
-# endif
-
 char	ltext[LTEXTSZ];
 p_nont	nonterms;
 p_nont	maxnt;

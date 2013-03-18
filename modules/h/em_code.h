@@ -3,9 +3,14 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
+#ifndef H_EM_CODE_H
+#define H_EM_CODE_H
 
 #include "em_mesX.h"
 #include "ansi.h"
+
+void C_flush();
+void C_internal_error();
 
 _PROTOTYPE(void C_ms_com, (char *));
 _PROTOTYPE(void C_ms_ego, (int, arith, arith, int));
@@ -34,3 +39,5 @@ _PROTOTYPE(void C_ms_std, (char *, int, int));
 #include "em_codeEK.h"
 #endif
 #endif
+
+#endif /* H_EM_CODE_H */

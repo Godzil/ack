@@ -13,6 +13,9 @@
 
 #include <em_path.h>
 #include <alloc.h>
+
+#include <em_code.h>
+
 #include "insert.h"
 
 char		*C_tmpdir = TMP_DIR;

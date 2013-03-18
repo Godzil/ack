@@ -6,11 +6,15 @@
 
 #include "obj.h"
 
+#include <unistd.h>
+
 #define MININT		(1 << (sizeof(int) * 8 - 1))
 #define MAXCHUNK	(~MININT)	/* Highest count we read(2).	*/
 /* Unfortunately, MAXCHUNK is too large with some  compilers. Put it in
    an int!
 */
+
+void rd_fatal();
 
 static int maxchunk = MAXCHUNK;
 
@@ -18,12 +22,8 @@ static int maxchunk = MAXCHUNK;
  * We don't have to worry about byte order here.
  * Just read "cnt" bytes from file-descriptor "fd".
  */
-void 
-rd_bytes(fd, string, cnt)
-	register char	*string;
-	register long	cnt;
+void rd_bytes(int fd, char *string, long cnt)
 {
-
 	while (cnt) {
 		register int n = cnt >= maxchunk ? maxchunk : cnt;
 

@@ -6,10 +6,7 @@
 
 #include "system.h"
 
-int
-sys_chmode(path, mode)
-	char *path;
-	int mode;
+int sys_chmode(char *path, int mode)
 {
 	return chmod(path, mode) == 0;
 }

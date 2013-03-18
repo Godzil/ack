@@ -23,12 +23,15 @@
 #include "assert.h"
 #include "LLgen.h"
 
+#include <missing_proto.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[]) {
-	register string arg;
+int main(int argc, char *argv[])
+{
+	string arg;
 	string libpath();
 	char	*beg_sbrk = 0;
 
