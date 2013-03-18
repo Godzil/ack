@@ -13,6 +13,9 @@
 #include	"class.h"
 #include	"macro.h"
 #include	"idf.h"
+#include 	"print.h"
+#include 	"arith.h"
+#include 	"LLlex.h"
 
 struct mkey	{
 	char *mk_reserved;

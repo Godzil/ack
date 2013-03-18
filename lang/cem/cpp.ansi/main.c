@@ -16,8 +16,9 @@
 #include	"idfsize.h"
 #include	"idf.h"
 #include	"macro.h"
+#include	"print.h"
+#include 	"LLlex.h"
 
-extern char *symbol2str();
 extern char *getwdir();
 extern int err_occurred;
 extern int do_dependencies;

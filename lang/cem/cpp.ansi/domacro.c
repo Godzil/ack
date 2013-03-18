@@ -587,7 +587,7 @@ int getparams(char *buf[], char parbuf[])
 
 void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 {
-	register struct macro *newdef = id->id_macro;
+	struct macro *newdef = id->id_macro;
 
 	/*	macro_def() puts the contents and information of a macro
 		definition into a structure and stores it into the symbol
@@ -603,7 +603,7 @@ void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 		return;
 	} else {
 #ifdef DOBITS
-		register char *p = id->id_text;
+		unsigned char *p = (unsigned char *)id->id_text;
 #define setbit(bx)      if (!*p) goto go_on; bits[*p++] |= (bx)
 		setbit(bit0);
 		setbit(bit1);

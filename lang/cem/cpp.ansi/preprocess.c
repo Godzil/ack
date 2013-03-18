@@ -51,11 +51,11 @@ void preprocess(char *fn);
 
 void do_pragma()
 {
-	register int size = ITEXTSIZE;
+	int size = ITEXTSIZE;
 	char *cur_line = Malloc((unsigned)size);
-	register char *c_ptr = cur_line;
-	register int c = GetChar();
-	register int delim = 0;
+	char *c_ptr = cur_line;
+	int c = GetChar();
+	int delim = 0;
 
 	while(c != '\n') {
 		if (c_ptr + 1 - cur_line == size) {
@@ -109,9 +109,9 @@ char Xbuf[256];
 
 void preprocess(char *fn)
 {
-	register int c;
-	register char *op = _obuf;
-	register char *ob = &_obuf[OBUFSIZE];
+	int c;
+	char *op = _obuf;
+	char *ob = &_obuf[OBUFSIZE];
 	int lineno = 0;
 	int startline;
 
@@ -123,7 +123,7 @@ void preprocess(char *fn)
 		/* Generate a line directive communicating the
 		   source filename
 		*/
-		register char *p = Xbuf;
+		char *p = Xbuf;
 
 		sprint(p, "%s 1 \"%s\"\n",
 			LINE_PREFIX,
@@ -138,14 +138,14 @@ void preprocess(char *fn)
 			fn = FileName;					\
 			lineno = LineNumber;				\
 			if (! options['P']) {				\
-				register char *p = Xbuf;		\
+				char *p = Xbuf;		\
 				sprint(Xbuf, "%s %d \"%s\"\n",		\
 					LINE_PREFIX,			\
 					(int)LineNumber,		\
 					FileName);			\
 				op--;					\
 				while (op >= _obuf			\
-				       && (class(*op) == STSKIP		\
+				       && (class(*(unsigned char *)op) == STSKIP		\
 					   || *op == '\n')) op--;	\
 				op++;					\
 				newline();				\
@@ -163,12 +163,12 @@ void preprocess(char *fn)
 		while (startline) {
 		    /* first flush the saved pragma's */
 		    if (pragma_nr) {
-				register int i = 0;
+				int i = 0;
 				int LiNo = LineNumber;
 				char *FiNam = FileName;
 	
 				while (i < pragma_nr) {
-				    register char *c_ptr = "#pragma";
+				    char *c_ptr = "#pragma";
 	
 				    LineNumber = pragma_tab[i].pr_linnr;
 				    FileName = pragma_tab[i].pr_fil;
@@ -252,7 +252,7 @@ void preprocess(char *fn)
 			case STSTR:
 			case STCHAR:
 				{
-				register int stopc = c;
+				int stopc = c;
 				int escaped;
 
 				do {
@@ -326,9 +326,9 @@ void preprocess(char *fn)
 			case STIDF: {
 				extern int idfsize;		/* ??? */
 				char buf[IDFSIZE + 1];
-				register char *tg = &buf[0];
-				register char *maxpos = &buf[idfsize];
-				register struct idf *idef;
+				char *tg = &buf[0];
+				char *maxpos = &buf[idfsize];
+				struct idf *idef;
 				int NoExpandNext = 0;
 
 #define tstmac(bx)	if (!(bits[c] & bx)) goto nomac
@@ -413,7 +413,7 @@ void preprocess(char *fn)
 static char *SkipComment(char *op, int *lineno)
 {
 	char *ob = &_obuf[OBUFSIZE];
-	register int c, oldc = '\0';
+	int c, oldc = '\0';
 
 	NoUnstack++;
 	if (options['C']) {

@@ -7,6 +7,7 @@
 
 #include	"Lpars.h"
 #include	"arith.h"
+#include	"LLlex.h"
 
 #define arith_sign (1L << (sizeof(arith)*8-1))
 

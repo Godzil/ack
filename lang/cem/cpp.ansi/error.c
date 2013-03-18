@@ -12,6 +12,7 @@
 #include	<varargs.h>
 #endif
 
+#include	"print.h"
 #include	"arith.h"
 #include	"errout.h"
 #include	"LLlex.h"

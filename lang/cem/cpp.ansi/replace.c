@@ -35,8 +35,7 @@ void macro_func(struct idf *idef);
 void macro2buffer(struct repl *repl, struct idf *idf, struct args *args);
 void add2repl(struct repl *repl, int ch);
 void stash(struct repl *repl, int ch, int stashraw);
-
-char *GetIdentifier(int skiponerr); /* domacro.c */
+int expand_macro(struct repl *repl, struct idf *idf);
 
 int replace(struct idf *idf)
 {
@@ -579,7 +578,7 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 			/* trim the actual replacement list */
 		    --repl->r_ptr;
 		    while (repl->r_ptr >= repl->r_text
-			    &&  is_wsp(*repl->r_ptr))
+			    &&  is_wsp(*(unsigned char *)repl->r_ptr))
 			--repl->r_ptr;
 
 		    /*	## occurred at the beginning of the replacement list.
@@ -598,7 +597,7 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 		    /* tmpindex can be 0 */
 
 		    /* skip space in macro replacement list */
-		    while ((*ptr & FORMALP) == 0 && is_wsp(*ptr))
+		    while ((*ptr & FORMALP) == 0 && is_wsp(*(unsigned char *)ptr))
 			    ptr++;
 
 		    /*	## occurred at the end of the replacement list.
@@ -610,13 +609,13 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 			assert(n > 0);
 			p = args->a_rawvec[n-1];
 			if (p) {	/* else macro argument missing */
-			    while (is_wsp(*p)) p++;
+			    while (is_wsp(*(unsigned char *)p)) p++;
 			    if (*p == NOEXPM) p++;
 			    while (*p)
 				add2repl(repl, *p++);
 			}
 			while (tmpindex > 0
-				&& in_idf(repl->r_text[tmpindex]))
+				&& in_idf((unsigned char)repl->r_text[tmpindex]))
 			    tmpindex--;
 			if (tmpindex >= 0
 			    && repl->r_text[tmpindex] == NOEXPM)
@@ -625,10 +624,10 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 			    err = 1;
 			    break;
 		    } else {
-			    if (in_idf(*ptr)) {
+			    if (in_idf(*(unsigned char *)ptr)) {
 				tmpindex--;
 				while (tmpindex > 0
-					&& in_idf(repl->r_text[tmpindex]))
+					&& in_idf((unsigned char)repl->r_text[tmpindex]))
 				    tmpindex--;
 				if (tmpindex >= 0
 				    && repl->r_text[tmpindex] == NOEXPM)
@@ -650,7 +649,7 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 			argument buffer instead of the expanded
 			one.
 		*/
-		for (p = ptr; (*p & FORMALP) == 0 && is_wsp(*p); p++)
+		for (p = ptr; (*p & FORMALP) == 0 && is_wsp(*(unsigned char *)p); p++)
 			/* EMPTY */;
 		if (*p == '#' && p[1] == '#')
 			q = args->a_rawvec[n-1];
@@ -690,7 +689,7 @@ char *stringify(struct repl *repl, char *ptr, struct args *args)
 	register int backslash = 0;	/* last character was a \ */
 
 	/* skip spaces macro replacement list */
-	while ((*ptr & FORMALP) == 0 && is_wsp(*ptr))
+	while ((*ptr & FORMALP) == 0 && is_wsp(*(unsigned char *)ptr))
 		ptr++;
 
 	if (*ptr & FORMALP) {
@@ -701,7 +700,7 @@ char *stringify(struct repl *repl, char *ptr, struct args *args)
 		p = args->a_rawvec[n-1];
 		add2repl(repl, '"');
 		while (*p) {
-			if (is_wsp(*p)) {
+			if (is_wsp(*(unsigned char *)p)) {
 				if (!space) {
 					space = 1;
 					add2repl(repl, ' ');
@@ -723,7 +722,7 @@ char *stringify(struct repl *repl, char *ptr, struct args *args)
 		}
 
 		/* trim spaces in the replacement list */
-		for (--repl->r_ptr; is_wsp(*repl->r_ptr); repl->r_ptr--)
+		for (--repl->r_ptr; is_wsp(*(unsigned char *)repl->r_ptr); repl->r_ptr--)
 			/* EMPTY */;
 		++repl->r_ptr;		/* oops, one to far */
 		add2repl(repl, '"');

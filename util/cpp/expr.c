@@ -7,9 +7,7 @@
 
 #include	"Lpars.h"
 
-int
-rank_of(oper)
-	int oper;
+int rank_of(int oper)
 {
 	/*	The rank of the operator oper is returned.
 	*/

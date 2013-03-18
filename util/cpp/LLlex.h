@@ -72,6 +72,9 @@ void init_pp();
 void do_option(char *text);
 void preprocess(char *fn);
 void domacro();
+int rank_of(int oper);
+char *GetIdentifier();
+char **getactuals(struct idf *idef);
 
 /* External */
 int InsertFile(char *, char **, char **);

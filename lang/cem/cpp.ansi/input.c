@@ -9,6 +9,8 @@
 #include <string.h>
 #include "file_info.h"
 #include "input.h"
+#include "arith.h"
+#include "LLlex.h"
 
 #define INP_PUSHBACK	3
 #define INP_TYPE	struct file_info

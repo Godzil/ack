@@ -12,6 +12,8 @@
 #include	"class.h"
 #include	"macro.h"
 #include	"idf.h"
+#include	"arith.h"
+#include	"LLlex.h"
 
 char	options[128];			/* one for every char	*/
 int	inc_pos = 1;			/* place where next -I goes */
@@ -24,11 +26,13 @@ char	*dep_file = 0;
 
 extern int idfsize;
 
+int txt2int(char **tp);
+
 void do_option(char *text)
 {
 	switch(*text++)	{
 	case '-':
-		options[*text] = 1;
+		options[*(unsigned char *)text] = 1;
 		break;
 	case 'u':
 		if (! strcmp(text, "ndef")) {
@@ -53,19 +57,19 @@ void do_option(char *text)
 	case 'm':
 	case 'o':	/* ignore garbage after #else or #endif */
 	case 'C' :	/* comment output		*/
-		options[*(text-1)] = 1;
+		options[*(unsigned char *)(text-1)] = 1;
 		break;
 	case 'D' :	/* -Dname :	predefine name		*/
 	{
-		register char *cp = text, *name, *mactext;
+		char *cp = text, *name, *mactext;
 		unsigned maclen;
 
-		if (class(*cp) != STIDF && class(*cp) != STELL)	{
+		if (class(*(unsigned char *)cp) != STIDF && class(*(unsigned char *)cp) != STELL)	{
 			error("identifier missing in -D%s", text);
 			break;
 		}
 		name = cp;
-		while (*cp && in_idf(*cp))
+		while (*cp && in_idf(*(unsigned char *)cp))
 			++cp;
 		if (!*cp) {			/* -Dname */
 			maclen = 1;
@@ -85,8 +89,8 @@ void do_option(char *text)
 	}
 	case 'I' :	/* -Ipath : insert "path" into include list	*/
 		if (*text)	{
-			register int i;
-			register char *new = text;
+			int i;
+			char *new = text;
 
 			if (++inc_total > inc_max) {
 				inctable = (char **)
@@ -130,8 +134,8 @@ int txt2int(char **tp)
 	/*	the integer pointed to by *tp is read, while increasing
 		*tp; the resulting value is yielded.
 	*/
-	register int val = 0;
-	register int ch;
+	int val = 0;
+	int ch;
 	
 	while (ch = **tp, ch >= '0' && ch <= '9')	{
 		val = val * 10 + ch - '0';

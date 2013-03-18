@@ -26,9 +26,6 @@ static struct mlist *ReplList;	/* list of currently active macros */
 static char *macro2buffer(struct idf *idef, char **actpars, int *siztext);
 static void macro_func(struct idf *idef); 
 
-
-char *GetIdentifier(); /* domacro.c */
-char **getactuals(struct idf *idef); /* scan.c */
 char *long2str(long value, int base); /* External lib */
 
 int replace(struct idf *idef)
@@ -42,11 +39,11 @@ int replace(struct idf *idef)
 		replace() returns 1 if the replacement succeeded and 0 if
 		some error has occurred.
 	*/
-	register struct macro *mac = idef->id_macro;
-	register char c;
+	struct macro *mac = idef->id_macro;
+	char c;
 	char **actpars;
 	char *reptext;
-	register struct mlist *repl;
+	struct mlist *repl;
 	int size;
 
 	if (mac->mc_flag & NOREPLACE) {
@@ -146,7 +143,7 @@ static void macro_func(struct idf *idef)
 		replacement texts must be evaluated at the time they are
 		used.
 	*/
-	register struct macro *mac = idef->id_macro;
+	struct macro *mac = idef->id_macro;
 
 	switch (idef->id_text[2]) { /* This switch is very blunt... */
 	case 'F' :			/* __FILE__	*/
@@ -179,15 +176,15 @@ static char *macro2buffer(struct idf *idef, char **actpars, int *siztext)
 		If there are no parameters, this function behaves
 		the same as strcpy().
 	*/
-	register unsigned int size = idef->id_macro->mc_length + ITEXTSIZE;
-	register char *text = Malloc(size);
-	register int pos = 0;
-	register char *ptr = idef->id_macro->mc_text;
+	unsigned int size = idef->id_macro->mc_length + ITEXTSIZE;
+	char *text = Malloc(size);
+	int pos = 0;
+	char *ptr = idef->id_macro->mc_text;
 
 	while (*ptr) {
 		if (*ptr & FORMALP) {	/* non-asc formal param. mark	*/
-			register int n = *ptr++ & 0177;
-			register char *p;
+			int n = *ptr++ & 0177;
+			char *p;
 
 			assert(n != 0);
 			/*	copy the text of the actual parameter
@@ -217,7 +214,7 @@ void DoUnstack()
 
 void EnableMacros()
 {
-	register struct mlist *p = ReplList, *prev = 0;
+	struct mlist *p = ReplList, *prev = 0;
 
 	assert(Unstacked > 0);
 	while (p) {

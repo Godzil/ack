@@ -5,6 +5,8 @@
 /* $Id$ */
 /*		    L E X I C A L   A N A L Y Z E R			*/
 
+#include <string.h>
+
 #include	"idfsize.h"
 #include	"numsize.h"
 #include	"strsize.h"
@@ -23,6 +25,12 @@
 
 struct token dot;
 
+char *string_token(char *nm, int stop_char);
+arith char_constant(char *nm);
+int val_in_base(int ch, int base);
+int quoted(int ch);
+int trigraph();
+
 int ReplaceMacros = 1;		/* replacing macros			*/
 int AccDefined = 0;		/* accept "defined(...)"		*/
 int UnknownIdIsZero = 0;	/* interpret unknown id as integer 0	*/
@@ -31,9 +39,6 @@ int AccFileSpecifier = 0;	/* return filespecifier <...>		*/
 int LexSave = 0;                /* last character read by GetChar       */
 extern int InputLevel;		/* # of current macro expansions	*/
 
-extern char	*string_token();
-extern char	*strcpy();
-extern arith	char_constant();
 #define		FLG_ESEEN	0x01	/* possibly a floating point number */
 #define		FLG_DOTSEEN	0x02	/* certainly a floating point number */
 
