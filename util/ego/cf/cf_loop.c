@@ -8,6 +8,7 @@
  *  C F _ L O O P . C
  */
 
+#include <stdlib.h>
 
 #include "../share/types.h"
 #include "../share/debug.h"

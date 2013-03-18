@@ -8,6 +8,8 @@
  *  C O R E   A L L O C A T I O N   A N D   D E A L L O C A T I O N
  */
 
+#include <stdlib.h>
+
 #ifdef DEBUG
 char *newcore(int size);
 void oldcore(char *p, int size);

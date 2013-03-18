@@ -5,6 +5,8 @@
 /* $Id$ */
 /* PREPROCESSOR: CONTROLLINE INTERPRETER */
 
+#include <stdlib.h>
+
 #include	"debug.h"
 #include	"arith.h"
 #include	"LLlex.h"

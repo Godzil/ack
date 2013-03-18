@@ -55,7 +55,7 @@ PRIVATE int checkarg(struct e_arg *arg, int typset)
 {
 	return 1;
 }
-//#define checkarg(arg, x) (1)
+/*#define checkarg(arg, x) (1)*/
 #endif /* CHECKING */
 
 /*	EM_doinstr: An EM instruction

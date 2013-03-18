@@ -5,6 +5,8 @@
 /* $Id$ */
 /* EXPRESSION TREE HANDLING */
 
+#include <stdlib.h>
+
 #include	"lint.h"
 #include	"debug.h"
 #include	"assert.h"

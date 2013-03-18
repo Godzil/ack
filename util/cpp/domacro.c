@@ -5,6 +5,7 @@
 /* $Id$ */
 /* PREPROCESSOR: CONTROLLINE INTERPRETER */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include	"interface.h"

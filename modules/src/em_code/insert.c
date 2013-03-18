@@ -8,6 +8,8 @@
    are received corresponds to the order in which they must be written,
    they can be written immediately.
 */
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <em_path.h>
 #include <alloc.h>

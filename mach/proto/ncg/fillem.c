@@ -431,8 +431,9 @@ dopseudo() {
 
 /* ----- input ----- */
 
-int getarg(typset) {
-	register t,argtyp;
+int getarg(int typset)
+{
+	int t,argtyp;
 
 	argtyp = t = table2();
 	if (t == EOF)

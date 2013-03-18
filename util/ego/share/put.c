@@ -6,6 +6,8 @@
 /* P U T . C */
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <em_pseu.h>
 #include <em_spec.h>
 #include "types.h"

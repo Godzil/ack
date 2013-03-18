@@ -8,6 +8,7 @@
  *  L S E T . C
  */
 
+#include <stdlib.h>
 
 #include "types.h"
 #include "lset.h"

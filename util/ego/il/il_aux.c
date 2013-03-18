@@ -211,7 +211,7 @@ call_p getcall(FILE *cf)
 		m = getshort();
 		act->ac_size = getoff();
 		act->ac_inl = getbyte();
-		act->ac_exp = getlines(cf,m,&voided, 0); //WARN
+		act->ac_exp = getlines(cf,m,&voided, 0); /* WARN */
 		*app = act;
 		app = &act->ac_next;
 	}

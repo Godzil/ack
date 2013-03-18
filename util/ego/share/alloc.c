@@ -16,9 +16,6 @@
 #include "debug.h"
 #include "alloc.h"
 
-
-//char * myalloc();
-
 #ifdef DEBUG
 
 STATIC unsigned maxuse, curruse;

@@ -33,9 +33,6 @@ struct mkey	{
 	{0,		K_UNKNOWN}
 };
 
-//char *strcpy();
-//char *sprint();
-
 void init_pp()
 {
 	static char *months[12] = {

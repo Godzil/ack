@@ -8,6 +8,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <em_mnem.h>
 #include <em_spec.h>
 #include <em_pseu.h>
