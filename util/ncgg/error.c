@@ -2,16 +2,15 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #if __STDC__
 #include	<stdarg.h>
 #endif
 
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "varinfo.h"
+#include "output.h"
 
 #if __STDC__
 void error(char *fmt, ...);
@@ -98,7 +97,8 @@ void badassertion(char *string, char *file, int line)
 }
 #endif
 
-void tabovf(char *string)
+int tabovf(char *string)
 {
 	fatal("%s overflow", string);
+	return 0;
 }

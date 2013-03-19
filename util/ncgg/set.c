@@ -2,17 +2,14 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include "param.h"
 #include "property.h"
 #include "set.h"
 #include "token.h"
 #include "lookup.h"
 #include "reg.h"
-#include <cgg_cg.h>
+#include "error.h"
+#include "subr.h"
 #include "extern.h"
 
 extern set_t l_sets[];

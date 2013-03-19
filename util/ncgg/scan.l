@@ -3,11 +3,16 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid2[]= "$Id$";
-#endif
-
+#include "emlookup.h"
+#include "subr.h"
+#include "error.h"
+#include "hall.h"
+#include "coerc.h"
 #include "extern.h"
+
+
+/* fileno is not C89 and can be missing sometimes. */
+int fileno(FILE *stream);
 
 int lineno=1;
 extern char *filename;

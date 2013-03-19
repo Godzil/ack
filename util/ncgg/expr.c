@@ -2,10 +2,6 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,6 +14,7 @@ static char rcsid[]= "$Id$";
 #include "property.h"
 #include "expr.h"
 #include "regvar.h"
+#include "error.h"
 #include <cgg_cg.h>
 #include "extern.h"
 

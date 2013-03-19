@@ -2,17 +2,13 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include <string.h>
 #include "assert.h"
 #include "param.h"
 #include "lookup.h"
+#include "error.h"
+#include "lookup.h"
 #include "extern.h"
-
-unsigned int hashvalue(char *s);
 
 symbol dumsym;	/* dummy to return in case of error */
 

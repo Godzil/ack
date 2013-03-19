@@ -16,12 +16,13 @@ char	*c_file=	"tables.c";
 char	*h_file=	"tables.H";
 char	*cd_file=	"code";
 
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include <stdio.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include "assert.h"
 #include "varinfo.h"
 #include "param.h"
@@ -31,10 +32,16 @@ static char rcsid[]= "$Id$";
 #include "set.h"
 #include "instruct.h"
 #include "lookup.h"
+#include "error.h"
+#include "strlookup.h"
+#include "subr.h"
 #include <cgg_cg.h>
 #include "pseudo.h"
 #include "regvar.h"
 #include "extern.h"
+
+/* Since isascii is not standard, as c89 or C99, privide another method */
+#define IsAscii(_c) (((_c) & ~0x7f) == 0)
 
 #define BMASK 0xFF
 #define BSHIFT 8
@@ -387,7 +394,7 @@ void outfmt(char *p)
 	register int c;
 	fprintf(ctable,"\"");
 	while ((c= (*p++&0377))!=0) {
-		if (! isascii(c) || iscntrl(c)) {
+		if (! IsAscii(c) || iscntrl(c)) {
 			fprintf(ctable,"\\%c%c%c",
 				((c&~0300)>>6) + '0', ((c&070)>>3)+'0',
 				(c&07)+'0');
@@ -433,8 +440,10 @@ void outenodes()
 void outstrings()
 {
 	int i;
+#if 0
 	char *p;
 	int c;
+#endif
 	extern char * filename;
 
 	if (tabledebug)
@@ -445,7 +454,7 @@ void outstrings()
 		outfmt(l_strings[i]);
 #if 0
 		while ((c= (*p++&0377))!=0) {
-			if (! isascii(c) || iscntrl(c)) {
+			if (! IsAscii(c) || iscntrl(c)) {
 				fprintf(ctable,"\\%c%c%c",
 					((c&~0300)>>6) + '0', ((c&070)>>3)+'0',
 					(c&07)+'0');
@@ -658,7 +667,7 @@ void outars()
 
 void finishio() 
 {
-	int nregs;
+	int nregs = 0;
 
 	finishcode();
 	hashpatterns();

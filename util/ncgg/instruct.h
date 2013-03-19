@@ -4,6 +4,9 @@
  */
 /* $Id$ */
 
+#ifndef LANG_NCGG_INSTRUCT_H
+#define LANG_NCGG_INSTRUCT_H
+
 #ifndef _COST_
 #include "cost.h"
 #endif
@@ -39,3 +42,5 @@ extern instr_t l_instr[];
  * if it contains the same information and is allowed as an operand
  * in this place. Too difficult for now.
  */
+
+#endif /* LANG_NCGG_INSTRUCT_H */

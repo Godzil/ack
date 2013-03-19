@@ -2,16 +2,12 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include "assert.h"
 #include "param.h"
 #include "set.h"
+#include "hall.h"
+#include "error.h"
 #include <stdio.h>
-
-void unite(short *sp, short *into);
 
 /*
  * This file implements the marriage thesis from Hall.

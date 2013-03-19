@@ -12,7 +12,7 @@ g/^#/d
 a
 
 void enterkeyw() {
-	register symbol *sy_p;
+	symbol *sy_p;
 
 .
 $a

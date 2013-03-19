@@ -3,9 +3,7 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 %{
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
+#include <stdio.h>
 
 #include "param.h"
 #include "varinfo.h"
@@ -14,7 +12,9 @@ static char rcsid[]= "$Id$";
 #include "iocc.h"
 #include "instruct.h"
 #include "expr.h"
+#include "output.h"
 #include "extern.h"
+#include "strlookup.h"
 #include <cgg_cg.h>
 #include <em_reg.h>
 
@@ -610,9 +610,11 @@ coercdeflist_el
 		  inithall();
 		}
 	  optexpr allocates generates yields
-	  	{ tokpatro[0] = 0;
+	  	{ 
+	  	  iocc_t empty; /* WARNING */
+	  	  tokpatro[0] = 0;
 		  checkhall();
-		  n_coerc($3,$5,$6,$7,$8);
+		  n_coerc($3,$5,$6,$7,$8, empty);
 		  freevi($6);
 		  freevi($7);
 		  cursetno = -1;

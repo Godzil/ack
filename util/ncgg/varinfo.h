@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef LANG_NCGG_VARINFO_H
+#define LANG_NCGG_VARINFO_H
 
 #define VI_NSTR 1
 #define VI_NINT 3
@@ -15,3 +17,5 @@ typedef struct varinfo {
 } varinfo;
 
 #define VI_NULL (struct varinfo *) 0
+
+#endif /* LANG_NCGG_VARINFO_H */

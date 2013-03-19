@@ -2,10 +2,6 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include <string.h>
 
 #include "param.h"
@@ -15,6 +11,9 @@ static char rcsid[]= "$Id$";
 #include "set.h"
 #include "expr.h"
 #include "iocc.h"
+#include "set.h"
+#include "subr.h"
+#include "error.h"
 #include <cgg_cg.h>
 #include "extern.h"
 
@@ -24,8 +23,6 @@ extern inproc;
 
 extern set_t l_sets[];
 extern inst_t l_instances[];
-
-extern expr_t subreg_expr(),regno_expr();
 
 struct varinfo *setcoco(int n)
 {

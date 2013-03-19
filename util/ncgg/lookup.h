@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef LANG_NCGG_LOOKUP_H
+#define LANG_NCGG_LOOKUP_H
 
 typedef enum {
 	justlooking,mustexist,newsymbol,makeexist
@@ -30,4 +32,9 @@ typedef struct symbol {
 
 #define NSYMHASH 61
 extern symbol *symhash[NSYMHASH];	/* chained hashtable */
-extern symbol *lookup();
+
+/* util/ncgg/lookup.c */
+symbol *lookup(char *name, symtype type, lookupstyle style);
+unsigned int hashvalue(char *s);
+
+#endif /* LANG_NCGG_LOOKUP_H */

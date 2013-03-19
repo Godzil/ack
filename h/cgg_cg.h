@@ -4,6 +4,9 @@
  */
 /* $Id$ */
 
+#ifndef H_CGG_CG_H
+#define H_CGG_CG_H
+
 /* offsets of interesting fields in EM-pattern */
 
 #define PO_HASH         0
@@ -165,3 +168,5 @@ typedef struct {        /* one to one coercions */
 	if ((a=((*(b)++)&BMASK)) >= 128) {\
 		a = ((a-128)<<BSHIFT) | (*(b)++&BMASK); \
 	}
+
+#endif /* H_CGG_CG_H */

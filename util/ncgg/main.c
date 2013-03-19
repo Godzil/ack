@@ -2,18 +2,28 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[]= "$Id$";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "param.h"
+#include "varinfo.h"
+
+#include "error.h"
+#include "emlookup.h"
+#include "cvtkeywords.h"
+#include "expr.h"
+#include "output.h"
+#include "hall.h"
+#include <missing_proto.h>
+
+/* From YACC lexer */
+void yyparse(void);
+
 char *filename;
 char *beg_sbrk;
-extern char *sbrk();
 
-main(argc,argv) char **argv; {
+int main(int argc, char *argv[])
+{
 	extern int nerrors;
 	extern int code_in_c;
 	extern int tabledebug;
