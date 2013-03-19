@@ -18,6 +18,9 @@
 #include "booth.h"
 #include "y.tab.h"
 
+/* fileno is not C89 and can be missing sometimes. */
+int fileno(FILE *stream);
+
 int lineno = 1;
 extern char *iname;
 %}

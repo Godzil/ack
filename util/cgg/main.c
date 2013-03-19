@@ -24,6 +24,8 @@ void outbyte(int n);
 void patbyte(int n);
 void hashpatterns();
 
+#define IsAscii(_c) (((_c) & ~0x7f) == 0)
+
 char * myalloc(int n)
 {
 	register char *p;
@@ -604,7 +606,7 @@ void finishio()
 		fprintf(cfile,"\t\"");
 		while (*p) {
 			register int c = (*p) & BMASK;
-			if (! isascii(c) || iscntrl(c)) {
+			if (! IsAscii(c) || iscntrl(c)) {
 				/* The next line used to have (c>>6)&03,
 				   but this triggered a bug in GCC 2.4.5
 				   on SPARC.
