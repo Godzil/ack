@@ -6,13 +6,7 @@
 
 #include "system.h"
 
-long lseek();
-
-int
-sys_seek(fp, off, whence, poff)
-	File *fp;
-	long off;
-	long *poff;
+int sys_seek(File *fp, long off, int whence, long *poff)
 {
 	if (! fp) return 0;
 	return (*poff = lseek(fp->o_fd, off, whence)) >= 0;

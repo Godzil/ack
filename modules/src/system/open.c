@@ -8,15 +8,10 @@
 
 extern File *_get_entry();
 
-int
-sys_open(path, flag, filep)
-	char *path;
-	int flag;
-	File **filep;
+int sys_open(char *path, int flag, File **filep)
 {
-	register int fd;
-	register File *fp;
-	long lseek();
+	int fd;
+    File *fp;
 
 	if ((fp = _get_entry()) == (File *)0)
 		return 0;
