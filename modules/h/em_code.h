@@ -8,17 +8,14 @@
 
 #include "em_mesX.h"
 #include "ansi.h"
+#include <em_arith.h>
+#include <em_label.h>
 
 void C_flush();
 void C_internal_error();
 void C_putbyte(int c);
 
-#ifndef arith
-#define arith long
-#endif
-#ifndef label
-#define label unsigned int
-#endif
+struct e_instr;
 
 _PROTOTYPE(void C_ms_com, (char *));
 _PROTOTYPE(void C_ms_ego, (int, arith, arith, int));
@@ -36,6 +33,7 @@ _PROTOTYPE(void C_ms_stb_dnam, (char *, int, int, char *, arith));
 _PROTOTYPE(void C_ms_stb_ilb, (char *, int, int, label));
 _PROTOTYPE(void C_ms_stb_pnam, (char *, int, int, char *));
 _PROTOTYPE(void C_ms_std, (char *, int, int));
+_PROTOTYPE(int  C_out, (struct e_instr *p));
 
 #ifdef PEEPHOLE
 #include "em_codeO.h"

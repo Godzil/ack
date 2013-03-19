@@ -5,7 +5,8 @@
 /* $Id$ */
 #ifndef H_LABEL_H
 #define H_LABEL_H
+#include <stdint.h>
 
-#define label unsigned int
+typedef int32_t label;
 
 #endif /* H_LABEL_H */

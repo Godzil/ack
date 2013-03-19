@@ -22,6 +22,8 @@
 #else	/* SPECIAL_ARITHMETICS */
 
 /* not implemented yet */
-#define	arith	int				/* dummy */
+#include <stdint.h>
+
+typedef int32_t arith;		/* dummy */
 
 #endif	/* SPECIAL_ARITHMETICS */

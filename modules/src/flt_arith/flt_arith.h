@@ -8,10 +8,7 @@
 #define __FLT_INCLUDED__
 
 #include "ansi.h"
-
-#ifndef arith
-#define arith long
-#endif
+#include <em_arith.h>
 
 struct flt_mantissa {
 	long	flt_h_32;	/* high order 32 bits of mantissa */

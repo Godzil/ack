@@ -23,7 +23,9 @@
 
 /*	All preprocessor arithmetic should be done in longs.
 */
-#define	arith	long				/* dummy */
+#include <stdint.h>
+
+typedef int32_t arith; /* dummy */
 
 #endif	/* SPECIAL_ARITHMETICS */
 

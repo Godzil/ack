@@ -20,6 +20,6 @@
 
 #include <stdint.h>
 
-#define	arith	int32_t				/* dummy */
+typedef int32_t arith;	/* dummy */
 
 #endif /* LANG_CEM_CPP_ANSI_ARITH_H */
