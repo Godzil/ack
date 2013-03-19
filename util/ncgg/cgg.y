@@ -17,6 +17,11 @@
 #include "strlookup.h"
 #include <cgg_cg.h>
 #include <em_reg.h>
+#include "subr.h"
+#include "coerc.h"
+#include "hall.h"
+#include "error.h"
+#include "emlookup.h"
 
 extern int lineno;
 int instline,saveline;
@@ -38,6 +43,9 @@ struct varinfo *defcost;
 int Xstackflag=0; /* set in coercions, moves, and tests. %1 means something
 		     different then.
 		   */
+
+/* From lexer */
+int yylex(void);
 
 struct varinfo *gen_inst(),*gen_move(),*gen_test(),*gen_preturn(),*gen_tlab();
 struct varinfo *gen_label(), *make_erase();

@@ -4,7 +4,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <unistd.h>
 #include "param.h"
 #include "varinfo.h"
 
@@ -20,7 +20,7 @@
 void yyparse(void);
 
 char *filename;
-char *beg_sbrk;
+void *beg_sbrk;
 
 int main(int argc, char *argv[])
 {

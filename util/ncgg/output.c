@@ -51,6 +51,8 @@ FILE *code;
 short *lineset;
 int maxline;
 
+extern void *beg_sbrk;
+
 extern int nstrings;
 extern char *l_strings[];
 
@@ -922,7 +924,6 @@ void used(char *resource, int use, int max)
 
 void statistics()
 {
-	extern char *beg_sbrk,*sbrk();
 	extern int nnodes, maxempatlen,maxrule;
 
 	used("Registers",nregs,MAXREGS);

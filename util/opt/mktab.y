@@ -45,7 +45,8 @@ int CBO_instrs[] = {
 	/* don't add op_mli and op_mlu! */
 };
 
-
+int yylex(void);
+int lookup(int comm, int operator, int lnode, int rnode);
 void enter(char *name, int value);
 void yyerror(char *s);
 void printnodes();
