@@ -1,8 +1,4 @@
 %{
-
-#ifndef NORCSID
-static char rcsid2[]="$Id$";
-#endif
 /*
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
@@ -13,6 +9,7 @@ static char rcsid2[]="$Id$";
 #define MAXBACKUP 50
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <assert.h>
 #include <em_spec.h>
 #include <em_flag.h>
@@ -21,11 +18,8 @@ static char rcsid2[]="$Id$";
 #include "booth.h"
 #include "y.tab.h"
 
-void yyerror(string s);
-
 int lineno = 1;
 extern char *iname;
-extern char *scopy();
 %}
 
 %p 2000
@@ -160,9 +154,13 @@ return			return(RETURN);
 .                       return(yytext[0]);
 %%
 
-void yyerror(string s)
+void yyerror(string s, ...)
 {
+	va_list va;
+	va_start(va, s);
 	fprintf(stderr,"\"%s\", line %d:",iname ? iname : "",lineno);
+	vfprintf(stderr, s, va);
+	va_end(va);
 	fprintf(stderr,"\n");
         nerrors++;
 }

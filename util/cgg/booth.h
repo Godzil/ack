@@ -217,7 +217,35 @@ extern int rvnumbers[4][MAXREGVARS];	/* The register numbers */
 #define MUST1BEBOOL(e) int exp1=e.expr_index;tstbool(e)
 #define MUST2BEBOOL(e1,e2) int exp1=e1.expr_index,exp2=e2.expr_index;tstbool(e1);tstbool(e2)
 
-extern ident_p ilookup();
-extern list2 lookstruct();
-extern string scopy();
-extern unsigned hash();
+ident_p ilookup(string name, int enterf);
+list2 lookstruct(list2 ll);
+string scopy(string s);
+unsigned hash(string name);
+int argtyp(int mn);
+int findstructel(int number, string name, int *t);
+int eqregclass(int r1, int r2);
+void inbetween();
+int strlookup(string s);
+void tabovf(string tablename);
+int max(int a, int b);
+int structsize(list2 s);
+void setfields(token_p tp, string format);
+void tstint(expr_t e);
+void outbyte(int n);
+void out(int n);
+void patbyte(int n);
+void patshort(int n);
+void pat(int n);
+int mlookup(char *name);
+ident_p ilookup(string name, int enterf);
+int exprlookup(set_t sett);
+void tstbool(expr_t e);
+int stringno(string s);
+int lookup(int comm, int operator, int lnode, int rnode);
+void chkregexp(int number);
+int commontype(expr_t e1, expr_t e2);
+int instno(inst_t inst);
+
+void yyerror(char *, ...);
+int yyparse(void);
+int yylex(void);

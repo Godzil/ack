@@ -48,7 +48,7 @@ void tstbool(expr_t e)
 		yyerror("Must be boolean expression");
 }
 
-int structsize(register list2 s)
+int structsize(list2 s)
 {
 	list1 l;
 	int sum;
