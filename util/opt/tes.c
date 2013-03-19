@@ -1,12 +1,8 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
 /*
  * This file contains the main part of the top element size computation phase. 
  *
  * Author: Hans van Eck. 
  */
-
 #include <stdio.h>
 #include <em_spec.h>
 #include <em_mnem.h>
@@ -20,12 +16,10 @@ static char rcsid[] = "$Id$";
 #include "line.h"
 #include "ext.h"
 #include "pop_push.h"
+#include "util.h"
 
 extern char *pop_push[];
 extern char flow_tab[];
-
-void assign_label(num_p label);
-void do_inst_label(line_p lnp);
 
 #define NON_CONTINUABLE(i)	(flow_tab[i]&JUMP)
 #define ISABRANCH(i)		(flow_tab[i]&HASLABEL)

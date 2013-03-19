@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef UTIL_OPT_LOOKUP_H
+#define UTIL_OPT_LOOKUP_H
 
 #define IDL	100
 
@@ -28,3 +30,5 @@ extern sym_p symhash[NSYMHASH],symlookup();
 #define OCCURRING	0
 #define DEFINING	1
 #define NOTHING		2
+
+#endif /* UTIL_OPT_LOOKUP_H */

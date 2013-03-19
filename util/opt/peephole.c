@@ -1,7 +1,10 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
+#include <stdio.h>
 #include "param.h"
 #include "types.h"
 #include "tes.h"
@@ -15,20 +18,9 @@ static char rcsid[] = "$Id$";
 #include <em_mnem.h>
 #include "optim.h"
 #include "ext.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-
-#undef CHK_HASH	/* print numbers patterns are hashed to */
-#ifdef CHK_HASH
-#include <stdio.h>
-#endif
-
-int optimize();
+#include "util.h"
+#include "peephole.h"
+#include "reg.h"
 
 #define ILLHASH 0177777
 short pathash[256];	/* table of indices into pattern[] */

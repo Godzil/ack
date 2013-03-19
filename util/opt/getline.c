@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include "param.h"
@@ -11,19 +13,15 @@ static char rcsid[] = "$Id$";
 #include "lookup.h"
 #include "alloc.h"
 #include "proinf.h"
+#include "getline.h"
+#include "util.h"
+#include "process.h"
+#include "reg.h"
 #include <em_spec.h>
 #include <em_pseu.h>
 #include <em_flag.h>
 #include <em_mes.h>
 #include "ext.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-
 
 static  short   tabval;         /* temp store for shorts */
 static  offset  tabval2;        /* temp store for offsets */
@@ -43,9 +41,6 @@ static  char    string[IDL+1];  /* temp store for names */
 #define ATEOF   264     /* bumped into end of file */
 
 #define readbyte getchar
-
-int inpseudo(short n);
-void tstinpro();
 
 short readshort()
 {

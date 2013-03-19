@@ -35,6 +35,9 @@ _PROTOTYPE(void C_ms_stb_pnam, (char *, int, int, char *));
 _PROTOTYPE(void C_ms_std, (char *, int, int));
 _PROTOTYPE(int  C_out, (struct e_instr *p));
 
+_PROTOTYPE(void error, (char *, ...));
+_PROTOTYPE(void fatal, (char *, ...));
+
 #ifdef PEEPHOLE
 #include "em_codeO.h"
 #include "emO_code.h"

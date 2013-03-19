@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef UTIL_OPT_TYPES_H
+#define UTIL_OPT_TYPES_H
 
 typedef char byte;
 typedef char bool;
@@ -23,3 +25,5 @@ typedef long offset;
 #else
 typedef short offset;
 #endif
+
+#endif /* UTIL_OPT_TYPES_H */

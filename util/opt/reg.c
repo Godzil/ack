@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "assert.h"
 #include "param.h"
 #include "types.h"
@@ -13,13 +15,8 @@ static char rcsid[] = "$Id$";
 #include <em_pseu.h>
 #include <em_mes.h>
 #include "ext.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
+#include "util.h"
+#include "putline.h"
 
 void regvar(arg_p ap)
 {
@@ -101,9 +98,9 @@ void outtes() {
 
 void incregusage(offset off)
 {
+#ifndef GLOBAL_OPT
 	reg_p rp;
 
-#ifndef GLOBAL_OPT
 	/* If we're optimizing the output of the global optimizer
 	 * we must not change the count fields of the register messages.
 	 */

@@ -3,20 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
-
-extern line_p 	newline();
-extern offset	*newrom();
-extern sym_p	newsym();
-extern num_p	newnum();
-extern arg_p	newarg();
-extern argb_p	newargb();
-extern reg_p	newreg();
-
-
-
-void oldline(line_p lnp);
-void oldargb(argb_p abp);
-void oldreg(reg_p rp);
+#ifndef UTIL_OPT_ALLOC_H
+#define UTIL_OPT_ALLOC_H
 
 #define USEMALLOC	/* if defined malloc() and free() are used */
 
@@ -49,3 +37,21 @@ void oldreg(reg_p rp);
 #define STACKROOM 1	/* 0 gives problems */
 
 #endif	/* USEMALLOC */
+
+/* util/opt/alloc.c */
+line_p newline(int optyp);
+void oldline(line_p lnp);
+arg_p newarg(int kind);
+void oldargs(arg_p ap);
+void oldargb(argb_p abp);
+reg_p newreg(void);
+void oldreg(reg_p rp);
+num_p newnum(void);
+void oldnum(num_p lp);
+offset *newrom(void);
+sym_p newsym(int len);
+argb_p newargb(void);
+void coreinit(short *p1, short *p2);
+short *myalloc(int size);
+
+#endif /* UTIL_OPT_ALLOC_H */

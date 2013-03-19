@@ -1,6 +1,10 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
+#include <stdlib.h>
 
 #include "param.h"
 #include "types.h"
@@ -16,24 +20,8 @@ static char rcsid[] = "$Id$";
 #include "proinf.h"
 #include "optim.h"
 #include "ext.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-void putargs(arg_p ap);
-void putstr(argb_p abp);
-void outdef(sym_p sp);
-void outocc(sym_p sp);
-void outinst(int m);
-void outoff(offset off);
-void outint(short i);
-void outshort(short i);
-void numlab(num_p np);
-void outnum(num_p np);
-void outsym(sym_p sp);
+#include "util.h"
+#include "putline.h"
 
 #define outbyte(b) putc(b,outfile)
 

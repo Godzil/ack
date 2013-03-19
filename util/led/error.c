@@ -35,6 +35,7 @@ void fatal(char *format, ...)
 	va_start(ap, format);
 	nerrors++;
 	diag("fatal", format, ap);
+	va_end(ap);
 	stop();
 }
 

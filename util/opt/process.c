@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "param.h"
 #include "types.h"
 #include "tes.h"
@@ -13,20 +15,13 @@ static char rcsid[] = "$Id$";
 #include "lookup.h"
 #include "proinf.h"
 #include "ext.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-
-void relabel();
-void symknown();
-void cleanlocals();
-void checklocs();
-void symvalue();
-void do_tes();
+#include "util.h"
+#include "backward.h"
+#include "process.h"
+#include "peephole.h"
+#include "flow.h"
+#include "putline.h"
+#include "reg.h"
 
 void process()
 {

@@ -2,10 +2,6 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
 #if __STDC__
 #include	<stdarg.h>
 #endif
@@ -23,18 +19,22 @@ static char rcsid[] = "$Id$";
 #include <stdio.h>
 #include <stdlib.h>
 #include "system.h"
+#include <em_arith.h>
+#include <em_label.h>
 #include "em_pseu.h"
 #include "em_mnem.h"
 #include "em_spec.h"
 #include "em_flag.h"
 #include "em_ptyp.h"
-#include "em.h"
 #include "em_comp.h"
+#include "em.h"
+#include <em_code.h>
 
 #if __STDC__
 void error(char *fmt, ...);
 void fatal(char *fmt, ...);
 #else
+#include "print.h"
 void error();
 void fatal();
 #endif
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 void error(char *fmt, ...)
 {
 	va_list ap;
-	fprint(stderr,
+	fprintf(stderr,
 		"%s, line %d: ",
 		filename ? filename : "standard input",
 		EM_lineno);
@@ -104,7 +104,7 @@ void fatal(char *fmt, ...)
 
 	if (C_busy()) C_close();
 
-	fprint(stderr,
+	fprintf(stderr,
 		"%s, line %d: ",
 		filename ? filename : "standard input",
 		EM_lineno);

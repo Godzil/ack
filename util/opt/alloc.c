@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -13,13 +15,7 @@ static char rcsid[] = "$Id$";
 #include "line.h"
 #include "lookup.h"
 #include "proinf.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
+#include "util.h"
 
 #ifdef USEMALLOC
 
@@ -438,7 +434,7 @@ short *freshcore(int size)
 
 #else	/* USEMALLOC */
 
-void coreinit() {
+void coreinit(short *p1, short *p2) {
 
 	/*
 	 * Empty function, no initialization needed

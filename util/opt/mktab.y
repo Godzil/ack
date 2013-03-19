@@ -1,8 +1,4 @@
 %{
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,6 +32,9 @@ bool	nonumlab[N_EX_OPS];
 bool	onlyconst[N_EX_OPS];
 int	nerrors=0;
 char	patid[128];
+
+/* fileno is not C89 and can be missing sometimes. */
+int fileno(FILE *stream);
 
 int CBO_instrs[] = {
 	op_adi,
@@ -341,11 +340,11 @@ void printnodes()
 
 	printf("};\n\nshort lastind = %d;\n\nexpr_t enodes[] = {\n",prevind);
 	for (p=nodes;p<lastnode;p++)
-		printf("/* %3ld */\t%3d,%6u,%6u,\n",
+		printf("/* %3ld */\t { %3d,%6u,%6u },\n",
 			(long)(p-nodes),p->ex_operator,p->ex_lnode,p->ex_rnode);
 	printf("};\n\niarg_t iargs[%d];\n", (maxpatlen>0 ? maxpatlen : 1));
 	if (patid[0])
-		printf("static char rcsid[] = %s;\n",patid);
+		printf("/*rcsid: %s*/\n",patid);
 }
 
 void initio()

@@ -1,7 +1,3 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include "param.h"
@@ -10,6 +6,8 @@ static char rcsid[] = "$Id$";
 #include "lookup.h"
 #include "alloc.h"
 #include "proinf.h"
+#include "util.h"
+#include "lookup.h"
 
 /*
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.

@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "param.h"
 #include "types.h"
 #include "tes.h"
@@ -13,17 +15,7 @@ static char rcsid[] = "$Id$";
 #include "proinf.h"
 #include "optim.h"
 #include "ext.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-
-void findreach();
-void reach(line_p lnp);
-void cleaninstrs();
+#include "flow.h"
 
 void flow()
 {

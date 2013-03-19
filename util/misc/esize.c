@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "object.h"
+
 #ifndef	MAGIC
 #define	MAGIC		07255
 #endif	/* MAGIC */
@@ -35,6 +37,7 @@ long ptr8;
 
 void esize(char *fname);
 void rd_close();
+int rd_header();
 
 int main(int argc, char *argv[])
 {

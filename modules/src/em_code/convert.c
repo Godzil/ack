@@ -28,11 +28,10 @@ static char rcsid[] = "$Id$";
 char *filename;			/* Name of input file */
 int errors;			/* Number of errors */
 
-main(argc,argv)
-	char **argv;
+int main(int argc, char *argv[])
 {
 	struct e_instr buf;
-	register struct e_instr *p = &buf;
+	struct e_instr *p = &buf;
 
 	if (argc >= 2) {
 		filename = argv[1];
@@ -68,22 +67,34 @@ main(argc,argv)
 }
 
 /* VARARGS */
-error(s,a1,a2,a3,a4)
-	char *s;
+static int verror(char *s, va_list ap)
 {
-	fprint(STDERR,
+	fprintf(stderr,
 		"%s, line %d: ",
 		filename ? filename : "standard input",
 		EM_lineno);
-	fprint(STDERR,s,a1,a2,a3,a4);
-	fprint(STDERR, "\n");
+	vfprintf(stderr, s, ap);
+	fprintf(stderr, "\n");
 	errors++;
+	return 0;
 }
 
-/* VARARGS */
-fatal(s,a1,a2,a3,a4)
-	char *s;
+int error(char *s, ...)
 {
-	error(s,a1,a2,a3,a4);
+	va_list ap;
+	va_start(ap, s);
+	verror(s, ap);
+	va_end(ap);
+	return 0;
+}
+
+/*VARARGS1*/
+int fatal(char *s, ...)
+{
+	va_list ap;
+	va_start(ap, s);
+	verror(s, ap);
+	va_end(ap);
 	exit(1);
+	return 0;
 }

@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef UTIL_OPT_PATTERN_H
+#define UTIL_OPT_PATTERN_H
 
 /*
  * pattern contains the optimization patterns in an apparently
@@ -128,3 +130,5 @@ extern byte nparam[];
 extern bool nonumlab[];
 extern bool onlyconst[];
 extern expr_t enodes[];
+
+#endif /* UTIL_OPT_PATTERN_H */

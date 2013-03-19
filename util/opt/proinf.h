@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef UTIL_OPT_PROINF_H
+#define UTIL_OPT_PROINF_H
 
 struct num {
 	num_p	n_next;
@@ -42,3 +44,5 @@ typedef struct proinf {
 } proinf;
 
 extern proinf curpro;
+
+#endif /* UTIL_OPT_PROINF_H */

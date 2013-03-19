@@ -1,22 +1,24 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include "param.h"
-#include "types.h"
-#include "tes.h"
-#include "alloc.h"
-#include <em_spec.h>
-#include "ext.h"
-
 /*
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  *
  * Author: Hans van Staveren
  */
+#include <stdlib.h>
+#include <stdio.h>
+#include "param.h"
+#include "types.h"
+#include "tes.h"
+#include "alloc.h"
+#include "util.h"
+#include "getline.h"
+#include "cleanup.h"
+#include "util.h"
+#include "putline.h"
+#include <em_spec.h>
+#include "ext.h"
+
+#include <missing_proto.h>
 
 /*
  * Main program for EM optimizer

@@ -2,24 +2,19 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef NORCSID
-static char rcsid1[] = "$Id$";
-#endif
-
 /*	This is the main program for the stand-alone version of the
 	peephole optimizer.
 */
-
+#include	<stdarg.h>
 #include	"nopt.h"
 
 char *filename;			/* Name of input file */
 int errors;			/* Number of errors */
 
-main(argc,argv)
-	char **argv;
+int main(int argc, char *argv[])
 {
 	static struct e_instr buff;
-	register p_instr p = &buff;
+	p_instr p = &buff;
 
 	if (argc >= 2) {
 		filename = argv[1];
@@ -93,22 +88,34 @@ main(argc,argv)
 }
 
 /*VARARGS1*/
-error(s,a1,a2,a3,a4)
-	char *s;
+static int verror(char *s, va_list ap)
 {
 	fprintf(stderr,
 		"%s, line %d: ",
 		filename ? filename : "standard input",
 		EM_lineno);
-	fprintf(stderr,s,a1,a2,a3,a4);
+	vfprintf(stderr, s, ap);
 	fprintf(stderr, "\n");
 	errors++;
+	return 0;
+}
+
+int error(char *s, ...)
+{
+	va_list ap;
+	va_start(ap, s);
+	verror(s, ap);
+	va_end(ap);
+	return 0;
 }
 
 /*VARARGS1*/
-fatal(s,a1,a2,a3,a4)
-	char *s;
+int fatal(char *s, ...)
 {
-	error(s,a1,a2,a3,a4);
+	va_list ap;
+	va_start(ap, s);
+	verror(s, ap);
+	va_end(ap);
 	exit(1);
+	return 0;
 }
