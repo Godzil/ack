@@ -9,9 +9,9 @@
  */
 
 #include <stdio.h>
+#include "debug.h"
 
-FILE *openfile(name,mode)
-	char *name,*mode;
+FILE *openfile(char *name, char *mode)
 {
 	FILE *f;
 

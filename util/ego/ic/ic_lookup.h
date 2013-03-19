@@ -74,3 +74,5 @@ void cleandblocks(sym_p hash[], int n, int mask);
 					/* Make the names of all data blocks
 					 * for which d_flags1&mask = 0 invisible
 					 */
+
+void dump_dblocknames(sym_p hash[], int n, FILE *f);

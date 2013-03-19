@@ -52,3 +52,5 @@ long putcc(calcnt_p head, FILE *ccf);
 				/* Write call-count information to
 				 * file ccf.
 				 */
+
+void remunit(short kind, proc_p p, line_p l);

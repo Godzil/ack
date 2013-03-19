@@ -26,6 +26,7 @@
 #include "../share/get.h"
 #include "../share/put.h"
 #include "../share/def.h"
+#include "../share/aux.h"
 #include "cf.h"
 #include "cf_succ.h"
 #include "cf_idom.h"

@@ -18,6 +18,8 @@
 #include "../share/global.h"
 #include "../share/lset.h"
 #include "../share/aux.h"
+#include "../share/cset.h"
+#include "il_aux.h"
 #include "il1_aux.h"
 #include "il1_formal.h"
 #include "il1_cal.h"

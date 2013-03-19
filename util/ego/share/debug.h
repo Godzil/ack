@@ -5,6 +5,8 @@
  */
 /* D E B U G G I N G   T O O L S */
 
+#include "types.h"
+
 /* TEMPORARY: */
 /* #define DEBUG */
 

@@ -18,6 +18,7 @@
 #include "lset.h"
 #include "alloc.h"
 #include "put.h"
+#include "cset.h"
 
 FILE *curoutp;
 
@@ -36,10 +37,7 @@ static void putstr(argb_p abp);
 static void outlab(lab_id lid);
 static void outobject(obj_p obj);
 static void putstr(argb_p abp);
-void outshort(short i);
 static void putstr(argb_p abp);
-
-
 
 static void putargs(arg_p ap)
 {

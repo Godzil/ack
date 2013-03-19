@@ -20,6 +20,7 @@
 #include "il_aux.h"
 #include "il2_aux.h"
 #include "../share/get.h"
+#include "../share/cset.h"
 #include "../share/aux.h"
 
 #define USE_INDIR(p)	(p->p_use->u_flags & UF_INDIR)

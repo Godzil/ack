@@ -19,6 +19,7 @@
 #include "../share/global.h"
 #include "../share/lset.h"
 #include "il1_aux.h"
+#include "il_aux.h"
 #include "../share/parser.h"
 
 static actual_p acts, *app;

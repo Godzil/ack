@@ -161,7 +161,6 @@ static void new_name(char **s)
 {
 	static int nn = 0;
 	char buf[20];
-	int len = strlen(*s);
 
 	oldcore(*s, len+1);
 	buf[0] = '_';

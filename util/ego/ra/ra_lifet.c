@@ -25,7 +25,8 @@
 #include "ra_aux.h"
 #include "ra_items.h"
 #include "ra_lifet.h"
-
+#include "ra_interv.h"
+#include "ra_profits.h"
 
 #define MSG_OFF(l)	aoff(ARG(l),2)
 #define is_livemsg(l)	(INSTR(l) == ps_mes && aoff(ARG(l),0) == ms_ego && \

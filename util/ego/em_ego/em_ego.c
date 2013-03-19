@@ -10,6 +10,9 @@
 #include <em_path.h>
 #include <signal.h>
 #include <system.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include "../share/debug.h"
 
 #define	IC	1
 #define CF	2
@@ -89,7 +92,7 @@ static void cleanup()
 	register int i;
 
 	for (i = NTEMPS*2; i > 0; i--) {
-		register char	*f = phargs[i];
+		char	*f = phargs[i];
 		if (f != 0 && *f != '\0' && *f != '-') (void) unlink(f);
 	}
 	if (ddump[0] != '\0') (void) unlink(ddump);
@@ -102,9 +105,9 @@ static void fatal(char *s, char *s2)
 {
   /*	A fatal error occurred; exit gracefully */
 
-  fprint(STDERR, "%s: ", prog_name);
-  fprint(STDERR, s, s2);
-  fprint(STDERR, "\n");
+  fprintf(stderr, "%s: ", prog_name);
+  fprintf(stderr, s, s2);
+  fprintf(stderr, "\n");
   cleanup();
   sys_stop(S_EXIT);
   /*NOTREACHED*/
@@ -149,9 +152,9 @@ static void get_infiles()
 {
   /*	Make output temps from previous phase input temps of next phase. */
 
-  register int	i;
-  register char	**dst = &phargs[1];
-  register char	**src = &phargs[NTEMPS+1];
+  int	i;
+  char	**dst = &phargs[1];
+  char	**src = &phargs[NTEMPS+1];
 
   for (i = 1; i <= NTEMPS; i++) {
 	*dst++ = *src++;
@@ -164,8 +167,8 @@ static void new_outfiles()
   static int	Bindex = 0;
   static char	dig1 = '1';
   static char	dig2 = '0';
-  register int	i;
-  register char	**dst = &phargs[NTEMPS+1];
+  int	i;
+  char	**dst = &phargs[NTEMPS+1];
 
   if (! Bindex) {
 	Bindex = strrchr(tmpbufs[0], 'B') - tmpbufs[0];
@@ -190,8 +193,8 @@ static void run_phase(int phase)
 	IC and CA.
   */
   static int flags_added;
-  register int	argc;
-  register int	i;
+  int	argc;
+  int	i;
   char	buf[256];
   int	pid, status;
 
@@ -242,10 +245,10 @@ static void run_phase(int phase)
 		register int i = 0;
 
 		while (phargs[i]) {
-			fprint(STDERR, "%s ", phargs[i]);
+			fprintf(stderr, "%s ", phargs[i]);
 			i++;
 		}
-		fprint(STDERR, "\n");
+		fprintf(stderr, "\n");
 	}
 	(void) execv(phargs[0], phargs);
 	fatal("Could not exec %s", phargs[0]);

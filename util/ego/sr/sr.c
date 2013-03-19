@@ -23,6 +23,7 @@
 #include "../share/aux.h"
 #include "sr_aux.h"
 #include "sr_iv.h"
+#include "sr_reduce.h"
 
 /* Strength reduction tries to change expensive operators occurring
  * in a loop into cheaper operators. The expensive operators considered

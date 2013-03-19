@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+
+#include <missing_proto.h>
 #include <em_path.h>
 #include <em_mnem.h>
 #include <em_pseu.h>
@@ -20,9 +23,11 @@
 #include "../share/files.h"
 #include "../share/map.h"
 #include "il_aux.h"
+#include "il1_aux.h"
 #include "il1_anal.h"
 #include "il2_aux.h"
 #include "il3_subst.h"
+#include "il3_change.h"
 #include "../share/get.h"
 #include "../share/put.h"
 #include "../share/go.h"

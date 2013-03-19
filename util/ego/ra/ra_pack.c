@@ -20,6 +20,7 @@
 #include "ra.h"
 #include "ra_aux.h"
 #include "ra_interv.h"
+#include "ra_profits.h"
 
 
 short regs_occupied[NRREGTYPES];	/* #occupied registers for reg_pointer,

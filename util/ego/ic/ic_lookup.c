@@ -18,6 +18,7 @@
 #include "../share/map.h"
 #include "ic.h"
 #include "ic_lookup.h"
+#include "ic_io.h"
 #include "../share/alloc.h"
 
 

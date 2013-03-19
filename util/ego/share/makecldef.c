@@ -34,7 +34,7 @@ void convert(FILE *mnemfile, FILE *classfile)
 
 	newcl = TRUE;
 	printf("struct class classtab[] = {\n");
-	printf("\tNOCLASS,\tNOCLASS,\n");
+	printf("\t{ NOCLASS,\tNOCLASS },\n");
 	/* EM mnemonics start at 1, arrays in C at 0 */
 	for (;;) {
 		fscanf(mnemfile,"%s%s%d",def,mnem1,&opc);
@@ -51,10 +51,10 @@ void convert(FILE *mnemfile, FILE *classfile)
 			/* there is no line for this mnemonic, so
 			 * it has no class.
 			 */
-			printf("\tNOCLASS,\tNOCLASS,\n");
+			printf("\t { NOCLASS,\tNOCLASS },\n");
 			newcl = FALSE;
 		} else {
-			printf("\tCLASS%d,\t\tCLASS%d,\n",src,res);
+			printf("\t { CLASS%d,\t\tCLASS%d },\n",src,res);
 			/* print a line like "CLASS8, CLASS1," */
 			newcl = TRUE;
 		}

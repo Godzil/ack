@@ -278,7 +278,6 @@ static void bo_cleanproc(proc_p p)
 
 	loop_p lp;
 	Lindex pi;
-	bblock_p b;
 
 	for (pi = Lfirst(p->p_loops); pi != (Lindex) 0;
 	   pi = Lnext(pi,p->p_loops)) {

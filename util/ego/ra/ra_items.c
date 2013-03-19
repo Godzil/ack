@@ -175,9 +175,9 @@ static bool lt_item(item_p a, item_p b)
  */
 
 
-
+#if 0
 static item_p items[NRITEMTYPES];  /* items[i] points to the list of type i */
-
+#endif
 
 
 static short reg_type(item_p item)

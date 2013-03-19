@@ -4,7 +4,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* I N T E R N A L   D A T A S T R U C T U R E S   O F   E G O  */
-
+#ifndef UTIL_EGO_SHARE_TYPES_H
+#define UTIL_EGO_SHARE_TYPES_H
 
 /* This file contains the definitions of the global data types.
  */
@@ -422,3 +423,4 @@ struct cond_tab {
 #define IN_0_63		2
 #define IN_0_8		3
 
+#endif /* UTIL_EGO_SHARE_TYPES_H */

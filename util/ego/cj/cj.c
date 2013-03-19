@@ -56,7 +56,7 @@
 
 static int Scj;  /* number of optimizations found */
 
-static void showinstr(line_p lnp);
+/* static void showinstr(line_p lnp); */
 
 #define DLINK(l1,l2)	l1->l_next=l2; l2->l_prev=l1
 
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
 /******
  * Debugging stuff
  */
-
+#if 0
 extern char em_mnem[]; /* The mnemonics of the EM instructions. */
 
 static void showinstr(line_p lnp)
@@ -350,3 +350,5 @@ static void showinstr(line_p lnp)
     }
     printf("\n");
 } /* showinstr */
+
+#endif

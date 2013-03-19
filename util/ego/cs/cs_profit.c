@@ -15,6 +15,7 @@
 #include "../share/lset.h"
 #include "cs.h"
 #include "cs_aux.h"
+#include "cs_alloc.h"
 #include "cs_debug.h"
 #include "cs_avail.h"
 #include "cs_partit.h"

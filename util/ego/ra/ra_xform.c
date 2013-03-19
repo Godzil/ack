@@ -268,12 +268,12 @@ static void apply_alloc(bblock_p b, line_p l, alloc_p alloc)
 
 static int loaditem_tab[NRITEMTYPES][2] =
 {	/* 		WS		2 * WS */
-	/*LOCALVAR*/	op_lol,		op_ldl,
-	/*LOCAL_ADDR*/	op_lal,		op_lal,
-	/*GLOBL_ADDR*/	op_lae,		op_lae,
-	/*PROC_ADDR*/	op_lpi,		op_lpi,
-	/*CONST*/	op_loc,		op_nop,
-	/*DCONST*/	op_nop,		op_ldc
+	/*LOCALVAR*/	{ op_lol,		op_ldl },
+	/*LOCAL_ADDR*/	{ op_lal,		op_lal },
+	/*GLOBL_ADDR*/	{ op_lae,		op_lae },
+	/*PROC_ADDR*/	{ op_lpi,		op_lpi },
+	/*CONST*/		{ op_loc,		op_nop },
+	/*DCONST*/		{ op_nop,		op_ldc }
 };
 
 
