@@ -11,25 +11,32 @@ for fil in /tmp/ack-temp/pmcache/*; do
 	fi
 done
 
+POSTFIX=".h"
+if [ -f ${file}.str ]; then
+	POSTFIX="_loc.h"
+fi
 
-if [ ! -f ${file}.h ]; then
+if [ ! -f ${file}${POSTFIX} ]; then
 	echo "No header, building it"
-	touch ${file}.h
-	cat > ${file}.h <<EOF
+	# Be carefull if a ${file}.str file exist use _loc.h postfix.
+	
+	HEADERMAGIC=`echo ${file}.h | tr '[.-/]' '_' | tr '[a-z]' '[A-Z]'`
+	BASE=`dirname ${file}.c`
+
+	touch ${file}${POSTFIX}
+	cat > ${file}${POSTFIX} <<EOF
 /*
  * The Amsterdam Compiler Kit
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 EOF
-	HEADERMAGIC=`echo ${file}.h | tr '[.-/]' '_' | tr '[a-z]' '[A-Z]'`
-	BASE=`dirname ${file}.c`
-	echo "#ifndef ${HEADERMAGIC}" >> ${file}.h
-	echo "#define ${HEADERMAGIC}" >> ${file}.h
-	echo "" >> ${file}.h
-	cproto -U__BLOCKS__ ${INCPATH[*]} ${file}.c >> ${file}.h
-	echo "" >> ${file}.h
-	echo "#endif /* ${HEADERMAGIC} */" >> ${file}.h
-	echo "" >> ${file}.h
+	echo "#ifndef ${HEADERMAGIC}" >> ${file}${POSTFIX}
+	echo "#define ${HEADERMAGIC}" >> ${file}${POSTFIX}
+	echo "" >> ${file}${POSTFIX}
+	cproto -U__BLOCKS__ ${INCPATH[*]} ${file}.c >> ${file}${POSTFIX}
+	echo "" >> ${file}${POSTFIX}
+	echo "#endif /* ${HEADERMAGIC} */" >> ${file}${POSTFIX}
+	echo "" >> ${file}${POSTFIX}
 else
 	echo "Header existing... try to update.. (manual check should be done)"
 	cp ${file}.h ${file}.h.old
@@ -45,5 +52,6 @@ else
 	echo "" >> ${file}.h.new
 	
 	cp ${file}.h.new ${file}.h
+	rm ${file}.h.new
 	#
 fi
