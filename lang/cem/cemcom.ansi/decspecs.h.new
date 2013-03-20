@@ -21,6 +21,10 @@ struct decspecs	{
 
 extern struct decspecs null_decspecs;
 
+void do_decspecs(struct decspecs *ds);
+struct type *qualifier_type(struct type *tp, int typequal);
+
+
 /* lang/cem/cemcom.ansi/decspecs.c */
 void do_decspecs(struct decspecs *ds);
 struct type *qualifier_type(struct type *tp, int typequal);

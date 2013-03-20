@@ -32,6 +32,10 @@
 #include 	"code_c.h"
 #include	"conversion.h"
 #include	"cstoper.h"
+#include	"expr_loc.h"
+#include 	"error.h"
+
+#include	<symbol2str.h>
 
 extern char options[];
 

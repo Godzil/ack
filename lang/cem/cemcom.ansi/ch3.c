@@ -24,6 +24,9 @@
 #include	"ch3bin.h"
 #include	"decspecs.h"
 #include	"conversion.h"
+#include	"error.h"
+#include 	"idf_loc.h"
+#include	"expr_loc.h"
 #include	<symbol2str.h>
 
 extern char options[];

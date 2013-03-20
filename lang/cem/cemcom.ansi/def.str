@@ -4,6 +4,8 @@
  */
 /* $Id$ */
 /* IDENTIFIER DEFINITION DESCRIPTOR */
+#ifndef LANG_CEM_CEMCOM_ANSI_DEF_STR
+#define LANG_CEM_CEMCOM_ANSI_DEF_STR
 
 #include	"lint.h"
 
@@ -38,3 +40,6 @@ struct def	{		/* for ordinary tags */
 #define REG_BONUS	10	/* register candidate, declared as such */
 
 /* ALLOCDEF "def" 50 */
+
+
+#endif /* LANG_CEM_CEMCOM_ANSI_DEF_STR */

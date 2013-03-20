@@ -10,8 +10,9 @@
 #include	"arith.h"
 #include	"LLlex.h"
 #include	"Lpars.h"
+#include	"error.h"
 
-char *symbol2str(int tok);
+#include 	<symbol2str.h>
 
 void insert_token(int tk);
 

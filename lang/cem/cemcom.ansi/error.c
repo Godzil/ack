@@ -66,7 +66,7 @@ static _error();
 
 #if __STDC__
 /*VARARGS*/
-error(char *fmt, ...)
+void error(char *fmt, ...)
 {
 	va_list ap;
 
@@ -78,7 +78,7 @@ error(char *fmt, ...)
 }
 
 /*VARARGS*/
-expr_error(struct expr *expr, char *fmt, ...)
+void expr_error(struct expr *expr, char *fmt, ...)
 {
 	va_list ap;
 
@@ -94,7 +94,7 @@ expr_error(struct expr *expr, char *fmt, ...)
 }
 
 /*VARARGS*/
-lexstrict(char *fmt, ...)
+void lexstrict(char *fmt, ...)
 {
 	va_list ap;
 
@@ -106,7 +106,7 @@ lexstrict(char *fmt, ...)
 }
 
 /*VARARGS*/
-strict(char *fmt, ...)
+void strict(char *fmt, ...)
 {
 	va_list ap;
 
@@ -118,7 +118,7 @@ strict(char *fmt, ...)
 }
 
 /*VARARGS*/
-expr_strict(struct expr *expr, char *fmt, ...)
+void expr_strict(struct expr *expr, char *fmt, ...)
 {
 	va_list ap;
 
@@ -134,7 +134,7 @@ expr_strict(struct expr *expr, char *fmt, ...)
 
 #ifdef DEBUG
 /*VARARGS*/
-debug(char *fmt, ...)
+void debug(char *fmt, ...)
 {
 	va_list ap;
 
@@ -147,7 +147,7 @@ debug(char *fmt, ...)
 #endif /* DEBUG */
 
 /*VARARGS*/
-warning(char *fmt, ...)
+void warning(char *fmt, ...)
 {
 	va_list ap;
 
@@ -159,7 +159,7 @@ warning(char *fmt, ...)
 }
 
 /*VARARGS*/
-expr_warning(struct expr *expr, char *fmt, ...)
+void expr_warning(struct expr *expr, char *fmt, ...)
 {
 	va_list ap;
 
@@ -176,7 +176,7 @@ expr_warning(struct expr *expr, char *fmt, ...)
 #ifdef	LINT
 
 /*VARARGS*/
-def_warning(struct def *def, char *fmt, ...)
+void def_warning(struct def *def, char *fmt, ...)
 {
 	va_list ap;
 
@@ -189,7 +189,7 @@ def_warning(struct def *def, char *fmt, ...)
 
 
 /*VARARGS*/
-hwarning(char *fmt, ...)
+void hwarning(char *fmt, ...)
 {
 	va_list ap;
 
@@ -202,7 +202,7 @@ hwarning(char *fmt, ...)
 }
 
 /*VARARGS*/
-awarning(char *fmt, ...)
+void awarning(char *fmt, ...)
 {
 	va_list ap;
 
@@ -217,7 +217,7 @@ awarning(char *fmt, ...)
 #endif	/* LINT */
 
 /*VARARGS*/
-lexerror(char *fmt, ...)
+void lexerror(char *fmt, ...)
 {
 	va_list ap;
 
@@ -229,7 +229,7 @@ lexerror(char *fmt, ...)
 }
 
 /*VARARGS*/
-lexwarning(char *fmt, ...)
+void lexwarning(char *fmt, ...)
 {
 	va_list ap;
 
@@ -241,7 +241,7 @@ lexwarning(char *fmt, ...)
 }
 
 /*VARARGS*/
-crash(char *fmt, ...)
+void crash(char *fmt, ...)
 {
 	va_list ap;
 
@@ -261,7 +261,7 @@ crash(char *fmt, ...)
 }
 
 /*VARARGS*/
-fatal(char *fmt, ...)
+void fatal(char *fmt, ...)
 {
 	va_list ap;
 

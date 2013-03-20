@@ -1,5 +1,3 @@
-#ifndef LANG_CEM_CEMCOM_ANSI_DECSPECS_H
-#define LANG_CEM_CEMCOM_ANSI_DECSPECS_H
 /*
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
@@ -21,9 +19,6 @@ struct decspecs	{
 
 extern struct decspecs null_decspecs;
 
-/* lang/cem/cemcom.ansi/decspecs.c */
 void do_decspecs(struct decspecs *ds);
 struct type *qualifier_type(struct type *tp, int typequal);
-
-#endif /* LANG_CEM_CEMCOM_ANSI_DECSPECS_H */
 

@@ -22,6 +22,9 @@
 #include	"class.h"
 #include	"assert.h"
 #include	"sizes.h"
+#include	"error.h"
+#include	"domacro.h"
+#include	"replace.h"
 #include	"specials.h"	/* registration of special identifiers */
 
 /* Data about the token yielded */
@@ -314,7 +317,7 @@ garbage:
 		char *tg = &buf[0];
 		int pos = -1;
 		struct idf *idef;
-		int idfsize;		/* ??? */
+		int idfsize = 0;		/* ??? */
 #ifndef	NOPP
 		int NoExpandNext = 0;
 
@@ -712,17 +715,17 @@ void strflt2tok(char fltbuf[], struct token *ptok)
 	char *cp = fltbuf;
 	int malformed = 0;
 
-	while (is_dig(*cp)) cp++;
+	while (is_dig(*(unsigned char *)cp)) cp++;
 	if (*cp == '.') {
 		cp++;
-		while (is_dig(*cp)) cp++;
+		while (is_dig(*(unsigned char *)cp)) cp++;
 	}
 	if (*cp == 'e' || *cp == 'E') {
 		cp++;
 		if (*cp == '+' || *cp == '-')
 			cp++;
-		if (!is_dig(*cp)) malformed++;
-		while (is_dig(*cp)) cp++;
+		if (!is_dig(*(unsigned char *)cp)) malformed++;
+		while (is_dig(*(unsigned char *)cp)) cp++;
 	}
 	if (*cp == 'f' || *cp == 'F') {
 		if (*(cp + 1)) malformed++;
@@ -766,8 +769,8 @@ void strint2tok(char intbuf[], struct token *ptok)
 	 */
 	ubound = max_arith / (base / 2);
 
-	while (is_hex(*cp)) {
-		dig = hex_val(*cp);
+	while (is_hex(*(unsigned char *)cp)) {
+		dig = hex_val(*(unsigned char *)cp);
 		if (dig >= base) {
 			malformed++;			/* ignore */
 		}

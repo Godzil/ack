@@ -18,6 +18,11 @@
 #include "label.h"
 #include "stack.h"
 #include "Lpars.h"
+#include "util.h"
+#include "error.h"
+#include "idf_loc.h"
+#include "def.h"
+
 #define LocalPtrVar()	NewLocal(pointer_size, pointer_align, reg_pointer, REGISTER)
 #define LocalIntVar()	NewLocal(int_size, int_align, reg_any, REGISTER)
 

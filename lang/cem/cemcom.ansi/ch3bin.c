@@ -22,6 +22,11 @@
 #include	"ch3bin.h"
 #include 	"ch3mon.h"
 #include	"cstoper.h"
+#include	"error.h"
+#include	"expr_loc.h"
+#include	"struct_loc.h"
+#include	"fltcstoper.h"
+
 #include 	<symbol2str.h>
 
 extern char options[];
