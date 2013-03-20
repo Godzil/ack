@@ -56,7 +56,7 @@ int sbreak(ind_t incr)
 	if ((refused && refused < incr) ||
 	    (sizeof(char *) < sizeof(long) &&
 	     (inc != incr || BASE + inc < BASE)) ||
-	    brk(BASE + incr) == (void *)-1) {
+	    (void *)brk(BASE + incr) == (void *)-1) {
 		if (!refused || refused > incr)
 			refused = incr;
 		return -1;

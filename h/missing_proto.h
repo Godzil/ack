@@ -3,6 +3,7 @@
 
 #ifdef NOSBRK
 void *sbrk(__intptr_t increment);
+int   brk(void * addr);
 #endif
 
 #ifdef NOMKTEMP

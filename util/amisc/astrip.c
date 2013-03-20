@@ -13,10 +13,10 @@
 #include <signal.h>
 #include "out.h"
 #include "object.h"
+
+#include <missing_proto.h>
 /*
-
 	astrip -- remove symbols and relocation bits
-
 */
 
 char	temp_name[] = "/tmp/sXXXXXX";

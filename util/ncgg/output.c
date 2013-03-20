@@ -40,6 +40,8 @@ char	*cd_file=	"code";
 #include "regvar.h"
 #include "extern.h"
 
+#include <missing_proto.h>
+
 /* Since isascii is not standard, as c89 or C99, privide another method */
 #define IsAscii(_c) (((_c) & ~0x7f) == 0)
 
