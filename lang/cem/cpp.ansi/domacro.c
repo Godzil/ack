@@ -47,6 +47,7 @@ void do_if();
 void do_ifdef(int how);
 void do_undef(char *argstr);
 void do_error();
+void do_warning();
 void do_line(unsigned int l);
 
 void macro_def(struct idf *id, char *text, int nformals, int length, int flags);
@@ -144,6 +145,9 @@ void domacro()
 			}
 			else
 				do_line((unsigned int)tk.tk_val);
+			break;
+		case K_WARNING:				/* "warning" */
+			do_warning();
 			break;
 		case K_ERROR:				/* "error"	*/
 			do_error();
@@ -505,6 +509,17 @@ void do_undef(char *argstr)
 	}
 	else
 		error("illegal #undef construction");
+}
+
+void do_warning()
+{
+	int len;
+	char *get_text();
+	char *bp = get_text((char **) 0, &len);
+
+	warning("user warning: %s", bp);
+	free(bp);
+	LineNumber++;
 }
 
 void do_error()

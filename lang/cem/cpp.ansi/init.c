@@ -26,6 +26,7 @@ struct mkey	{
 	{"else",	K_ELSE},
 	{"endif",	K_ENDIF},
 	{"error",	K_ERROR},
+	{"warning",	K_WARNING},
 	{"if",		K_IF},
 	{"ifdef",	K_IFDEF},
 	{"ifndef",	K_IFNDEF},
