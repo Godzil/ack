@@ -23,6 +23,9 @@ void code_break();
 void code_continue();
 void stack_stmt(label break_label, label cont_label);
 void unstack_stmt();
+void formal_cvt(int hasproto, struct def *df);
+
+
 
 #ifdef DBSYMTAB
 void db_line(char *file, unsigned int line);

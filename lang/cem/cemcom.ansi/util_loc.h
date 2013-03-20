@@ -6,15 +6,15 @@
 #define LANG_CEM_CEMCOM_ANSI_UTIL_H
 
 /* lang/cem/cemcom.ansi/util.c */
-int LocalInit(void);
+void LocalInit(void);
 arith LocalSpace(arith sz, int al);
 arith NewLocal(arith sz, int al, int regtype, int sc);
-int FreeLocal(arith off);
-int LocalFinish(void);
-int RegisterAccount(arith offset, arith size, int regtype, int sc);
-int LoadLocal(arith off, arith sz);
-int StoreLocal(arith off, arith sz);
-int AddrLocal(arith off);
+void FreeLocal(arith off);
+void LocalFinish(void);
+void RegisterAccount(arith offset, arith size, int regtype, int sc);
+void LoadLocal(arith off, arith sz);
+void StoreLocal(arith off, arith sz);
+void AddrLocal(arith off);
 
 #endif /* LANG_CEM_CEMCOM_ANSI_UTIL_H */
 

@@ -14,13 +14,20 @@
 #include	"LLlex.h"
 #include	"type.h"
 #include	"idf.h"
+#include	"decspecs.h"
+#include	"declar.h"
+#include	"declarator.h"
 #include	"label.h"
 #include	"expr.h"
+#include	"expr_loc.h"
+#include	"proto_loc.h"
 #include	"code.h"
 #include	"sizes.h"
-#include "ch3.h"
+#include	"ch3.h"
 #include	"ch3bin.h"
-#include "ch3mon.h"
+#include	"ch3mon.h"
+#include	"error.h"
+
 int InSizeof = 0;	/* inside a sizeof- expression */
 int ResultKnown = 0;	/* result of the expression is already known */
 

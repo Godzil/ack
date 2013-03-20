@@ -26,9 +26,11 @@
 #include	"align.h"
 #include	"Lpars.h"
 #include	"field.h"
+#include	"field_loc.h"
+#include	"eval.h"
+#include	"util_loc.h"
 #include	"conversion.h"
 
-arith NewLocal();		/* util.c	*/
 extern arith full_mask[];	/* cstoper.c	*/
 
 /*	Eval_field() evaluates expressions involving bit fields.
@@ -43,14 +45,12 @@ extern arith full_mask[];	/* cstoper.c	*/
 	[3]	atype: the type in which the bitfield arithmetic is done;
 		and in which bitfields are stored!
 */
-eval_field(expr, code)
-	struct expr *expr;
-	int code;
+void eval_field(struct expr *expr, int code)
 {
 	int op = expr->OP_OPER;
-	register struct expr *leftop = expr->OP_LEFT;
-	register struct expr *rightop = expr->OP_RIGHT;
-	register struct field *fd = leftop->ex_type->tp_field;
+	struct expr *leftop = expr->OP_LEFT;
+	struct expr *rightop = expr->OP_RIGHT;
+	struct field *fd = leftop->ex_type->tp_field;
 	struct type *tp = leftop->ex_type->tp_up;
 	arith tmpvar = 0;
 	struct type *atype = ( tp->tp_unsigned
@@ -119,7 +119,7 @@ eval_field(expr, code)
 			retrieval) is on top of stack.
 		*/
 		if (tp->tp_unsigned == 0) {	/* sign extension */
-			register arith shift = (int)word_size * 8 - fd->fd_width;
+			arith shift = (int)word_size * 8 - fd->fd_width;
 
 			C_loc(shift);
 			C_sli(word_size);
@@ -130,12 +130,7 @@ eval_field(expr, code)
 	}
 }
 
-store_field(fd, uns, code, leftop, tmpvar)
-	register struct field *fd;
-	int uns;
-	int code;
-	register struct expr *leftop;
-	arith tmpvar;
+void store_field(struct field *fd, int uns, int code, struct expr *leftop, arith tmpvar)
 {
 	C_loc(fd->fd_mask);
 	C_and(word_size);

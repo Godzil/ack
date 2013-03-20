@@ -11,11 +11,14 @@
 #include	<alloc.h>
 #include	"arith.h"
 #include	"stack.h"
+#include	"stack_loc.h"
 #include	"idf.h"
+#include	"idf_loc.h"
 #include	"def.h"
 #include	"type.h"
 #include	"proto.h"
 #include	"struct.h"
+#include	"struct_loc.h"
 #include	"field.h"
 #include	"LLlex.h"
 #include	"Lpars.h"
@@ -23,6 +26,10 @@
 #include	"level.h"
 #include	"assert.h"
 #include	"sizes.h"
+#include	"error.h"
+#include	"ch3.h"
+
+#include	<symbol2str.h>
 
 /*	Type of previous selector declared with a field width specified,
 	if any.  If a selector is declared with no field with it is set to 0.
@@ -30,8 +37,6 @@
 static field_busy = 0;
 
 extern char options[];
-char *symbol2str();
-int lcm();
 
 /*	The semantics of the identification of structure/union tags is
 	obscure.  Some highly regarded compilers are found out to accept,
@@ -53,14 +58,16 @@ int lcm();
 	If below struct is mentioned, union is implied (and sometimes enum
 	as well).
 */
-
-add_sel(stp, tp, idf, sdefpp, szp, fd)	/* this is horrible */
-	register struct type *stp;	/* type of the structure */
-	struct type *tp;		/* type of the selector */
-	register struct idf *idf;	/* idf of the selector */
-	struct sdef ***sdefpp;	/* address of hook to selector definition */
-	arith *szp;		/* pointer to struct size upto here */
+/*
+	struct type *stp;			 type of the structure
+	struct type *tp;			 type of the selector
+	struct idf *idf;			 idf of the selector
+	struct sdef ***sdefpp;		 address of hook to selector definition
+	arith *szp;					 pointer to struct size upto here
 	struct field *fd;
+ */
+void add_sel(struct type *stp, struct type *tp, struct idf *idf,
+			 struct sdef ***sdefpp, arith *szp, struct field *fd) /* this is horrible */
 {
 	/*	The selector idf with type tp is added to two chains: the
 		selector identification chain starting at idf->id_sdef,
@@ -75,7 +82,7 @@ add_sel(stp, tp, idf, sdefpp, szp, fd)	/* this is horrible */
 
 	struct tag *tg = stp->tp_idf->id_tag;	/* or union */
 	struct sdef *sdef = idf->id_sdef;
-	register struct sdef *newsdef;
+	struct sdef *newsdef;
 	int lvl = tg->tg_level;
 	
 	if (stp->tp_fund == STRUCT)	{
@@ -149,15 +156,13 @@ add_sel(stp, tp, idf, sdefpp, szp, fd)	/* this is horrible */
 		stp->tp_align = lcm(stp->tp_align, tp->tp_align);
 	}
 }
-
-check_selector(idf, stp)
-	register struct idf *idf;
-	struct type *stp;	/* the type of the struct */
+/* stp: the type of the struct */
+void check_selector(struct idf *idf, struct type *stp)
 {
 	/*	checks if idf occurs already as a selector in
 		struct or union *stp.
 	*/
-	register struct sdef *sdef = stp->tp_sdef;
+	struct sdef *sdef = stp->tp_sdef;
 	
 	while (sdef)	{
 		if (sdef->sd_idf == idf)
@@ -166,9 +171,7 @@ check_selector(idf, stp)
 	}
 }
 
-declare_struct(fund, idf, tpp)
-	register struct idf *idf;
-	struct type **tpp;
+void declare_struct(int fund, struct idf *idf, struct type **tpp)
 {
 	/*	A struct, union or enum (depending on fund) with tag (!)
 		idf is declared, and its type (incomplete as it may be) is
@@ -176,8 +179,8 @@ declare_struct(fund, idf, tpp)
 		The idf may be missing (i.e. idf == 0), in which case an
 		anonymous struct etc. is defined.
 	*/
-	register struct tag **tgp;
-	register struct tag *tg;
+	struct tag **tgp;
+	struct tag *tg;
 
 
 	if (*tpp) error("multiple types in declaration");
@@ -235,16 +238,14 @@ declare_struct(fund, idf, tpp)
 	}
 }
 
-apply_struct(fund, idf, tpp)
-	register struct idf *idf;
-	struct type **tpp;
+void apply_struct(int fund, struct idf *idf, struct type **tpp)
 {
 	/*	The occurrence of a struct, union or enum (depending on
 		fund) with tag idf is noted. It may or may not have been
 		declared before. Its type (complete or incomplete) is
 		returned in *tpp.
 	*/
-	register struct tag **tgp;
+	struct tag **tgp;
 
 	tgp = &idf->id_tag;
 
@@ -261,10 +262,7 @@ apply_struct(fund, idf, tpp)
 		declare_struct(fund, idf, tpp);
 }
 
-struct sdef *
-idf2sdef(idf, tp)
-	register struct idf *idf;
-	struct type *tp;
+struct sdef *idf2sdef(struct idf *idf, struct type *tp)
 {
 	/*	The identifier idf is identified as a selector
 		in the struct tp.
@@ -273,17 +271,17 @@ idf2sdef(idf, tp)
 		If this fails too, a selector of type error_type is
 		created.
 	*/
-	register struct sdef **sdefp = &idf->id_sdef, *sdef;
+	struct sdef **sdefp = &idf->id_sdef, *sdef;
 	
 	/* Follow chain from idf, to meet tp. */
-	while ((sdef = *sdefp))	{
+	while ( (sdef = *sdefp) )	{
 		if (equal_type(sdef->sd_stype, tp, -999, 0))	/* ??? hack */
 			return sdef;
 		sdefp = &(*sdefp)->next;
 	}
 	
 	/* Tp not met; take an identification. */
-	if (sdef = idf->id_sdef)	{
+	if ( (sdef = idf->id_sdef) )	{
 		/* There is an identification */
 		error("illegal use of selector %s", idf->id_text);
 		return sdef;
@@ -299,9 +297,7 @@ idf2sdef(idf, tp)
 }
 
 #if	0
-int
-uniq_selector(idf_sdef)
-	register struct sdef *idf_sdef;
+int uniq_selector(struct sdef *idf_sdef)
 {
 	/*	Returns true if idf_sdef (which is guaranteed to exist)
 		is unique for this level, i.e there is no other selector
@@ -311,7 +307,7 @@ uniq_selector(idf_sdef)
 		case!
 	*/
 	
-	register struct sdef *sdef = idf_sdef->next;
+	struct sdef *sdef = idf_sdef->next;
 	
 	while (sdef && sdef->sd_level == idf_sdef->sd_level)	{
 		if (	sdef->sd_type != idf_sdef->sd_type
@@ -326,13 +322,15 @@ uniq_selector(idf_sdef)
 #endif
 
 #ifndef NOBITFIELD
-arith
-add_field(szp, fd, fdtpp, idf, stp)
-	arith *szp;			/* size of struct upto here	*/
-	register struct field *fd;	/* bitfield, containing width	*/
-	register struct type **fdtpp;	/* type of selector		*/
-	struct idf *idf;		/* name of selector		*/
-	register struct type *stp;	/* current struct descriptor	*/
+
+/*
+	arith *szp;				 size of struct upto here
+	struct field *fd;		 bitfield, containing width
+	struct type **fdtpp;	 type of selector
+	struct idf *idf;		 name of selector
+	struct type *stp;		 current struct descripton
+ */
+arith add_field(arith *szp, struct field *fd, struct type **fdtpp, struct idf *idf, struct type *stp)
 {
 	/*	The address where this selector is put is returned. If the
 		selector with specified width does not fit in the word, or
@@ -441,20 +439,16 @@ add_field(szp, fd, fdtpp, idf, stp)
 #endif /* NOBITFIELD */
 
 /* some utilities */
-int
-is_struct_or_union(fund)
-	register int fund;
+int is_struct_or_union(int fund)
 {
 	return fund == STRUCT || fund == UNION;
 }
 
 /*	Greatest Common Divisor
  */
-int
-gcd(m, n)
-	register int m, n;
+int gcd(int m, int n)
 {
-	register int r;
+	int r;
 
 	while (n)	{
 		r = m % n;
@@ -466,9 +460,7 @@ gcd(m, n)
 
 /*	Least Common Multiple
  */
-int
-lcm(m, n)
-	register int m, n;
+int lcm(int m, int n)
 {
 	return m * (n / gcd(m, n));
 }

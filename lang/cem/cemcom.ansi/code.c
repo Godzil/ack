@@ -43,6 +43,15 @@
 #include 	"blocks.h"
 #include	"code_c.h"
 #include	"conversion.h"
+#include	"util_loc.h"
+#include	"stab.h"
+#include	"error.h"
+#include	"struct_loc.h"
+#include	"ch3.h"
+#include	"idf_loc.h"
+#include	"expr_loc.h"
+#include	"ival.h"
+#include	"eval.h"
 
 #include <symbol2str.h>
 

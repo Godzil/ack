@@ -4,6 +4,8 @@
  */
 /* $Id$ */
 /*		L A B E L   D E F I N I T I O N				*/
+#ifndef LANG_CEM_CEMCOM_ANSI_LABEL_H
+#define LANG_CEM_CEMCOM_ANSI_LABEL_H
 
 #include <em_label.h>		/* obtain definition of "label" */
 
@@ -26,3 +28,10 @@ extern label datlab_count;
 		not be there, and if it is there, it may be from a
 		declaration or another application.
 	*/
+
+struct idf;
+
+void enter_label(struct idf *idf, int defining);
+void unstack_label(struct idf *idf);
+
+#endif /* LANG_CEM_CEMCOM_ANSI_LABEL_H */

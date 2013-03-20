@@ -17,18 +17,27 @@
 #include	"label.h"
 #include	"code.h"
 #include	"idf.h"
+#include	"idf_loc.h"
 #include	"type.h"
+#include	"type_loc.h"
 #include	"proto.h"
+#include	"proto_loc.h"
 #include	"struct.h"
+#include	"struct_loc.h"
 #include	"field.h"
 #include	"decspecs.h"
 #include	"def.h"
 #include	"declar.h"
 #include	"label.h"
 #include	"expr.h"
+#include	"expr_loc.h"
 #include	"sizes.h"
 #include	"level.h"
-#include "code_c.h"
+#include	"code_c.h"
+#include	"error.h"
+#include	"stab.h"
+#include	"declarator.h"
+
 #ifdef	LINT
 #include	"l_lint.h"
 #endif	/* LINT */
@@ -713,7 +722,7 @@ parameter_declarator(register struct declarator *dc;)
 
 primary_parameter_declarator(register struct declarator *dc;)
 :
-[%if (AHEAD == ')' || first_of_parameter_type_list(AHEAD)
+[%if ((AHEAD == ')' || first_of_parameter_type_list(AHEAD))
 				    && (AHEAD != IDENTIFIER))
 	/* empty */
 |

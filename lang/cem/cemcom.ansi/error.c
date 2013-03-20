@@ -7,6 +7,7 @@
 
 #include	"lint.h"
 #if __STDC__
+#include	<stdio.h>
 #include	<stdarg.h>
 #else
 #include	<varargs.h>
@@ -22,6 +23,7 @@
 #include	"lint.h"
 #include	"nopp.h"
 #include	"errout.h"
+#include	"print.h"
 
 #include	"tokenname.h"
 #include	<flt_arith.h>
@@ -30,11 +32,13 @@
 #include	"expr.h"
 #include	"def.h"
 #include	"LLlex.h"
+#include	"error.h"
 
 /*	This file contains the error-message and diagnostic
 	functions.  Beware, they are called with a variable number of
 	arguments!
 */
+static void _error(int class, char *fn, unsigned int ln, char *fmt, va_list ap);
 
 /* error classes */
 #define	STRICT		1
@@ -61,8 +65,6 @@ extern char loptions[];
 	FileName, expression errors get their information from the
 	expression, whereas other errors use the information in the token.
 */
-
-static _error();
 
 #if __STDC__
 /*VARARGS*/
@@ -526,13 +528,7 @@ fatal(va_alist)				/* fmt, args */
 }
 #endif
 
-static
-_error(class, fn, ln, fmt, ap)
-	int class;
-	char *fn;
-	unsigned int ln;
-	char *fmt;
-	va_list ap;
+static void _error(int class, char *fn, unsigned int ln, char *fmt, va_list ap)
 {
 	char *remark;
 	
@@ -619,9 +615,9 @@ _error(class, fn, ln, fmt, ap)
 #endif	/* LINT */
 	
 	if (fn)
-		fprint(ERROUT, "\"%s\", line %u: ", fn, ln);
+		fprintf(stderr, "\"%s\", line %u: ", fn, ln);
 	if (remark)
-		fprint(ERROUT, "%s ", remark);
+		fprintf(stderr, "%s ", remark);
 	doprnt(ERROUT, fmt, ap);		/* contents of error */
-	fprint(ERROUT, "\n");
+	fprintf(stderr, "\n");
 }

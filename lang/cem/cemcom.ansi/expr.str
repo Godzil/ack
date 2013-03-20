@@ -9,6 +9,14 @@
 	a union of various goodies, we define them first; so be patient.
 */
 
+#ifndef LANG_CEM_CEMCOM_ANSI_EXPR_STR
+#define LANG_CEM_CEMCOM_ANSI_EXPR_STR
+
+#include "idf.h"
+#include "arith.h"
+#include <em_label.h>
+#include <flt_arith.h>
+
 /* classes of value */
 #define Const	1
 #define Name	2
@@ -97,3 +105,4 @@ extern struct expr *intexpr(), *new_oper();
 
 /* ALLOCDEF "expr" 20 */
 
+#endif /* LANG_CEM_CEMCOM_ANSI_EXPR_STR */

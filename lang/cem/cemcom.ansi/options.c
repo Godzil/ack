@@ -23,6 +23,8 @@
 #include	"dataflow.h"
 #include	"dbsymtab.h"
 #include	"conversion.h"
+#include	"error.h"
+#include	"domacro.h"
 
 #ifndef NOPP
 extern char **inctable;
@@ -42,12 +44,11 @@ char loptions[128];			/* one for every char	*/
 extern int idfsize;
 extern int density;
 
-static int txt2int();
+static int txt2int(char **tp);
 
-do_option(text)
-	char *text;
+void do_option(char *text)
 {
-	register char opt;
+	char opt;
 
 next_option:			/* to allow combined one-char options */
 	switch (opt = *text++)	{
@@ -64,7 +65,7 @@ next_option:			/* to allow combined one-char options */
 		break;
 
 	case '-':
-		options[*text++] = 1;	/* flags, debug options etc.	*/
+		options[*(unsigned char *)text++] = 1;	/* flags, debug options etc.	*/
 		goto next_option;
 
 #ifndef LINT
@@ -77,7 +78,7 @@ next_option:			/* to allow combined one-char options */
                 break;
         case 'i':
         case 'm':
-             	options[opt] = 1;
+             	options[(unsigned char)opt] = 1;
             	break;
 #endif /* NOPP */
 #endif /* LINT */
@@ -98,7 +99,7 @@ next_option:			/* to allow combined one-char options */
 	case 'w':			/* no warnings will be given */
 	case 's':			/* no stricts will be given */
 	case 'o':			/* no complaints about old-style */
-		options[opt] = 1;
+		options[(unsigned char)opt] = 1;
 		goto next_option;
 	case 'a':		/* suppress all but errors diagnostics */
 		options['w'] = 1;	/* implies -a */
@@ -120,17 +121,17 @@ next_option:			/* to allow combined one-char options */
 
 #ifndef NOPP
 	case 'D' :	{	/* -Dname :	predefine name		*/
-		register char *cp = text, *name, *mactext;
+		char *cp = text, *name, *mactext;
 		unsigned maclen;
 
-		if (class(*cp) != STIDF && class(*cp) != STELL) {
+		if (class(*(unsigned char *)cp) != STIDF && class(*(unsigned char *)cp) != STELL) {
 			error("identifier missing in -D%s", text);
 			break;
 		}
 
 		name = cp;
 
-		while (*cp && in_idf(*cp)) {
+		while (*cp && in_idf(*(unsigned char *)cp)) {
 			++cp;
 		}
 
@@ -156,7 +157,7 @@ next_option:			/* to allow combined one-char options */
 	case 'I' :	/* -Ipath : insert "path" into include list	*/
 		if (*text)	{
 			int i;
-			register char *new = text;
+			char *new = text;
 			
 			if (inc_total >= inc_max) {
 				inctable = (char **)
@@ -215,10 +216,10 @@ next_option:			/* to allow combined one-char options */
 #ifndef NOCROSS
 	case 'V' :	/* set object sizes and alignment requirements	*/
 	{
-		register arith sz, algn;
+		arith sz, algn;
 		char c;
 
-		while (c = *text++)	{
+		while ( (c = *text++) )	{
 			sz = txt2int(&text);
 			algn = 0;
 			if (*text == '.')	{
@@ -303,9 +304,7 @@ next_option:			/* to allow combined one-char options */
 	}
 }
 
-static int
-txt2int(tp)
-	register char **tp;
+static int txt2int(char **tp)
 {
 	/*	the integer pointed to by *tp is read, while increasing
 		*tp; the resulting value is yielded.

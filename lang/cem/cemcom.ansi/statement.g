@@ -22,13 +22,19 @@
 #include	"arith.h"
 #include	"LLlex.h"
 #include	"type.h"
+#include	"type_loc.h"
 #include	"idf.h"
+#include	"idf_loc.h"
 #include	"label.h"
 #include	"expr.h"
+#include	"expr_loc.h"
 #include	"code.h"
 #include	"stack.h"
+#include	"stack_loc.h"
 #include	"def.h"
-#include "code_c.h"
+#include	"code_c.h"
+#include	"switch_loc.h"
+
 #ifdef DBSYMTAB
 #include	<stb.h>
 #endif /* DBSYMTAB */

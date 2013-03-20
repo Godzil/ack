@@ -41,8 +41,7 @@ static struct db_str {
 	char		*currpos;
 } db_str;
 
-static
-create_db_str()
+static void create_db_str()
 {
 	if (! db_str.base) {
 		db_str.base = Malloc(INCR_SIZE);
@@ -51,9 +50,7 @@ create_db_str()
 	db_str.currpos = db_str.base;
 }
 
-static
-addc_db_str(c)
-	int	c;
+static void addc_db_str(int c)
 {
 	int df = db_str.currpos - db_str.base;
 	if (df >= db_str.sz-1) {
@@ -65,16 +62,12 @@ addc_db_str(c)
 	*db_str.currpos = '\0';
 }
 
-static
-adds_db_str(s)
-	char	*s;
+static void adds_db_str(char *s)
 {
 	while (*s) addc_db_str(*s++);
 }
 
-static
-stb_type(tp)
-	register struct type	*tp;
+static void stb_type(struct type *tp)
 {
 	char		buf[128];
 	static int	stb_count;
@@ -149,10 +142,10 @@ stb_type(tp)
 		}
 		addc_db_str('e');
 		{
-			register struct stack_entry *se = local_level->sl_entry;
+			struct stack_entry *se = local_level->sl_entry;
 
 			while (se) {
-				register struct def	*edef = se->se_idf->id_def;
+				struct def	*edef = se->se_idf->id_def;
 				while (edef) {
 					if (edef->df_type == tp &&
 					    edef->df_sc == ENUM) {
@@ -183,7 +176,7 @@ stb_type(tp)
 				   tp->tp_fund == STRUCT ? 's' : 'u',
 				   tp->tp_size));
 		{
-			register struct sdef	*sdef = tp->tp_sdef;
+			struct sdef	*sdef = tp->tp_sdef;
 
 			while (sdef) {
 				adds_db_str(sdef->sd_idf->id_text);
@@ -213,9 +206,7 @@ stb_type(tp)
 	}
 }
 
-stb_tag(tg, str)
-	register struct tag	*tg;
-	char			*str;
+void stb_tag(struct tag *tg, char *str)
 {
 	create_db_str();
 	adds_db_str(str);
@@ -230,9 +221,7 @@ stb_tag(tg, str)
 		     (arith) 0);
 }
 
-stb_typedef(tp, str)
-	register struct type	*tp;
-	char			*str;
+void stb_typedef(struct type *tp, char *str)
 {
 	create_db_str();
 	adds_db_str(str);
@@ -247,11 +236,9 @@ stb_typedef(tp, str)
 		     (arith) 0);
 }
 
-stb_string(df, kind, str)
-	register struct def	*df;
-	char			*str;
+void stb_string(struct def *df, int kind, char *str)
 {
-	register struct type	*tp = df->df_type;
+	struct type	*tp = df->df_type;
 
 	create_db_str();
 	adds_db_str(str);

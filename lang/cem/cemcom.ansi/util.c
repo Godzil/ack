@@ -24,6 +24,7 @@
 
 #include	"debug.h"
 #include	"util.h"
+#include	"util_loc.h"
 #include	"use_tmp.h"
 #include	"regcount.h"
 #include	"sizes.h"
@@ -44,18 +45,16 @@ static int	loc_id;
 
 extern char options[];
 
-LocalInit()
+void LocalInit()
 {
 #ifdef USE_TMP
 	C_insertpart(loc_id = C_getid());
 #endif /* USE_TMP */
 }
 
-arith
-LocalSpace(sz, al)
-	arith sz;
+arith LocalSpace(arith sz, int al)
 {
-	register struct stack_level *stl = local_level;
+	struct stack_level *stl = local_level;
 
 	stl->sl_max_block = - align(sz - stl->sl_max_block, al);
 	return stl->sl_max_block;
@@ -64,11 +63,9 @@ LocalSpace(sz, al)
 #define TABSIZ 32
 static struct localvar *regs[TABSIZ];
 
-arith
-NewLocal(sz, al, regtype, sc)
-	arith sz;
+arith NewLocal(arith sz, int al, int regtype, int sc)
 {
-	register struct localvar *tmp = FreeTmps;
+	struct localvar *tmp = FreeTmps;
 	struct localvar *prev = 0;
 	int index;
 
@@ -101,11 +98,10 @@ NewLocal(sz, al, regtype, sc)
 	return tmp->t_offset;
 }
 
-FreeLocal(off)
-	arith off;
+void FreeLocal(arith off)
 {
 	int index = (int) (off >> 2) & (TABSIZ - 1);
-	register struct localvar *tmp = regs[index];
+	struct localvar *tmp = regs[index];
 	struct localvar *prev = 0;
 
 	while (tmp && tmp->t_offset != off) {
@@ -120,10 +116,10 @@ FreeLocal(off)
 	}
 }
 
-LocalFinish()
+void LocalFinish()
 {
-	register struct localvar *tmp, *tmp1;
-	register int i;
+	struct localvar *tmp, *tmp1;
+	int i;
 
 #ifdef USE_TMP
 	C_beginpart(loc_id);
@@ -166,10 +162,9 @@ LocalFinish()
 #endif
 }
 
-RegisterAccount(offset, size, regtype, sc)
-	arith offset, size;
+void RegisterAccount(arith offset, arith size, int regtype, int sc)
 {
-	register struct localvar *p;
+	struct localvar *p;
 	int index;
 
 	if (regtype < 0) return;
@@ -185,20 +180,17 @@ RegisterAccount(offset, size, regtype, sc)
 	regs[index] = p;
 }
 
-static struct localvar *
-find_reg(off)
-	arith off;
+static struct localvar *find_reg(arith off)
 {
-	register struct localvar *p = regs[(int)(off >> 2) & (TABSIZ - 1)];
+	struct localvar *p = regs[(int)(off >> 2) & (TABSIZ - 1)];
 
 	while (p && p->t_offset != off) p = p->next;
 	return p;
 }
 
-LoadLocal(off, sz)
-	arith off, sz;
+void LoadLocal(arith off, arith sz)
 {
-	register struct localvar *p = find_reg(off);
+	struct localvar *p = find_reg(off);
 
 #ifdef USE_TMP
 #ifdef REGCOUNT
@@ -215,10 +207,9 @@ LoadLocal(off, sz)
 	}
 }
 
-StoreLocal(off, sz)
-	arith off, sz;
+void StoreLocal(arith off, arith sz)
 {
-	register struct localvar *p = find_reg(off);
+	struct localvar *p = find_reg(off);
 
 #ifdef USE_TMP
 #ifdef REGCOUNT
@@ -236,10 +227,9 @@ StoreLocal(off, sz)
 }
 
 #ifndef	LINT
-AddrLocal(off)
-	arith off;
+void AddrLocal(arith off)
 {
-	register struct localvar *p = find_reg(off);
+	struct localvar *p = find_reg(off);
 
 	if (p) p->t_regtype = -1;
 	C_lal(off);

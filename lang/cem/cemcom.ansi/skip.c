@@ -10,18 +10,18 @@
 #include	"LLlex.h"
 #include	"class.h"
 #include	"input.h"
+#include	"domacro.h"
+#include	"error.h"
 
 #ifndef NOPP
 extern int InputLevel;
 
-int
-skipspaces(ch, skipnl)
-	register int ch;
+int skipspaces(int ch, int skipnl)
 {
 	/*	skipspaces() skips any white space and returns the first
 		non-space character.
 	*/
-	register int nlseen = 0;
+	int nlseen = 0;
 
 	for (;;) {
 		while (class(ch) == STSKIP)
@@ -59,12 +59,12 @@ skipspaces(ch, skipnl)
 }
 #endif /* NOPP */
 
-SkipToNewLine()
+int SkipToNewLine()
 {
-	register int ch;
-	register int garbage = 0;
+	int ch;
+	int garbage = 0;
 #ifndef	NOPP
-	register int delim = 0;
+	int delim = 0;
 #endif
 
 	while ((ch = GetChar()) != '\n') {

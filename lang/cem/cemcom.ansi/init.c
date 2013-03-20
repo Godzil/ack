@@ -13,11 +13,17 @@
 #include	<system.h>
 #include	<alloc.h>
 #include	<time.h>
+
+#include	<flt_arith.h>
+#include	<em_label.h>
 #include	"class.h"
 #include	"macro.h"
 #include	"idf.h"
-
-extern char *sprint();
+#include	"arith.h"
+#include	"print.h"
+#include	"expr.h"
+#include	"error.h"
+#include	"domacro.h"
 
 struct mkey	{
 	char *mk_reserved;
@@ -38,7 +44,7 @@ struct mkey	{
 	{0,		K_UNKNOWN}
 };
 
-init_pp()
+void init_pp()
 {
 	static char *months[12] = {
 		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -55,10 +61,10 @@ init_pp()
 		id_resmac field of the identifier.
 	*/
 	{
-		register struct mkey *mk = &mkey[0];
+		struct mkey *mk = &mkey[0];
 
 		while (mk->mk_reserved)	{
-			register struct idf *idf = str2idf(mk->mk_reserved, 0);
+			struct idf *idf = str2idf(mk->mk_reserved, 0);
 			
 			if (idf->id_resmac)
 				fatal("maximum identifier length insufficient");

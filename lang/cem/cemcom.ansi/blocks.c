@@ -18,7 +18,7 @@
 #include "label.h"
 #include "stack.h"
 #include "Lpars.h"
-#include "util.h"
+#include "util_loc.h"
 #include "error.h"
 #include "idf_loc.h"
 #include "def.h"

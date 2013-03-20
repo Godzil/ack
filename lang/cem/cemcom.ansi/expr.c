@@ -27,15 +27,15 @@
 #include	"level.h"
 #include	"use_tmp.h"
 #include	"cstoper.h"
-
+#include	"idf_loc.h"
+#include	"expr_loc.h"
+#include	"error.h"
 #include	<symbol2str.h>
 
 extern char options[];
 extern int InSizeof;
 
-int
-rank_of(oper)
-	int oper;
+int rank_of(int oper)
 {
 	/*	The rank of the operator oper is returned.
 	*/
@@ -104,13 +104,12 @@ rank_of(oper)
 	/*NOTREACHED*/
 }
 
-dot2expr(expp)
-	struct expr **expp;
+void dot2expr(struct expr **expp)
 {
 	/*	The token in dot is converted into an expression, a
 		pointer to which is stored in *expp.
 	*/
-	register struct expr *ex = new_expr();
+	struct expr *ex = new_expr();
 
 	*expp = ex;
 	ex->ex_file = dot.tk_file;
@@ -131,16 +130,15 @@ dot2expr(expp)
 	}
 }
 
-idf2expr(expr)
-	register struct expr *expr;
+void idf2expr(struct expr *expr)
 {
 	/*	Dot contains an identifier which is turned into an
 		expression.
 		Note that this constitutes an applied occurrence of
 		the identifier.
 	*/
-	register struct idf *idf = dot.tk_idf;	/* != 0*/
-	register struct def *def = idf->id_def;
+	struct idf *idf = dot.tk_idf;	/* != 0*/
+	struct def *def = idf->id_def;
 	
 	if (def == 0)	{
 		if (AHEAD == '(') {
@@ -201,15 +199,12 @@ idf2expr(expr)
 	}
 }
 
-string2expr(expp, str, len)
-	register struct expr **expp;
-	int len;
-	char *str;
+void string2expr(struct expr **expp, char *str, int len)
 {
 	/*	The string in the argument is converted into an expression,
 		a pointer to which is stored in *expp.
 	*/
-	register struct expr *ex = new_expr();
+	struct expr *ex = new_expr();
 
 	*expp = ex;
 	ex->ex_file = dot.tk_file;
@@ -223,8 +218,7 @@ string2expr(expp, str, len)
 	ex->SG_LEN = len;
 }
 
-int2expr(expr)
-	struct expr *expr;
+void int2expr(struct expr *expr)
 {
 	/*	Dot contains an integer constant which is turned
 		into an expression.
@@ -232,13 +226,12 @@ int2expr(expr)
 	fill_int_expr(expr, dot.tk_ival, dot.tk_fund);
 }
 
-float2expr(expr)
-	register struct expr *expr;
+void float2expr(struct expr *expr)
 {
 	/*	Dot contains a floating point constant which is turned
 		into an expression.
 	*/
-	register int fund;
+	int fund;
 
 	fund = dot.tk_fund;
 	switch (fund) {
@@ -262,15 +255,12 @@ float2expr(expr)
 		expr_warning(expr,"internal floating point overflow");
 }
 
-struct expr*
-intexpr(ivalue, fund)
-	arith ivalue;
-	int fund;
+struct expr *intexpr(arith ivalue, int fund)
 {
 	/*	The value ivalue is turned into an integer expression of
 		the size indicated by fund.
 	*/
-	register struct expr *expr = new_expr();
+	struct expr *expr = new_expr();
 
 	expr->ex_file = dot.tk_file;
 	expr->ex_line = dot.tk_line;
@@ -278,10 +268,7 @@ intexpr(ivalue, fund)
 	return expr;
 }
 
-fill_int_expr(ex, ivalue, fund)
-	register struct expr *ex;
-	arith ivalue;
-	int fund;
+void fill_int_expr(struct expr *ex, arith ivalue, int fund)
 {
 	/*	Details derived from ivalue and fund are put into the
 		constant integer expression ex.
@@ -309,10 +296,7 @@ fill_int_expr(ex, ivalue, fund)
 	cut_size(ex);
 }
 
-struct expr *
-new_oper(tp, e1, oper, e2)
-	struct type *tp;
-	register struct expr *e1, *e2;
+struct expr *new_oper(struct type *tp, struct expr *e1, int oper, struct expr *e2)
 {
 	/*	A new expression is constructed which consists of the
 		operator oper which has e1 and e2 as operands; for a
@@ -320,11 +304,11 @@ new_oper(tp, e1, oper, e2)
 		During the construction of the right recursive initialisation
 		tree it is possible for e2 to be NILEXPR.
 	*/
-	register struct expr *expr = new_expr();
-	register struct oper *op;
+	struct expr *expr = new_expr();
+	struct oper *op;
 
 	if (e2)	{
-		register struct expr *e = e2;
+		struct expr *e = e2;
 		
 		while (e->ex_class == Oper && e->OP_LEFT)
 			e = e->OP_LEFT;
@@ -333,7 +317,7 @@ new_oper(tp, e1, oper, e2)
 	}
 	else
 	if (e1)	{
-		register struct expr *e = e1;
+		struct expr *e = e1;
 		
 		while (e->ex_class == Oper && e->OP_RIGHT)
 			e = e->OP_RIGHT;
@@ -375,8 +359,7 @@ new_oper(tp, e1, oper, e2)
 	return expr;
 }
 
-chk_cst_expr(expp)
-	struct expr **expp;
+void chk_cst_expr(struct expr **expp)
 {
 	/*	The expression expr is checked for constancy.
 	
@@ -398,7 +381,7 @@ chk_cst_expr(expp)
 		Special problems (of which there is only one, sizeof in
 		Preprocessor #if) have to be dealt with locally
 	*/
-	register struct expr *expr = *expp;
+	struct expr *expr = *expp;
 	
 #ifdef	DEBUG
 	print_expr("constant_expression", expr);
@@ -421,9 +404,7 @@ chk_cst_expr(expp)
 	erroneous2int(expp);
 }
 
-init_expression(eppp, expr)
-	register struct expr ***eppp;
-	struct expr *expr;
+void init_expression(struct expr ***eppp, struct expr *expr)
 {
 	/*	The expression expr is added to the tree designated
 		indirectly by **eppp.
@@ -441,9 +422,7 @@ init_expression(eppp, expr)
 	*eppp = &(**eppp)->OP_RIGHT;
 }
 
-int
-is_ld_cst(expr)
-	register struct expr *expr;
+int is_ld_cst(struct expr *expr)
 {
 	/*	An expression is a `load-time constant' if it is of the form
 		<idf> +/- <integral> or <integral>.
@@ -455,9 +434,7 @@ is_ld_cst(expr)
 	return expr->ex_lvalue == 0 && expr->ex_class == Value;
 }
 
-int
-is_cp_cst(expr)
-	struct expr *expr;
+int is_cp_cst(struct expr *expr)
 {
 	/*	An expression is a `compile-time constant' if it is a
 		load-time constant, and the idf is not there.
@@ -465,9 +442,7 @@ is_cp_cst(expr)
 	return is_ld_cst(expr) && expr->VL_CLASS == Const;
 }
 
-int
-is_fp_cst(expr)
-	struct expr *expr;
+int is_fp_cst(struct expr *expr)
 {
 	/*	An expression is a `floating-point constant' if it consists
 		of the float only.
@@ -475,9 +450,7 @@ is_fp_cst(expr)
 	return expr->ex_class == Float;
 }
 
-int
-is_zero_cst(expr)
-	register struct expr *expr;
+int is_zero_cst(struct expr *expr)
 {
 	flt_arith var;
 
@@ -489,10 +462,10 @@ is_zero_cst(expr)
 		return flt_cmp(&var, &(expr->FL_ARITH)) == 0;
 	}
 	/*NOTREACHED*/
+	return 0;
 }
 
-free_expression(expr)
-	register struct expr *expr;
+void free_expression(struct expr *expr)
 {
 	/*	The expression expr is freed recursively.
 	*/

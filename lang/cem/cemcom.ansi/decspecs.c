@@ -12,11 +12,12 @@
 #include	"type.h"
 #include	"level.h"
 #include	"def.h"
+#include	"error.h"
+
+#include	<symbol2str.h>
 
 extern char options[];
 extern int level;
-extern char *symbol2str();
-extern struct type *qualifier_type();
 
 struct decspecs null_decspecs;
 

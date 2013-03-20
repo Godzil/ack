@@ -19,13 +19,15 @@
 #include	"sizes.h"
 #include	"Lpars.h"
 #include	"cstoper.h"
+#include	"fltcstoper.h"
+#include	"error.h"
+#include	"expr_loc.h"
 
 #include 	<symbol2str.h>
 
 extern int ResultKnown;
 
-fltcstbin(expp, oper, expr)
-	register struct expr **expp, *expr;
+void fltcstbin(struct expr **expp, int oper, struct expr *expr)
 {
 	/*	The operation oper is performed on the constant
 		expressions *expp(ld) and expr(ct), and the result restored in

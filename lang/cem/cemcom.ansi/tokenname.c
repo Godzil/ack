@@ -10,6 +10,7 @@
 #include	"LLlex.h"
 #include	"tokenname.h"
 #include	"Lpars.h"
+#include	"error.h"
 
 /*	To centralize the declaration of %tokens, their presence in this
 	file is taken as their declaration. The Makefile will produce
@@ -131,8 +132,7 @@ struct tokenname tkfunny[] =	{	/* internal keywords */
 };
 #endif	/* ____ */
 
-reserve(resv)
-	register struct tokenname resv[];
+void reserve(struct tokenname resv[])
 {
 	/*	The names of the tokens described in resv are entered
 		as reserved words.

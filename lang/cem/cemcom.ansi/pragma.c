@@ -7,6 +7,8 @@
 
 #include	"debug.h"
 #include	"idf.h"
+#include	"skip.h"
+#include	"domacro.h"
 
 #define P_UNKNOWN	0
 #define NR_PRAGMAS	0
@@ -18,14 +20,12 @@ struct pkey {
 	{0,		P_UNKNOWN}
 };
 
-extern struct idf *GetIdentifier();
-
-do_pragma()
+void do_pragma()
 {
 #if	NR_PRAGMAS
-	register struct pkey *pkp = &pragmas[0];
+	struct pkey *pkp = &pragmas[0];
 #endif
-	register struct idf *id = GetIdentifier(1);
+	struct idf *id = GetIdentifier(1);
 
 	if (id != (struct idf *)0) {
 #if	NR_PRAGMAS

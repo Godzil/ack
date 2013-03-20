@@ -20,7 +20,14 @@
 #include	"sizes.h"
 #include 	"ch3.h"
 #include 	"ch3mon.h"
-#include    <symbol2str.h>
+#include	"error.h"
+#include	"expr_loc.h"
+#include	"stab.h"
+#include	"util.h"
+#include	"struct_loc.h"
+#include	"dataflow.h"
+
+#include	<symbol2str.h>
 
 extern char options[];
 extern arith full_mask[/*MAXSIZE + 1*/];	/* cstoper.c */

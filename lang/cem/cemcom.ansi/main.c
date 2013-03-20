@@ -5,10 +5,13 @@
 /* $Id$ */
 /* MAIN PROGRAM */
 
+#include 	<string.h>
 #include	"lint.h"
 #include	<system.h>
+#include	"print.h"
 #include	"debug.h"
 #include	"nopp.h"
+#include	"label.h"
 #include	"trgt_sizes.h"
 #include	"use_tmp.h"
 #include	"inputtype.h"
@@ -31,6 +34,15 @@
 #include	"assert.h"
 #include	"code_c.h"
 #include	"cstoper.h"
+#include	"init.h"
+#include	"options.h"
+#include	"main.h"
+#include	"error.h"
+#include	"stack.h"
+#include	"stack_loc.h"
+#include	"idf_loc.h"
+#include	"program.h"
+#include	"tokenname.h"
 
 #include	<symbol2str.h>
 
@@ -86,8 +98,7 @@ arith ifval;	/* ifval will contain the result of the #if expression	*/
 
 char *prog_name;
 
-main(argc, argv)
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	/* parse and interpret the command line options	*/
 	prog_name = argv[0];
@@ -142,15 +153,13 @@ main(argc, argv)
 #ifndef NOPP
 
 struct dependency    *file_head;
-extern char *strrchr();
 
-list_dependencies(source)
-char *source;
+void list_dependencies(char *source)
 {
-    register struct dependency *p = file_head;
+    struct dependency *p = file_head;
 
     if (source) {
-	register char *s = strrchr(source, '.');
+	char *s = strrchr(source, '.');
 
 	if (s && *(s+1)) {
 	    s++;
@@ -160,7 +169,7 @@ char *source;
 	     * object generated, so don't include the pathname
 	     * leading to it.
              */
-            if (s = strrchr(source, '/')) {
+            if ( (s = strrchr(source, '/')) ) {
 		source = s + 1;
 	    }
 	}
@@ -175,13 +184,12 @@ char *source;
     }
 }
 
-add_dependency(s)
-char *s;
+void add_dependency(char *s)
 {
-    register struct idf *p = str2idf(s, 1);
+    struct idf *p = str2idf(s, 1);
 
     if (! p->id_resmac) {
-	register struct dependency *q = new_dependency();
+	struct dependency *q = new_dependency();
 
 	p->id_resmac = K_FILE;
 	q->dep_idf = p;
@@ -190,8 +198,7 @@ char *s;
     }
 }
 
-dependency(s, source)
-char *s, *source;
+void dependency(char *s, char *source)
 {
     if (options['i'] && !strncmp(s, "/usr/include/", 13)) {
 	return;
@@ -210,12 +217,11 @@ char *source = 0;
 char *nmlist = 0;
 #endif /* GEN_NM_LIST */
 
-compile(argc, argv)
-	char *argv[];
+void compile(int argc, char *argv[])
 {
 	char *result;
 #ifndef	LINT
-	register char *destination = 0;
+	char *destination = 0;
 #endif	/* LINT */
 
 #ifdef DEBUG
@@ -321,7 +327,7 @@ compile(argc, argv)
 #endif	/* NOPP */
 }
 
-init()
+void init()
 {
 	init_cst();	/* initialize variables of "cstoper.c"		*/
 	reserve(tkidf);		/* mark the C reserved words as such	*/
@@ -386,8 +392,7 @@ init()
 	stack_level();
 }
 
-init_specials(si)
-	register struct sp_id *si;
+void init_specials(struct sp_id *si)
 {
 	while (si->si_identifier)	{
 		struct idf *idf = str2idf(si->si_identifier, 0);
@@ -401,7 +406,7 @@ init_specials(si)
 
 #ifdef DEBUG
 #ifndef NOPP
-preprocess()
+void preprocess()
 {
 	/*	preprocess() is the "stand-alone" preprocessor which
 		consecutively calls the lexical analyzer LLlex() to get
@@ -471,7 +476,7 @@ preprocess()
 }
 #endif /* NOPP */
 
-Info()
+void Info()
 {
 	extern int cnt_string_cst, cnt_formal,
 		    cnt_decl_unary, cnt_def, cnt_expr, cnt_field,
@@ -503,14 +508,12 @@ Info()
 }
 #endif /* DEBUG */
 
-void
-No_Mem()				/* called by alloc package */
+void No_Mem()				/* called by alloc package */
 {
 	fatal("out of memory");
 }
 
-void
-C_failed()				/* called by EM_code module */
+void C_failed()				/* called by EM_code module */
 {
 	fatal("write failed");
 }

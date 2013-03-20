@@ -13,18 +13,20 @@
 #include	"def.h"
 #include	"type.h"
 #include	"stack.h"
+#include	"error.h"
+#include	"idf_loc.h"
+#include	"stack_loc.h"
 
 extern char options[];
 
-enter_label(idf, defining)
-	register struct idf *idf;
+void enter_label(struct idf *idf, int defining)
 {
 	/*	The identifier idf is entered as a label. If it is new,
 		it is entered into the idf list with the largest possible
 		scope, i.e., on the lowest possible level.
 		If defining, the label comes from a label statement.
 	*/
-	register struct def *def = idf->id_label;
+	struct def *def = idf->id_label;
 
 	if (def)	{
 		if (defining && def->df_initialized)
@@ -44,8 +46,7 @@ enter_label(idf, defining)
 		def->df_initialized = 1;
 }
 
-unstack_label(idf)
-	register struct idf *idf;
+void unstack_label(struct idf *idf)
 {
 	/*	The scope in which the label idf occurred is left.
 	*/

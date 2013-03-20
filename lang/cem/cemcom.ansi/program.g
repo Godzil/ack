@@ -52,14 +52,22 @@
 #include	"arith.h"
 #include	"LLlex.h"
 #include	"idf.h"
+#include	"idf_loc.h"
 #include	"label.h"
 #include	"type.h"
 #include	"declar.h"
 #include	"decspecs.h"
 #include	"code.h"
 #include	"expr.h"
+#include	"expr_loc.h"
 #include	"def.h"
-#include "code_c.h"
+#include	"code_c.h"
+#include	"error.h"
+#include	"stack.h"
+#include	"stack_loc.h"
+#include	"declarator.h"
+#include	"proto_loc.h"
+
 #ifdef	LINT
 #include	"l_lint.h"
 #endif	/* LINT */
@@ -68,7 +76,6 @@
 extern arith ifval;
 #endif /* NOPP */
 
-extern error();
 }
 
 control_if_expression

@@ -16,6 +16,8 @@
 #include	"Lpars.h"
 #include	"assert.h"
 #include	"cstoper.h"
+#include	"error.h"
+#include	"expr_loc.h"
 
 /* full_mask[1] == 0XFF, full_mask[2] == 0XFFFF, .. */
 arith full_mask[MAXSIZE + 1];

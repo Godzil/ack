@@ -24,7 +24,7 @@
 #include	"sizes.h"
 #include	"error.h"
 #include	"domacro.h"
-#include	"replace.h"
+#include	"replace_loc.h"
 #include	"specials.h"	/* registration of special identifiers */
 
 /* Data about the token yielded */

@@ -20,14 +20,14 @@
 #include	"expr.h"
 #include	"sizes.h"
 #include	"level.h"
+#include	"error.h"
+#include	"idf_loc.h"
+#include	"proto_loc.h"
 
 extern char options[];
 struct declarator null_declarator;
 
-struct type *
-declare_type(tp, dc)
-	struct type *tp;
-	struct declarator *dc;
+struct type *declare_type(struct type *tp, struct declarator *dc)
 {
 	/*	Applies the decl_unary list starting at dc->dc_decl_unary
 		to the type tp and returns the result.
@@ -35,7 +35,7 @@ declare_type(tp, dc)
 		are purely prototypes. Simply add the type list to the
 		function node.
 	*/
-	register struct decl_unary *du = dc->dc_decl_unary;
+	struct decl_unary *du = dc->dc_decl_unary;
 
 	while (du)	{
 		tp = construct_type(du->du_fund, tp, du->du_typequal,
@@ -45,18 +45,13 @@ declare_type(tp, dc)
 	return tp;
 }
 
-add_decl_unary(dc, fund, qual,  count, fm, pl)
-	register struct declarator *dc;
-	int qual;
-	arith count;
-	struct formal *fm;
-	struct proto *pl;
+void add_decl_unary(struct declarator *dc, int fund, int qual, arith count, struct formal *fm, struct proto *pl)
 {
 	/*	A decl_unary describing a constructor with fundamental
 		type fund and with size count is inserted in front of the
 		declarator dc.
 	*/
-	register struct decl_unary *new = new_decl_unary();
+	struct decl_unary *new = new_decl_unary();
 
 	new->next = dc->dc_decl_unary;
 	new->du_fund = fund;
@@ -77,13 +72,12 @@ add_decl_unary(dc, fund, qual,  count, fm, pl)
 	dc->dc_decl_unary = new;
 }
 
-remove_declarator(dc)
-	struct declarator *dc;
+void remove_declarator(struct declarator *dc)
 {
 	/*	The decl_unary list starting at dc->dc_decl_unary is
 		removed.
 	*/
-	register struct decl_unary *du = dc->dc_decl_unary;
+	struct decl_unary *du = dc->dc_decl_unary;
 
 	while (du)	{
 		struct decl_unary *old_du = du;
@@ -93,15 +87,14 @@ remove_declarator(dc)
 	}
 }
 
-reject_params(dc)
-	register struct declarator *dc;
+void reject_params(struct declarator *dc)
 {
 	/*	The declarator is checked to have no parameters, if it
 		is an old-style function.  If it is a new-style function,
 		the identifiers are removed.  The function is not called in
 		case of a function definition.
 	*/
-	register struct decl_unary *du = dc->dc_decl_unary;
+	struct decl_unary *du = dc->dc_decl_unary;
 	int	err_given = 0;
 
 	if (dc->dc_formal)	{
@@ -122,8 +115,7 @@ reject_params(dc)
 	}
 }
 
-check_array_subscript(expr)
-	register struct expr *expr;
+void check_array_subscript(struct expr *expr)
 {
 	arith size = expr->VL_VALUE;
 

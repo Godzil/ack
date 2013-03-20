@@ -17,24 +17,28 @@
 #include	"arith.h"
 #include	"align.h"
 #include	"stack.h"
+#include	"stack_loc.h"
 #include	"idf.h"
+#include	"idf_loc.h"
 #include	"def.h"
 #include	"type.h"
+#include	"ch3.h"
 #include	"struct.h"
 #include	"label.h"
 #include	"expr.h"
 #include	"declar.h"
 #include	"decspecs.h"
 #include	"proto.h"
+#include	"proto_loc.h"
 #include	"assert.h"
 #include	"conversion.h"
+#include	"error.h"
 
 extern char options[];
 
-check_for_void(pl)
-	register struct proto *pl;
+void check_for_void(struct proto *pl)
 {
-	register int errcnt = 0;
+	int errcnt = 0;
 
 	if (!pl) return;
 	if ((pl->pl_flag & PL_VOID) && !(pl->next)) return;
@@ -50,11 +54,7 @@ check_for_void(pl)
 	}
 }
 
-add_proto(pl, ds, dc, lvl)
-	struct proto *pl;
-	struct decspecs *ds;
-	struct declarator *dc;
-	int lvl;
+void add_proto(struct proto *pl, struct decspecs *ds, struct declarator *dc, int lvl)
 {
 	/*	The full typed identifier or abstract type, described
 		by the structures decspecs and declarator are turned
@@ -63,10 +63,10 @@ add_proto(pl, ds, dc, lvl)
 		later on it's decided whether they were prototypes
 		or actual declarations.
 	*/
-	register struct idf *idf = dc->dc_idf;
-	register struct def *def = idf ? idf->id_def : (struct def *)0;
-	register int sc = ds->ds_sc;
-	register struct type *type;
+	struct idf *idf = dc->dc_idf;
+	struct def *def = idf ? idf->id_def : (struct def *)0;
+	int sc = ds->ds_sc;
+	struct type *type;
 	char formal_array = 0;
 
 	ASSERT(ds->ds_type != (struct type *)0);
@@ -123,7 +123,7 @@ add_proto(pl, ds, dc, lvl)
 	} else if (idf != (struct idf *)0) {
 		/*	New definition, redefinition hides earlier one
 		*/
-		register struct def *newdef = new_def();
+		struct def *newdef = new_def();
 		
 		newdef->next = def;
 		newdef->df_level = lvl;
@@ -173,7 +173,7 @@ struct type *tp;
 struct idf **idpp;
 {
 	struct tag *tg = (struct tag *)0;
-	register int fund = tp->tp_fund;
+	int fund = tp->tp_fund;
 
         while (fund == FIELD || fund == POINTER
                 || fund == ARRAY || fund == FUNCTION) {
@@ -190,17 +190,16 @@ struct idf **idpp;
 }
 
 
-declare_protos(dc)
-	register struct declarator *dc;
+void declare_protos(struct declarator *dc)
 {
 	/*	At this points we know that the idf's in protolist are formal
 		parameters. So it's time to declare them at level L_FORMAL2.
 	*/
 	struct stack_level *stl = stack_level_of(L_FORMAL1);
-	register struct decl_unary *du;
-	register struct type *type;
-	register struct proto *pl;
-	register struct def *def;
+	struct decl_unary *du;
+	struct type *type;
+	struct proto *pl;
+	struct def *def;
 
 #ifdef	DEBUG
 	if (options['t'])
@@ -266,8 +265,7 @@ declare_protos(dc)
 }
 
 
-update_proto(tp, otp)
-	register struct type *tp, *otp;
+void update_proto(struct type *tp, struct type *otp)
 {
 	/*	This routine performs the proto type updates.
 		Consider the following code:
@@ -280,7 +278,7 @@ update_proto(tp, otp)
 		This routine will silently update all lists,
 		and removes the redundant occupied space.
 	*/
-	register struct proto *pl, *opl;
+	struct proto *pl, *opl;
 
 	if (tp == otp) return;
 	if (!tp || !otp) return;
@@ -317,12 +315,11 @@ update_proto(tp, otp)
 /* struct/union and enum tags can be declared inside prototypes
  * remove them from the symbol-table
  */
-remove_proto_tag(tp)
-struct type *tp;
+void remove_proto_tag(struct type *tp)
 {
-	register struct idf *ident;
-	register struct tag *tgp, **tgpp;
-	register int fund = tp->tp_fund;
+	struct idf *ident;
+	struct tag *tgp, **tgpp;
+	int fund = tp->tp_fund;
 
 	while (fund == FIELD || fund == POINTER
 		|| fund == ARRAY || fund == FUNCTION) {
@@ -356,13 +353,12 @@ struct type *tp;
 	free_tag(tgp);
 }
 
-remove_proto_idfs(pl)
-	register struct proto *pl;
+void remove_proto_idfs(struct proto *pl)
 {
 	/*	Remove all the identifier definitions from the
 		prototype list.
 	*/
-	register struct def *def;
+	struct def *def;
 
 	while (pl) {
 		if (pl->pl_idf) {
@@ -385,8 +381,7 @@ remove_proto_idfs(pl)
 	}
 }
 
-call_proto(expp)
-	register struct expr **expp;
+void call_proto(struct expr **expp)
 {
 	/*	If the function specified by (*expp)->OP_LEFT has a prototype,
 		the parameters are converted according the rules specified in
@@ -395,13 +390,13 @@ call_proto(expp)
 		under ellipsis clause the old parameters conversion stuff
 		applies.
 	*/
-	register struct expr *left = (*expp)->OP_LEFT;
-	register struct expr *right = (*expp)->OP_RIGHT;
-	register struct proto *pl = NO_PROTO;
+	struct expr *left = (*expp)->OP_LEFT;
+	struct expr *right = (*expp)->OP_RIGHT;
+	struct proto *pl = NO_PROTO;
 	static struct proto ellipsis = { 0, 0, 0, PL_ELLIPSIS };
 
 	if (left != NILEXPR) {		/* in case of an error */
-		register struct type *tp = left->ex_type;
+		struct type *tp = left->ex_type;
 
 		while (tp && tp->tp_fund != FUNCTION && tp != error_type)
 			tp = tp->tp_up;
@@ -410,8 +405,8 @@ call_proto(expp)
 	}
 
 	if (right != NILEXPR) {		/* function call with parameters */
-		register struct expr **ep = &((*expp)->OP_RIGHT);
-		register int ecnt = 0, pcnt = 0;
+		struct expr **ep = &((*expp)->OP_RIGHT);
+		int ecnt = 0, pcnt = 0;
 		struct expr **estack[NPARAMS];
 		struct proto *pstack[NPARAMS];
 
@@ -450,7 +445,7 @@ call_proto(expp)
 			pstack[0] = &ellipsis;
 		}
 
-		for (ecnt; ecnt >= 0; ecnt--) {
+		for (; ecnt >= 0; ecnt--) {
 			/*	Only the parameters specified in the prototype
 				are checked and converted. The parameters that
 				fall under the ellipsis clause are neither

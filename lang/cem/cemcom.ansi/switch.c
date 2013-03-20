@@ -27,13 +27,16 @@
 #include	"type.h"
 #include	"sizes.h"
 #include	"code_c.h"
+#include	"eval.h"
+#include	"ch3.h"
+#include	<system.h>
+#include	"print.h"
 
 extern char options[];
 
 int	density = DENSITY;
 
-compact(nr, low, up)
-	arith low, up;
+int compact(int nr, arith low, arith up)
 {
 	/*	Careful! up - low might not fit in an arith. And then,
 		the test "up-low < 0" might also not work to detect this
@@ -53,15 +56,14 @@ static struct switch_hdr *switch_stack = 0;
 	For simplicity, we suppose int_size == word_size.
 */
 
-code_startswitch(expp)
-	struct expr **expp;
+void code_startswitch(struct expr **expp)
 {
 	/*	Check the expression, stack a new case header and
 		fill in the necessary fields.
 	*/
-	register label l_table = text_label();
-	register label l_break = text_label();
-	register struct switch_hdr *sh = new_switch_hdr();
+	label l_table = text_label();
+	label l_break = text_label();
+	struct switch_hdr *sh = new_switch_hdr();
 	int fund = any2arith(expp, SWITCH);
 				    /* INT, LONG, FLOAT, DOUBLE or LNGDBL */
 	
@@ -89,13 +91,11 @@ code_startswitch(expp)
 	C_bra(l_table);			/* goto start of switch_table	*/
 }
 
-extern char *long2str();
-
-code_endswitch()
+void code_endswitch()
 {
-	register struct switch_hdr *sh = switch_stack;
-	register label tablabel;
-	register struct case_entry *ce;
+	struct switch_hdr *sh = switch_stack;
+	label tablabel;
+	struct case_entry *ce;
 	arith size = sh->sh_type->tp_size;
 
 	if (sh->sh_default == 0)	/* no default occurred yet */
@@ -121,7 +121,7 @@ code_endswitch()
 	    C_rom_ilb(sh->sh_default);
 	    if (compact(sh->sh_nrofentries, sh->sh_lowerbd, sh->sh_upperbd)) {
 		/* CSA */
-		register arith val;
+		arith val;
 
 		C_rom_icon(long2str((long)sh->sh_lowerbd,10), size);
 		C_rom_icon(long2str((long)(sh->sh_upperbd - sh->sh_lowerbd),10),
@@ -155,7 +155,7 @@ code_endswitch()
 
 	switch_stack = sh->next;	/* unstack the switch descriptor */
 	for (ce = sh->sh_entries; ce;) { /* free allocated switch structure */
-		register struct case_entry *tmp = ce->next;
+		struct case_entry *tmp = ce->next;
 
 		free_case_entry(ce);
 		ce = tmp;
@@ -164,12 +164,11 @@ code_endswitch()
 	unstack_stmt();
 }
 
-code_case(expr)
-	struct expr *expr;
+void code_case(struct expr *expr)
 {
-	register arith val;
-	register struct case_entry *ce;
-	register struct switch_hdr *sh = switch_stack;
+	arith val;
+	struct case_entry *ce;
+	struct switch_hdr *sh = switch_stack;
 	
 	ASSERT(is_cp_cst(expr));
 	if (sh == 0) {
@@ -189,7 +188,7 @@ code_case(expr)
 		sh->sh_nrofentries = 1;
 	}
 	else { /* second etc. case entry; put ce into proper place */
-		register struct case_entry *c1 = sh->sh_entries, *c2 = 0;
+		struct case_entry *c1 = sh->sh_entries, *c2 = 0;
 		
 		if (val < sh->sh_lowerbd)
 			sh->sh_lowerbd = val;
@@ -232,9 +231,9 @@ code_case(expr)
 	}
 }
 
-code_default()
+void code_default()
 {
-	register struct switch_hdr *sh = switch_stack;
+	struct switch_hdr *sh = switch_stack;
 
 	if (sh == 0) {
 		error("default statement not in switch");

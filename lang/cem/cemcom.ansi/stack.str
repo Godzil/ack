@@ -4,6 +4,8 @@
  */
 /* $Id$ */
 /* IDENTIFIER STACK DEFINITIONS */
+#ifndef LANG_CEM_CEMCOM_ANSI_STACK_STR
+#define LANG_CEM_CEMCOM_ANSI_STACK_STR
 
 /*	The identifier stack is implemented as a stack of sets.
 	The stack is implemented by a doubly linked list,
@@ -32,3 +34,5 @@ struct stack_entry	{
 extern struct stack_level *local_level;
 extern struct stack_level *stack_level_of();
 extern int level;
+
+#endif /* LANG_CEM_CEMCOM_ANSI_STACK_STR */

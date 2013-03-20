@@ -6,8 +6,10 @@
 /* PREPROCESSOR: CONTROLLINE INTERPRETER */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include	"debug.h"
+#include	"specials.h"
 #include	"arith.h"
 #include	"LLlex.h"
 #include	"Lpars.h"
@@ -15,6 +17,13 @@
 #include	"input.h"
 #include	"nopp.h"
 #include	"lint.h"
+#include	"skip.h"
+#include	"domacro.h"
+#include	"error.h"
+#include	"pragma.h"
+#include	"program.h"
+#include	"main.h"
+#include	"replace_loc.h"
 
 #ifndef NOPP
 #include	"ifdepth.h"
@@ -38,16 +47,15 @@ int		IncludeLevel = 0;
 
 extern char options[];
 extern	char **inctable;	/* list of include directories		*/
-extern	char *getwdir();
 char ifstack[IFDEPTH];	/* if-stack: the content of an entry is	*/
 				/* 1 if a corresponding ELSE has been	*/
 				/* encountered.				*/
 
 int	nestlevel = -1;
+extern char *getwdir();
 
-struct idf *
-GetIdentifier(skiponerr)
-	int skiponerr;		/* skip the rest of the line on error */
+/* skiponerr -> skip the rest of the line on error */
+struct idf *GetIdentifier(int skiponerr)
 {
 	/*	returns a pointer to the descriptor of the identifier that is
 		read from the input stream. When the input doe not contain
@@ -78,7 +86,7 @@ GetIdentifier(skiponerr)
 	An error message is produced when the token is not recognized,
 	i.e. it is not one of "define" .. "undef" , integer or newline.
 */
-domacro()
+void domacro()
 {
 	struct token tk;	/* the token itself			*/
 	int toknum;
@@ -156,8 +164,7 @@ domacro()
 int lint_skip_comment;
 #endif
 
-skip_block(to_endif)
-int to_endif;
+void skip_block(int to_endif)
 {
 	/*	skip_block() skips the input from
 		1)	a false #if, #ifdef, #ifndef or #elif until the
@@ -167,8 +174,8 @@ int to_endif;
 			#ifndef or #elif until the corresponding #endif is
 			seen.
 	*/
-	register int ch;
-	register int skiplevel = nestlevel; /* current nesting level	*/
+	int ch;
+	int skiplevel = nestlevel; /* current nesting level	*/
 	struct token tk;
 	int toknum;
 
@@ -291,7 +298,7 @@ int to_endif;
 }
 
 
-ifexpr()
+int ifexpr()
 {
 	/*	ifexpr() returns whether the restricted constant
 		expression following #if or #elif evaluates to true.  This
@@ -313,7 +320,7 @@ ifexpr()
 	return (errors == err_occurred) && (ifval != (arith)0);
 }
 
-do_include()
+void do_include()
 {
 	/*	do_include() performs the inclusion of a file.
 	*/
@@ -358,7 +365,7 @@ do_include()
 	}
 }
 
-do_define()
+void do_define()
 {
 	/*	do_define() interprets a #define control line.
 	*/
@@ -397,7 +404,7 @@ do_define()
 	LineNumber++;
 }
 
-push_if()
+void push_if()
 {
 	if (nestlevel >= IFDEPTH)
 		fatal("too many nested #if/#ifdef/#ifndef");
@@ -405,7 +412,7 @@ push_if()
 		ifstack[++nestlevel] = 0;
 }
 
-do_elif()
+void do_elif()
 {
 	if (nestlevel <= nestlow) {
 		lexerror("#elif without corresponding #if");
@@ -422,7 +429,7 @@ do_elif()
 	}
 }
 
-do_else()
+void do_else()
 {
 	if (SkipToNewLine())
 		if (!options['o'])
@@ -438,7 +445,7 @@ do_else()
 	}
 }
 
-do_endif()
+void do_endif()
 {
 	if (SkipToNewLine()) {
 		if (!options['o'])
@@ -450,16 +457,16 @@ do_endif()
 	else	nestlevel--;
 }
 
-do_if()
+void do_if()
 {
 	push_if();
 	if (!ifexpr())	/* a false #if/#elif expression */
 		skip_block(0);
 }
 
-do_ifdef(how)
+void do_ifdef(how)
 {
-	register struct idf *id;
+	struct idf *id;
 
 	/*	how == 1 : ifdef; how == 0 : ifndef
 	*/
@@ -479,10 +486,9 @@ do_ifdef(how)
 }
 
 /* argidf != NULL when the undef came from a -U option */
-do_undef(argidf)
-	struct idf *argidf;
+void do_undef(struct idf *argidf)
 {
-	register struct idf *id = argidf;
+	struct idf *id = argidf;
 
 	/* Forget a macro definition.	*/
 	if (id || (id = GetIdentifier(1))) {
@@ -505,7 +511,7 @@ do_undef(argidf)
 		lexerror("illegal #undef construction");
 }
 
-do_error()
+void do_error()
 {
 	int len;
 	char *get_text();
@@ -516,10 +522,7 @@ do_error()
 	LineNumber++;
 }
 
-int
-getparams(buf, parbuf)
-	char *buf[];
-	char parbuf[];
+int getparams(char *buf[], char parbuf[])
 {
 	/*	getparams() reads the formal parameter list of a macro
 		definition.
@@ -531,10 +534,10 @@ getparams(buf, parbuf)
 		Note that the '(' has already been eaten.
 		The names of the formal parameters are stored into parbuf.
 	*/
-	register char **pbuf = &buf[0];
-	register int c;
-	register char *ptr = &parbuf[0];
-	register char **pbuf2;
+	char **pbuf = &buf[0];
+	int c;
+	char *ptr = &parbuf[0];
+	char **pbuf2;
 
 	c = GetChar();
 	c = skipspaces(c,0);
@@ -585,11 +588,9 @@ getparams(buf, parbuf)
 	/*NOTREACHED*/
 }
 
-macro_def(id, text, nformals, length, flags)
-	register struct idf *id;
-	char *text;
+void macro_def(struct idf *id, char *text, int nformals, int length, int flags)
 {
-	register struct macro *newdef = id->id_macro;
+	struct macro *newdef = id->id_macro;
 
 	/*	macro_def() puts the contents and information of a macro
 		definition into a structure and stores it into the symbol
@@ -611,15 +612,13 @@ macro_def(id, text, nformals, length, flags)
 	newdef->mc_flag = flags;	/* special flags	*/
 }
 
-int
-find_name(nm, index)
-	char *nm, *index[];
+int find_name(char *nm, char *index[])
 {
 	/*	find_name() returns the index of "nm" in the namelist
 		"index" if it can be found there. 0 is returned if it is
 		not there.
 	*/
-	register char **ip = &index[0];
+	char **ip = &index[0];
 
 	while (*ip)
 		if (strcmp(nm, *ip++) == 0)
@@ -630,10 +629,7 @@ find_name(nm, index)
 
 #define	BLANK(ch)	((ch == ' ') || (ch == '\t'))
 
-char *
-get_text(formals, length)
-	char *formals[];
-	int *length;
+char *get_text(char *formals[], int *length)
 {
 	/*	get_text() copies the replacement text of a macro
 		definition with zero, one or more parameters, thereby
@@ -657,9 +653,9 @@ get_text(formals, length)
 		4-  comment, same as for 1
 		Other tokens will not be seen as such.
 	*/
-	register int c;
+	int c;
 	struct repl repls;
-	register struct repl *repl = &repls;
+	struct repl *repl = &repls;
 	int blank = 0;
 
 	c = GetChar();
@@ -674,7 +670,7 @@ get_text(formals, length)
 		}
 
 		if (c == '\'' || c == '"') {
-			register int delim = c;
+			int delim = c;
 
 			if (blank) {
 				blank = 0;
@@ -707,7 +703,7 @@ get_text(formals, length)
 		} else if (formals
 			    && (class(c) == STIDF || class(c) == STELL)) {
 			char id_buf[IDFSIZE + 1];
-			register char *idp = id_buf;
+			char *idp = id_buf;
 			int n;
 
 			/* read identifier: it may be a formal parameter */
@@ -724,7 +720,7 @@ get_text(formals, length)
 				add2repl(repl, ' ');
 			}
 			/* construct the formal parameter mark or identifier */
-			if (n = find_name(id_buf, formals))
+			if ((n = find_name(id_buf, formals)))
 			    add2repl(repl, FORMALP | (char) n);
 			else {
 			    idp = id_buf;
@@ -773,8 +769,7 @@ get_text(formals, length)
 	as strings, without taking care of the leading and trailing
 	blanks (spaces and tabs).
 */
-macroeq(s, t)
-	register char *s, *t;
+int macroeq(char *s, char *t)
 {
 
 	/* skip leading spaces	*/
@@ -797,9 +792,8 @@ macroeq(s, t)
 }
 #else /* NOPP */
 
-struct idf *
-GetIdentifier(skiponerr)
-	int skiponerr;		/* skip the rest of the line on error */
+/* skiponerr -> skip the rest of the line on error */
+struct idf *GetIdentifier(int skiponerr)
 {
 	/*	returns a pointer to the descriptor of the identifier that is
 		read from the input stream. When the input does not contain
@@ -818,7 +812,7 @@ GetIdentifier(skiponerr)
 	return tk.tk_idf;
 }
 
-domacro()
+void domacro()
 {
 	int tok;
 	struct token tk;
@@ -842,8 +836,7 @@ domacro()
 #endif /* NOPP */
 
 
-do_line(l)
-	unsigned int l;
+void do_line(unsigned int l)
 {
 	struct token tk;
 	int t = GetToken(&tk);

@@ -4,6 +4,8 @@
  */
 /* $Id$ */
 /* IDENTIFIER DESCRIPTOR */
+#ifndef LANG_CEM_CEMCOM_ANSI_IDF_STR
+#define LANG_CEM_CEMCOM_ANSI_IDF_STR
 
 #include	"nopp.h"
 
@@ -47,3 +49,5 @@ struct dependency	{
 
 extern int level;
 extern struct idf *gen_idf();
+
+#endif /* LANG_CEM_CEMCOM_ANSI_IDF_STR */

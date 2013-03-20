@@ -5,6 +5,10 @@
 /* $Id$ */
 /* EXPRESSION STACK */
 /* Used for global initializations */
+
+#ifndef LANG_CEM_CEMCOM_ANSI_ESTACK_STR
+#define LANG_CEM_CEMCOM_ANSI_ESTACK_STR
+
 struct e_stack {
 	struct e_stack	*next;
 	arith		s_cnt1, s_cnt2;
@@ -19,3 +23,5 @@ struct e_stack {
 #define last_offset	s_cnt2
 #define elem_count	s_cnt1
 #define nelem		s_cnt2
+
+#endif /* LANG_CEM_CEMCOM_ANSI_ESTACK_STR */

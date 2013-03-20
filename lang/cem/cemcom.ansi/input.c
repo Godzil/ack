@@ -7,9 +7,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "idf.h"
+#include "arith.h"
+#include <em_label.h>
+#include <flt_arith.h>
+#include "expr.h"
 #include "inputtype.h"
 #include "file_info.h"
 #include "input.h"
+#include "replace_loc.h"
+#include "error.h"
 
 #define INP_PUSHBACK	3
 #define INP_TYPE	struct file_info

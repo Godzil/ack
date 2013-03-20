@@ -4,6 +4,8 @@
  */
 /* $Id$ */
 /* DEFINITION OF DECLARATOR DESCRIPTORS */
+#ifndef LANG_CEM_CEMCOM_ANSI_DECLARE_STR
+#define LANG_CEM_CEMCOM_ANSI_DECLARE_STR
 
 /*	A 'declarator' consists of an idf and a linked list of
 	language-defined unary operations: *, [] and (), called
@@ -39,3 +41,5 @@ struct decl_unary	{
 
 extern struct type *declare_type();
 extern struct declarator null_declarator;
+
+#endif /* LANG_CEM_CEMCOM_ANSI_DECLARE_STR */

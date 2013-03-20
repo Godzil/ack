@@ -11,6 +11,7 @@
 
 #include	"pathlength.h"
 #include	"strsize.h"
+#include	<system.h>
 #include	"nparams.h"
 #include	"idfsize.h"
 #include	"numsize.h"
@@ -25,6 +26,7 @@
 #include	"assert.h"
 #include	"macbuf.h"
 #include	"replace.h"
+#include	"print.h"
 
 extern int InputLevel;
 struct repl *ReplaceList;	/* list of currently active macros */
@@ -70,7 +72,7 @@ void unstackrepl()
 
 void freeargs(struct args *args)
 {
-	register int i;
+	int i;
 
 	/* We must don't know how many parameters were specified, so be
 	 * prepared to free all NPARAMS parameters.
@@ -88,7 +90,7 @@ void freeargs(struct args *args)
 
 void EnableMacros()
 {
-	register struct repl *r = ReplaceList, *prev = 0;
+	struct repl *r = ReplaceList, *prev = 0;
 
 	assert(Unstacked > 0);
 	while(r) {
@@ -127,9 +129,9 @@ int expand_macro(struct repl *repl, struct idf *idf)
 		on a single, unexpanded identifier, which may be surrounded
 		by parenthesis. The function expand_defined() handles this.
 	*/
-	register struct macro *mac = idf->id_macro;
+	struct macro *mac = idf->id_macro;
 	struct args *args = repl->r_args;
-	register int ch;
+	int ch;
 
 	if (mac->mc_nps != -1) {	/* with parameter list	*/
 		if (mac->mc_flag & FUNC) {
@@ -173,7 +175,7 @@ int expand_macro(struct repl *repl, struct idf *idf)
 
 void expand_defined(struct repl *repl)
 {
-	register int ch = GetChar();
+	int ch = GetChar();
 	struct idf *id;
 	char *str;
 	int parens = 0;
@@ -218,10 +220,10 @@ void getactuals(struct repl *repl, struct idf *idf)
 		The hard part is done by actual(), only comma's and
 		other syntactic trivialities are checked here.
 	*/
-	register struct args *args = repl->r_args;
-	register int nps = idf->id_macro->mc_nps;
-	register int argcnt;
-	register int ch;
+	struct args *args = repl->r_args;
+	int nps = idf->id_macro->mc_nps;
+	int argcnt;
+	int ch;
 
 	argcnt = 0;
 	newarg(args);
@@ -255,9 +257,9 @@ void getactuals(struct repl *repl, struct idf *idf)
 
 void saveraw(struct repl *repl)
 {
-	register struct repl *nrepl = ReplaceList;
-	register struct args *ap = nrepl->r_args;
-	register char *p;
+	struct repl *nrepl = ReplaceList;
+	struct args *ap = nrepl->r_args;
+	char *p;
 
 	/* stash identifier name */
 	for (p = nrepl->r_idf->id_text; *p != '\0'; p++)
@@ -278,7 +280,7 @@ void saveraw(struct repl *repl)
 	*/
 	if (ap->a_rawvec[0]) {
 		/* stash arguments */
-		register int i;
+		int i;
 
 		for (i = 0; ap->a_rawvec[i] != (char *)0; i++) {
 			if (i == 0) stash(repl, '(', -1);
@@ -296,8 +298,8 @@ int actual(struct repl *repl)
 		It keeps in account the opening and closing brackets,
 		preprocessor numbers, strings and character constants.
 	*/
-	register int ch = 0;
-	register int level = 0, nostashraw = 0;
+	int ch = 0;
+	int level = 0, nostashraw = 0;
 	int lastch;
 	static int Unstacked_missed;
 
@@ -323,9 +325,9 @@ int actual(struct repl *repl)
 				token is a macro, it is expanded first.
 			*/
 			char buf[(IDFSIZE > NUMSIZE ? IDFSIZE : NUMSIZE) + 1];
-			register char *p = buf;
-			register struct idf *idef;
-			register int pos = -1;
+			char *p = buf;
+			struct idf *idef;
+			int pos = -1;
 			extern int idfsize;
 			int NoExpandMacro;
 
@@ -462,7 +464,7 @@ a_new_line:		ch = GetChar();
 			/*	Strings are considered as ONE token, thus no
 				replacement within strings.
 			*/
-			register int match = ch;
+			int match = ch;
 
 			stash(repl, ch, !nostashraw);
 			while ((ch = GetChar()) != EOI) {
@@ -498,9 +500,8 @@ void macro_func(struct idf *idef)
 		replacement texts must be evaluated at the time they are
 		used.
 	*/
-	register struct macro *mac = idef->id_macro;
+	struct macro *mac = idef->id_macro;
 	static char FilNamBuf[PATHLENGTH];
-	char *long2str();
 
 	switch (idef->id_text[2]) {
 	case 'F':			/* __FILE__	*/
@@ -548,7 +549,7 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 		linear fashion. This is VERY expensive, something
 		smarter should be done (but even a DFA is O(|s|)).
 	*/
-	register char *ptr = idf->id_macro->mc_text;
+	char *ptr = idf->id_macro->mc_text;
 	int err = 0;
 	int func = idf->id_macro->mc_nps != -1;
 	char *stringify();
@@ -556,7 +557,7 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 	assert(ptr[idf->id_macro->mc_length] == '\0');
 	while (*ptr) {
 	    if (*ptr == '\'' || *ptr == '"') {
-		register int delim = *ptr;
+		int delim = *ptr;
 
 		do {
 		    add2repl(repl, *ptr);
@@ -571,7 +572,7 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 		add2repl(repl, *ptr++);
 	    } else if (*ptr == '#' && (func || *(ptr+1) == '#')) {
 		if (*++ptr == '#') {
-		    register int tmpindex;
+		    int tmpindex;
 			/* ## - paste operator */
 		    ptr++;
 
@@ -603,8 +604,8 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 		    /*	## occurred at the end of the replacement list.
 		    */
 		    if (*ptr & FORMALP) {
-			register int n = *ptr++ & 0177;
-			register char *p;
+			int n = *ptr++ & 0177;
+			char *p;
 
 			assert(n > 0);
 			p = args->a_rawvec[n-1];
@@ -639,8 +640,8 @@ void macro2buffer(struct repl *repl, struct idf *idf, struct args *args)
 		}
 	    } else if (*ptr & FORMALP) {
 		/* insert actual parameter */
-		register int n = *ptr++ & 0177;
-		register char *p, *q;
+		int n = *ptr++ & 0177;
+		char *p, *q;
 
 		assert(n > 0);
 
@@ -684,17 +685,17 @@ char *stringify(struct repl *repl, char *ptr, struct args *args)
 		as appropriate. We only escape backslashes if they
 		occure within string tokens.
 	*/
-	register int space = 1;		/* skip leading spaces */
-	register int delim = 0;		/* string or character constant delim */
-	register int backslash = 0;	/* last character was a \ */
+	int space = 1;		/* skip leading spaces */
+	int delim = 0;		/* string or character constant delim */
+	int backslash = 0;	/* last character was a \ */
 
 	/* skip spaces macro replacement list */
 	while ((*ptr & FORMALP) == 0 && is_wsp(*(unsigned char *)ptr))
 		ptr++;
 
 	if (*ptr & FORMALP) {
-		register int n = *ptr++ & 0177;
-		register char *p;
+		int n = *ptr++ & 0177;
+		char *p;
 
 		assert(n != 0);
 		p = args->a_rawvec[n-1];
@@ -735,7 +736,7 @@ char *stringify(struct repl *repl, char *ptr, struct args *args)
  */
 void add2repl(struct repl *repl, int ch)
 {
-	register int index = repl->r_ptr - repl->r_text;
+	int index = repl->r_ptr - repl->r_text;
  
 	assert(index < repl->r_size);
 	if (index + 2 >= repl->r_size) {
@@ -754,8 +755,8 @@ void stash(struct repl *repl, int ch, int stashraw)
 {
 	/* Stash characters into the macro expansion buffer.
 	 */
-	register struct args *args = repl->r_args;
-	register int index = args->a_expptr - args->a_expbuf;
+	struct args *args = repl->r_args;
+	int index = args->a_expptr - args->a_expbuf;
  
 	if (stashraw >= 0) {
 		assert(index < args->a_expsize);

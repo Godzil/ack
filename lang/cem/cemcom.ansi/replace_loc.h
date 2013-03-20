@@ -10,20 +10,20 @@ struct repl;
 
 /* lang/cem/cemcom.ansi/replace.c */
 int replace(register struct idf *idf);
-int unstackrepl(void);
-int freeargs(struct args *args);
-int EnableMacros(void);
+void unstackrepl(void);
+void freeargs(struct args *args);
+void EnableMacros(void);
 int expand_macro(register struct repl *repl, register struct idf *idf);
-int expand_defined(register struct repl *repl);
-int newarg(struct args *args);
-int getactuals(struct repl *repl, register struct idf *idf);
-int saveraw(struct repl *repl);
+void expand_defined(register struct repl *repl);
+void newarg(struct args *args);
+void getactuals(struct repl *repl, register struct idf *idf);
+void saveraw(struct repl *repl);
 int actual(struct repl *repl);
-int macro_func(register struct idf *idef);
-int macro2buffer(register struct repl *repl, register struct idf *idf, register struct args *args);
+void macro_func(register struct idf *idef);
+void macro2buffer(register struct repl *repl, register struct idf *idf, register struct args *args);
 char *stringify(register struct repl *repl, register char *ptr, register struct args *args);
-int add2repl(register struct repl *repl, int ch);
-int stash(struct repl *repl, register int ch, int stashraw);
+void add2repl(register struct repl *repl, int ch);
+void stash(struct repl *repl, register int ch, int stashraw);
 
 #endif /* LANG_CEM_CEMCOM_ANSI_REPLACE_H */
 

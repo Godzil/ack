@@ -13,6 +13,7 @@
 #include	"type.h"
 #include	"sizes.h"
 #include	"Lpars.h"
+#include	"error.h"
 
 #define	T_SIGNED		1
 #define	T_UNSIGNED		2
