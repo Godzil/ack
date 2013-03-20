@@ -2,13 +2,11 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef lint
-static char rcsid[] = "$Id$";
-#endif
-
 #include <out.h>
 #include "const.h"
 #include "memory.h"
+#include "object.h"
+#include "defs.h"
 
 static void generate_section_names();
 

@@ -51,5 +51,6 @@ _PROTOTYPE(unsigned int rd_unsigned2, (int fd));
 _PROTOTYPE(long rd_long, (int fd));
 _PROTOTYPE(void rd_bytes, (int fd, char *buf, long l));
 _PROTOTYPE(int rd_fd, (void));
+_PROTOTYPE(void rd_rew_relos, (struct outhead *head));
 
 #endif /* __OBJECT_INCLUDED__ */

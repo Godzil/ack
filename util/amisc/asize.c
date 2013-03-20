@@ -7,7 +7,7 @@
 #include	<stdlib.h>
 #include	<stdio.h>
 #include 	"out.h"
-
+#include 	"object.h"
 /*
 	asize -- determine object size
 

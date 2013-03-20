@@ -11,6 +11,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 extern int lineno, newline;
 
@@ -18,6 +19,9 @@ FILE *genc, *genh, *input;
 static int nerrors;
 char *linedir = "#line %d \"%s\"\n";	/* format of line directive */
 char *inpfile;
+
+/* From Lexer */
+void LLparse(void);
 
 int main(int argc, char *argv[])
 {
@@ -44,11 +48,14 @@ int main(int argc, char *argv[])
 }
 
 /* VARARGS1 */
-void error(char *s,  char *s1)
+void error(char *s, ...)
 {
+	va_list va;
     nerrors++;
     fprintf(stderr,"\"%s\", line %d: ",inpfile,lineno);
-    fprintf(stderr,s,s1);
+	va_start(va, s);
+    vfprintf(stderr, s, va);
+	va_end(va);
     putc('\n',stderr);
 }
 

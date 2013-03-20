@@ -1,4 +1,3 @@
-static char	rcsid[] = "$Id$";
 /*
  * show - make the contents of an ACK object file human readable.
  */
@@ -9,6 +8,7 @@ static char	rcsid[] = "$Id$";
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <out.h>
+#include "object.h"
 
 #define OK	0	/* Return value of gethead if Orl Korekt. */
 #define BMASK	0xFF	/* To extract least significant 8 bits from an int. */

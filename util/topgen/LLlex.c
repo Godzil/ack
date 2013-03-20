@@ -13,6 +13,7 @@
 # include "tunable.h"
 # include "token.h"
 # include "Lpars.h"
+# include "main.h"
 
 struct token dot;		/* current token */
 static struct token aside;	/* to put currrent token aside, when a token

@@ -2,19 +2,21 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef lint
-static char rcsid[] = "$Id$";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "out.h"
 #include "const.h"
 #include "assert.h"
 #include "memory.h"
 #include "arch.h"
 #include "defs.h"
+#include "object.h"
+
 extern struct outhead	outhead;
 extern struct outsect	outsect[];
 extern int		flagword;

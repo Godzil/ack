@@ -2,10 +2,6 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef lint
-static char rcsid[] = "$Id$";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include "arch.h"
@@ -15,6 +11,7 @@ static char rcsid[] = "$Id$";
 #include "debug.h"
 #include "memory.h"
 #include "defs.h"
+#include "object.h"
 
 #define ENDLIB		((long)0)
 

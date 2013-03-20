@@ -14,6 +14,8 @@
 #include <string.h>
 #include "misc.h"
 
+
+
 struct hlist {			/* linear list of pattern numbers */
     int	h_patno;
     struct hlist *h_next;
@@ -76,7 +78,7 @@ void printhashtable()
      * pointers to them
      */
     int i;
-    struct hlist *p;
+    /*struct hlist *p;*/
 
     for (i = 1; i <= 128; i++) {
 	fprintf(genc,"int hash%d[] = { ",i);

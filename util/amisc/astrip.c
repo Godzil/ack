@@ -6,9 +6,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <signal.h>
 #include "out.h"
-
+#include "object.h"
 /*
 
 	astrip -- remove symbols and relocation bits
@@ -17,11 +21,12 @@
 
 char	temp_name[] = "/tmp/sXXXXXX";
 char	*tname;
-char	*mktemp();
-FILE	*fopen();
 FILE	*tf;
 struct outhead buf;
 int	readerror, writeerror;
+
+int strip(char *name);
+int copy(char *fnam, char *tnam, long size, int fr, int fw);
 
 int main(int argc, char *argv[])
 {
@@ -113,7 +118,7 @@ int strip(char *name)
 
 int copy(char *fnam, char *tnam, long size, int fr, int fw)
 {
-	int s, n;
+	int s/*, n*/;
 	char lbuf[512];
 
 	while(size != (long)0) {

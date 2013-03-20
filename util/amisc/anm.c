@@ -15,9 +15,15 @@
 #include    <string.h>
 #include	<ctype.h>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include	"out.h"
 #include	"arch.h"
 #include	"ranlib.h"
+#include	"object.h"
 
 int	numsort_flg;
 int	sectsort_flg;
@@ -97,8 +103,6 @@ int main(int argc, char *argv[])
 	}
 	exit(0);
 }
-
-int rd_unsigned2(int fd);
 
 void process(int fd)
 {

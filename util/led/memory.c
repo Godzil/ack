@@ -2,10 +2,6 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef lint
-static char rcsid[] = "$Id$";
-#endif
-
 /*
  * Memory manager. Memory is divided into NMEMS pieces. There is a struct
  * for each piece telling where it is, how many bytes are used, and how may
@@ -22,6 +18,7 @@ static char rcsid[] = "$Id$";
  */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <out.h>
 #include "const.h"
 #include "assert.h"
@@ -29,6 +26,9 @@ static char rcsid[] = "$Id$";
 #include "arch.h"
 #include "memory.h"
 #include "defs.h"
+#include "object.h"
+
+#include <missing_proto.h>
 
 static ind_t move_up(int piece, ind_t incr);
 static bool compact(int piece, ind_t incr, int flag);
@@ -56,7 +56,7 @@ int sbreak(ind_t incr)
 	if ((refused && refused < incr) ||
 	    (sizeof(char *) < sizeof(long) &&
 	     (inc != incr || BASE + inc < BASE)) ||
-	    brk(BASE + incr) == -1) {
+	    brk(BASE + incr) == (void *)-1) {
 		if (!refused || refused > incr)
 			refused = incr;
 		return -1;
@@ -74,17 +74,16 @@ void init_core()
 	char		*base;
 	ind_t		total_size;
 	struct memory	*mem;
-	extern char		*sbrk();
 
 #include "mach.c"
 #define ALIGN 8			/* minimum alignment for pieces */
 #define AT_LEAST	(ind_t)2*ALIGN	/* See comment about string areas. */
 
 	total_size = (ind_t)0;	/* Will accumulate the sizes. */
-	BASE = base = sbrk(0);		/* First free. */
+	BASE = base = (char *)sbrk(0);		/* First free. */
 	if ((int)base % ALIGN) {
-		base  = sbrk(ALIGN - (int)base % ALIGN);
-		BASE = base = sbrk(0);
+		base  = (char *)sbrk(ALIGN - (int)base % ALIGN);
+		BASE = base = (char *)sbrk(0);
 	}
 	/*
 	 * String areas are special-cased. The first byte is unused as a way to
@@ -537,7 +536,7 @@ void write_bytes()
 	extern int		flagword;
 	extern struct outhead	outhead;
 	extern struct outsect	outsect[];
-	extern char		*outputname;
+	/* extern char		*outputname; */
 	int			sectionno = 0;
 
 	nsect = outhead.oh_nsect;

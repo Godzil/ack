@@ -2,10 +2,6 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef lint
-static char rcsid[] = "$Id$";
-#endif
-
 #include <out.h>
 #include "const.h"
 #include "arch.h"
@@ -13,6 +9,7 @@ static char rcsid[] = "$Id$";
 #include "defs.h"
 #include "orig.h"
 #include "scan.h"
+#include "object.h"
 
 extern bool	incore;
 extern unsigned short	NLocals;
@@ -22,8 +19,9 @@ static void adjust_names(struct outname *name, struct outhead *head, char *chars
 static void handle_relos(struct outhead *head, struct outsect *sects, struct outname *names);
 static void put_locals(struct outname *name, unsigned int nnames);
 static void compute_origins(struct outsect *sect, unsigned int nsect);
-
-static put_dbug(long offdbug);
+#ifdef SYMDBUG
+static void put_dbug(long offdbug);
+#endif
 /*
  * We know all there is to know about the current module.
  * Now we relocate the values in the emitted bytes and write
@@ -235,7 +233,7 @@ static void compute_origins(struct outsect *sect, unsigned int nsect)
  * Write out what is after the string area. This is likely to be
  * debugging information.
  */
-static put_dbug(long offdbug)
+static void put_dbug(long offdbug)
 {
 	char		buf[512];
 	int	nbytes;

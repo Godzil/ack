@@ -2,17 +2,13 @@
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
-#ifndef lint
-static char rcsid[] = "$Id$";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef SYMDBUG
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#endif /* SYMDBUG */
 #include "arch.h"
 #include "out.h"
 #include "ranlib.h"
@@ -22,6 +18,7 @@ static char rcsid[] = "$Id$";
 #include "scan.h"
 #include "debug.h"
 #include "defs.h"
+#include "object.h"
 
 #define READ	0
 

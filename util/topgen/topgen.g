@@ -21,6 +21,9 @@
 #include "token.h"
 #include "symtab.h"
 #include "misc.h"
+#include "main.h"
+#include "pattern.h"
+#include "hash.h"
 
 char	idbuf[BUFSIZ], buf[BUFSIZ];
 int	countid;		/* # of variables */

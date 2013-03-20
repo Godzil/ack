@@ -12,19 +12,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "symtab.h"
+#include "main.h"
 
 struct symtab *idtable, *deftable;
 
-struct symtab *
-findident(s, mode, table) char *s; struct symtab **table; {
+struct symtab *findident(char *s, int mode, struct symtab **table)
+{
     /*
      * Look for identifier s in the symboltable referred to by *table.
      * If mode = LOOKING, no new entry's will be made.
      * If mode = ENTERING, a new entry will be made if s is not in the
      * table yet, otherwise an error results
      */
-    register struct symtab *p;
-    register n;
+    struct symtab *p;
+    int n;
 
     if (!*table) {	/* No entry for this symbol */
 	if (mode == LOOKING) return (struct symtab *) 0;
