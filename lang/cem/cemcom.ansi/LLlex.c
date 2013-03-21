@@ -317,7 +317,7 @@ garbage:
 		char *tg = &buf[0];
 		int pos = -1;
 		struct idf *idef;
-		int idfsize = 0;		/* ??? */
+		extern int idfsize;
 #ifndef	NOPP
 		int NoExpandNext = 0;
 
