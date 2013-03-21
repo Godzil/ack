@@ -97,6 +97,7 @@ _include	<unistd.h>
 #ifdef ASLD
 #include	"arch.h"
 #endif
+#include	"missing_proto.h"
 #include	"object.h"
 #include	"out.h"
 

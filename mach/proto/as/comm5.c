@@ -9,6 +9,9 @@
 #include	"comm1.h"
 #include	"y.tab.h"
 
+/* Since isascii is not standard, as c89 or C99, privide another method */
+#define IsAscii(_c) (((_c) & ~0x7f) == 0)
+
 extern YYSTYPE	yylval;
 
 int yylex()
@@ -221,7 +224,7 @@ int nextchar()
 #endif
 	if ((c = getc(input)) == EOF)
 		return(0);
-	if (isascii(c) == 0)
+	if (IsAscii(c) == 0)
 		fatal("non-ascii character");
 #ifdef LISTING
 	if (listflag & 0440)
