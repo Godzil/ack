@@ -50,8 +50,8 @@ include "util/topgen/pmfile"
 include "util/led/pmfile"
 
 include "lang/cem/pmfile"
-include "lang/pc/pmfile"
-include "lang/m2/pmfile"
+-- include "lang/pc/pmfile"
+-- include "lang/m2/pmfile"
 -- include "lang/occam/pmfile"
 -- include "lang/basic/pmfile"
 
@@ -81,8 +81,8 @@ include "mach/z8000/pmfile"
 lang_runtimes = group {
 --	lang_cem_runtime,        -- K&R C (obsolete and useless)
 	lang_cem_ansi_runtime,   -- ANSI C
-	lang_pc_runtime,         -- Pascal
-	lang_m2_runtime,         -- Modula-2
+--	lang_pc_runtime,         -- Pascal
+--	lang_m2_runtime,         -- Modula-2
 --	lang_occam_runtime,      -- Occam 1 (obsolete and useless)
 --	lang_basic_runtime,      -- Basic
 }
@@ -151,8 +151,8 @@ default = group {
 
 --	lang_cem_compiler,
 	lang_cem_ansi_compiler,
-	lang_pc_compiler,
-	lang_m2_compiler,
+--	lang_pc_compiler,
+--	lang_m2_compiler,
 --	lang_occam_compiler,
 --	lang_basic_compiler,
 
