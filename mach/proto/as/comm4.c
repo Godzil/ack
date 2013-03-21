@@ -11,7 +11,6 @@
  *	Johan Stevenson, Han Schaminee and Hans de Vries
  *		Philips S&I, T&M, PMDS, Eindhoven
  */
-
 #include	"comm0.h"
 #include	"comm1.h"
 #include	"y.tab.h"
@@ -20,7 +19,8 @@ extern YYSTYPE	yylval;
 
 /* ========== Machine independent C routines ========== */
 
-void stop() {
+void stop(int signal)
+{
 #if DEBUG < 2
 	unlink(temppath);
 #ifdef LISTING
@@ -30,11 +30,10 @@ void stop() {
 	exit(nerrors != 0);
 }
 
-main(argc, argv)
-char **argv;
+int main(int argc, char *argv[])
 {
-	register char *p;
-	register i;
+	char *p;
+	int i;
 	static char sigs[] = {
 		SIGHUP, SIGINT, SIGQUIT, SIGTERM, 0
 	};
@@ -49,7 +48,7 @@ char **argv;
 	}
 
 	progname = *argv++; argc--;
-	for (p = sigs; i = *p++; )
+	for (p = sigs; (i = *p++); )
 		if (signal(i, SIG_IGN) != SIG_IGN)
 			signal(i, stop);
 	for (i = 0; i < argc; i++) {
@@ -122,20 +121,20 @@ char **argv;
 #endif
 	pass_23(PASS_3);
 	wr_close();
-	stop();
+	stop(0);
+	return 0;
 }
 
 /* ---------- pass 1: arguments, modules, archives ---------- */
 
-pass_1(argc, argv)
-char **argv;
+int pass_1(int argc, char *argv[])
 {
-	register char *p;
-	register item_t *ip;
+	char *p;
+	item_t *ip;
 #ifdef ASLD
 	char armagic[2];
 #else
-	register nfile = 0;
+	int nfile = 0;
 #endif
 
 #ifdef THREE_PASS
@@ -195,7 +194,7 @@ char **argv;
 	machfinish(PASS_1);
 #ifdef ASLD
 	if (unresolved) {
-		register int i;
+		int i;
 
 		nerrors++;
 		fflush(stdout);
@@ -217,12 +216,14 @@ char **argv;
 		fatal("no source file");
 	*/
 #endif
+	return 0;
 }
 
 #ifdef ASLD
 
-archive() {
-	register long offset;
+void archive()
+{
+	long offset;
 	struct ar_hdr header;
 	char getsize[AR_TOTAL];
 
@@ -254,14 +255,14 @@ archive() {
 	archmode = 0;
 }
 
-needed()
+int needed()
 {
-	register c, first;
-	register item_t *ip;
-	register need;
+	c, first;
+	item_t *ip;
+	int need;
 
 #ifdef LISTING
-	register save;
+	int save;
 
 	save = listflag; listflag = 0;
 #endif
@@ -306,12 +307,11 @@ needed()
 }
 #endif /* ASLD */
 
-parse(s)
-char *s;
+void parse(char *s)
 {
-	register i;
-	register item_t *ip;
-	register char *p;
+	int i;
+	item_t *ip;
+	char *p;
 
 	for (p = s; *p; )
 		if (*p++ == '/')
@@ -371,16 +371,16 @@ char *s;
 	}
 }
 
-pass_23(n)
+void pass_23(int n)
 {
-	register i;
+	int i;
 #ifdef ASLD
-	register ADDR_T base = 0;
+	ADDR_T base = 0;
 #endif
-	register sect_t *sp;
+	sect_t *sp;
 
 	if (nerrors)
-		stop();
+		stop(0);
 	pass = n;
 #ifdef LISTING
 	listmode >>= 3;
@@ -430,8 +430,7 @@ pass_23(n)
 	machfinish(n);
 }
 
-newmodule(s)
-char *s;
+void newmodule(char *s)
 {
 	static char nmbuf[STRINGMAX];
 
@@ -458,12 +457,12 @@ char *s;
 #endif
 }
 
-setupoutput()
+void setupoutput()
 {
-	register sect_t *sp;
-	register long off;
+	sect_t *sp;
+	long off;
 	struct outsect outsect;
-	register struct outsect *pos = &outsect;
+	struct outsect *pos = &outsect;
 
 	if (! wr_open(aoutpath)) {
 		fatal("can't create %s", aoutpath);
@@ -493,15 +492,15 @@ setupoutput()
 	outhead.oh_nchar = off;	/* see newsymb() */
 }
 
-commfinish()
+void commfinish()
 {
 #ifndef ASLD
-	register int i;
+	int i;
 #endif
-	register struct common_t *cp;
-	register item_t *ip;
-	register sect_t *sp;
-	register valu_t addr;
+	struct common_t *cp;
+	item_t *ip;
+	sect_t *sp;
+	valu_t addr;
 
 	switchsect(S_UND);
 	/*

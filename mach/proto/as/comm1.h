@@ -104,17 +104,81 @@ extern struct outhead	outhead;
 extern int	curr_token;
 
 /* forward function declarations */
+int yyparse();
+
+/* ========== comm4.c prototypes =========== */
+void stop(int signal);
+int main(int argc, char *argv[]);
+int pass_1(int argc, char *argv[]);
+void parse(char *s);
+void pass_23(int n);
+void newmodule(char *s);
+void setupoutput(void);
+void commfinish(void);
+
+/* ========== comm5.c prototypes =========== */
+int yylex(void);
+void putval(int c);
+int getval(int c);
+int nextchar(void);
+void readcode(int n);
+int induo(int c);
+int inident(int c);
+int innumber(int c);
+int instring(int termc);
+int inescape(void);
+int infbsym(char *p);
+int hash(char *p);
+item_t *item_search(char *p);
+void item_insert(item_t *ip, int h);
+item_t *item_alloc(int typ);
+item_t *fb_alloc(int lab);
+item_t *fb_shift(int lab);
 #ifdef ASLD
-extern char	*readident();
+char *readident(int c);
 #endif
-extern char	*remember();
-extern item_t	*fb_shift();
-extern item_t	*fb_alloc();
-extern item_t	*item_alloc();
-extern item_t	*item_search();
-extern valu_t	load();
-extern FILE	*ffcreat();
-extern FILE	*fftemp();
+
+/* ========== comm6.c prototypes =========== */
+void newequate(item_t *ip, int typ);
+void newident(item_t *ip, int typ);
+void newlabel(item_t *ip);
+void newsect(item_t *ip);
+void newbase(valu_t base);
+void newcomm(item_t *ip, valu_t val);
+void switchsect(int newtyp);
+void align(valu_t bytes);
+long new_string(char *s);
+void newsymb(char *name, int type, int desc, valu_t valu);
+void new_common(item_t *ip);
+#ifdef RELOCATION
+void newrelo(int s, int n);
+#endif
+
+/* ========== comm7.c prototypes =========== */
+valu_t load(item_t *ip);
+int store(item_t *ip, valu_t val);
+char *remember(char *s);
+int combine(int typ1, int typ2, int op);
+int small(int fitsmall, int gain);
+void emit1(int arg);
+void emit2(int arg);
+void emit4(long arg);
+void emitx(valu_t val, int n);
+void emitstr(int zero);
+void ffreopen(char *s, FILE *f);
+FILE *ffcreat(char *s);
+FILE *fftemp(char *path, char *tail);
+void yyerror(char *str);
+int printx(int ndig, valu_t val);
+void nosect(void);
+void wr_fatal(void);
+void fatal(char *s, ...);
+void assert1(void);
+void serror(char *s, ...);
+void warning(char *s, ...);
+void diag(char *tail, char *s, ...);
+void nofit(void);
+void listline(int textline);
 
 /* ========== Machine dependent C declarations ========== */
 

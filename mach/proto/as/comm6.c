@@ -12,9 +12,7 @@
 #include	"comm1.h"
 #include	"y.tab.h"
 
-newequate(ip, typ)
-register item_t *ip;
-register int typ;
+void newequate(item_t *ip, int typ)
 {
 	typ &= ~S_EXT;
 	if (typ & S_COM)
@@ -34,10 +32,9 @@ register int typ;
 	newident(ip, typ);
 }
 
-newident(ip, typ)
-register item_t *ip;
+void newident(item_t *ip, int typ)
 {
-	register flag;
+	int flag;
 #ifdef GENLAB
 	static char genlab[] = GENLAB;
 #endif /* GENLAB */
@@ -74,12 +71,11 @@ register item_t *ip;
 		);
 }
 
-newlabel(ip)
-register item_t *ip;
+void newlabel(item_t *ip)
 {
 #if DEBUG != 0
 #ifdef THREE_PASS
-	register ADDR_T oldval = ip->i_valu;
+	ADDR_T oldval = ip->i_valu;
 #endif
 #endif
 
@@ -94,11 +90,10 @@ register item_t *ip;
 #endif
 }
 
-newsect(ip)
-register item_t *ip;
+void newsect(item_t *ip)
 {
-	register int typ;
-	register sect_t *sp = NULL;
+	int typ;
+	sect_t *sp = NULL;
 
 	typ = ip->i_type & S_TYP;
 	if (typ == S_UND) {
@@ -132,11 +127,10 @@ register item_t *ip;
 }
 
 /*ARGSUSED*/
-newbase(base)
-valu_t base;
+void newbase(valu_t base)
 {
 #ifdef ASLD
-	register sect_t *sp;
+	sect_t *sp;
 	
 	if ((sp = DOTSCT) == NULL)
 		nosect();
@@ -160,9 +154,7 @@ valu_t base;
  *   -	maximum length of .comm is recorded in i_valu during PASS_1
  *   -	i_valu is used for relocation info during PASS_3
  */
-newcomm(ip, val)
-register item_t *ip;
-valu_t val;
+void newcomm(item_t *ip, valu_t val)
 {
 	if (pass == PASS_1) {
 		if (DOTSCT == NULL)
@@ -183,12 +175,11 @@ valu_t val;
 	}
 }
 
-switchsect(newtyp)
-int newtyp;
+void switchsect(int newtyp)
 {
-	register sect_t *sp;
+	sect_t *sp;
 	
-	if (sp = DOTSCT)
+	if ( (sp = DOTSCT) )
 		sp->s_size = DOTVAL - sp->s_base;
 	if (newtyp == S_UND) {
 		DOTSCT = NULL;
@@ -202,27 +193,35 @@ int newtyp;
 	DOTTYP = newtyp;
 }
 
-align(bytes)
-valu_t bytes;
+void align(valu_t bytes)
 {
-	register valu_t gap;
-	register sect_t *sp;
+	valu_t gap;
+	sect_t *sp;
 
 	if ((sp = DOTSCT) == NULL)
 		nosect();
 	if (bytes == 0)
 		bytes = ALIGNWORD;
 	if (sp->s_lign % bytes)
+	{
 		if (bytes % sp->s_lign)
+		{
 			serror("illegal alignment");
+		}
 		else
+		{
 			sp->s_lign = bytes;
+		}
+	}
 	if (pass == PASS_1)
+	{
 		/*
 		 * be pessimistic: biggest gap possible
 		 */
 		gap = bytes - 1;
-	else {
+	}	
+	else
+	{
 		/*
 		 * calculate gap correctly;
 		 * will be the same in PASS_2 and PASS_3
@@ -242,7 +241,7 @@ valu_t bytes;
 }
 
 #ifdef RELOCATION
-newrelo(s, n)
+void newrelo(int s, int n)
 {
 	int	iscomm;
 	struct outrelo	outrelo;
@@ -270,16 +269,19 @@ newrelo(s, n)
 	s &= ~S_COM;
 	if ((n & RELPC) == 0 && ((s & ~S_VAR) == S_ABS))
 		return;
+
 	if ((n & RELPC) != 0 && s == DOTTYP
 #ifndef ASLD
 	    && ! iscomm
 #endif
 	   )
 		return;
+
 	if (pass != PASS_3) {
 		outhead.oh_nrelo++;
 		return;
 	}
+
 	s &= ~S_VAR;
 	outrelo.or_type = (char)n;
 	outrelo.or_sect = (char)DOTTYP;
@@ -290,13 +292,16 @@ newrelo(s, n)
 		relonami = 0;
 	} else
 #endif
-	if (s < S_MIN) {
+	if (s < S_MIN)
+	{
 		assert(s == S_ABS);
 		/*
 		 * use first non existing entry (argh)
 		 */
 		outrelo.or_nami = outhead.oh_nname;
-	} else {
+	}
+	else
+	{
 		/*
 		 * section symbols are at the end
 		 */
@@ -310,9 +315,7 @@ newrelo(s, n)
 }
 #endif
 
-long
-new_string(s)
-	char	*s;
+long new_string(char *s)
 {
 	long	r = 0;
 
@@ -326,9 +329,7 @@ new_string(s)
 	return r;
 }
 
-newsymb(name, type, desc, valu)
-register char *name;
-valu_t valu;
+void newsymb(char *name, int type, int desc, valu_t valu)
 {
 	struct outname outname;
 
@@ -350,10 +351,9 @@ valu_t valu;
 	wr_name(&outname, 1);
 }
 
-new_common(ip)
-	item_t *ip;
+void new_common(item_t *ip)
 {
-	register struct common_t *cp;
+	struct common_t *cp;
 	static nleft = 0;
 	static struct common_t *next;
 

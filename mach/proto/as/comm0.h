@@ -83,17 +83,21 @@ _include	<stdio.h>
 _include    <string.h>
 _include	<ctype.h>
 _include	<signal.h>
+_include	<unistd.h>
 #else
 #include    <stdlib.h>
 #include	<stdio.h>
 #include    <string.h>
+#include	<stdarg.h>
 #include	<ctype.h>
 #include	<signal.h>
+#include	<unistd.h>
 #endif
 
 #ifdef ASLD
 #include	"arch.h"
 #endif
+#include	"object.h"
 #include	"out.h"
 
 #if DEBUG == 0
@@ -262,5 +266,3 @@ typedef	struct sect_t	sect_t;
 #define	MACHREL_BWR	(0)
 #endif
 #endif
-
-extern FILE *fopen();   /* some systems don't have this in stdio.h */
