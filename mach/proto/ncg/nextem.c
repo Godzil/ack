@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include <em_spec.h>
 #include <em_flag.h>
 #include "assert.h"
@@ -12,21 +14,18 @@ static char rcsid[] = "$Id$";
 #include "data.h"
 #include "result.h"
 #include "extern.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
+#include "compute.h"
+#include "fillem.h"
+#include "nextem.h"
 
 #ifndef NDEBUG
 #include <stdio.h>
 extern char em_mnem[][4];
 #endif
 
-byte *trypat(bp,len) register byte *bp; {
-	register patlen,i;
+byte *trypat(byte *bp, int len)
+{
+	int patlen,i;
 	result_t result;
 
 	getint(patlen,bp);
@@ -83,8 +82,8 @@ byte *trypat(bp,len) register byte *bp; {
 
 extern char em_flag[];
 
-argtyp(mn) {
-
+int argtyp(int mn)
+{
 	switch(em_flag[mn-sp_fmnem]&EM_PAR) {
 	case PAR_W:
 	case PAR_S:
@@ -101,13 +100,14 @@ argtyp(mn) {
 	}
 }
 
-byte *nextem(toplevel) {
-	register i;
+byte *nextem(int toplevel)
+{
+	int i;
 	short hash[3];
-	register byte *bp;
+	byte *bp;
 	byte *cp;
 	int index;
-	register struct emline *ep;
+	struct emline *ep;
 
 	if (toplevel) {
 		if (nemlines && emp>emlines) {

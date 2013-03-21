@@ -41,6 +41,7 @@ proto_ncg = cprogram {
 	cfile_with_tables (d.."state.c"),
 	cfile_with_tables (d.."subr.c"),
 	cfile_with_tables (d.."var.c"),
+	cfile_with_tables (d.."utils.c"),
 	
 	cfile {
 		ith { make_tables, i = 1 },

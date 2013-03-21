@@ -3,13 +3,15 @@
 #include "types.h"
 #include "param.h"
 #include "label.h"
+#include "salloc.h"
+#include "utils.h"
+#include "label.h"
 
 static label_p label_list = (label_p)0;
-extern char *myalloc();
 
-add_label(num, height, flth)
+void add_label(int num, int height, int flth)
 {
-	register label_p lbl = (label_p)0;
+	label_p lbl = (label_p)0;
 
 	if (height <= 0) return;
 	if (flth != TRUE && flth != FALSE)
@@ -23,10 +25,9 @@ add_label(num, height, flth)
 	label_list = lbl;
 }
 
-label_p get_label(num)
-register word num;
+label_p get_label(word num)
 {
-	register label_p tmp = label_list;
+	label_p tmp = label_list;
 
 	while (tmp != (label_p)0) {
 		if (tmp->lb_number == num) return tmp;
@@ -35,7 +36,7 @@ register word num;
 	return (label_p)0;
 }
 
-kill_labels()
+void kill_labels()
 {
 	label_p tmp;
 

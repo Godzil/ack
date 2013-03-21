@@ -4,6 +4,9 @@
  */
 /* $Id$ */
 
+#ifndef MACH_PROTO_NCG_DATA_H
+#define MACH_PROTO_NCG_DATA_H
+
 typedef struct cost {
 	short ct_space;
 	short ct_time;
@@ -69,3 +72,5 @@ typedef struct {
 	int rl_n;       /* number in list */
 	int rl_list[NREGS];
 } rl_t,*rl_p;
+
+#endif /* MACH_PROTO_NCG_DATA_H */

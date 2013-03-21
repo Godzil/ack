@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef MACH_PROTO_NCG_GLOSYM_H
+#define MACH_PROTO_NCG_GLOSYM_H
 
 typedef struct glosym {
 	struct glosym *gl_next;
@@ -10,4 +12,7 @@ typedef struct glosym {
 	word	       gl_rom[MAXROM+1];
 } glosym_t,*glosym_p;
 
-glosym_p lookglo();
+void enterglo(string name, word *romp);
+glosym_p lookglo(string name);
+
+#endif /* MACH_PROTO_NCG_GLOSYM_H */

@@ -1,12 +1,14 @@
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "assert.h"
 #include "param.h"
 #include "tables.h"
 
 #ifdef REGVARS
-
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
 
 #include "types.h"
 #include <cgg_cg.h>
@@ -15,19 +17,17 @@ static char rcsid[] = "$Id$";
 #include <em_reg.h>
 #include "result.h"
 #include "extern.h"
+#include "utils.h"
+#include "salloc.h"
+#include "reg.h"
+#include "fillem.h"
+#include "mach_dep.h"
 
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-extern string myalloc();
 struct regvar *rvlist;
 
-struct regvar *
-linkreg(of,sz,tp,sc) long of; {
-	register struct regvar *rvlp;
+struct regvar *linkreg(long of, int sz, int tp, int sc)
+{
+	struct regvar *rvlp;
 
 	rvlp= (struct regvar *) myalloc(sizeof *rvlp);
 	rvlp->rv_next = rvlist;
@@ -40,10 +40,11 @@ linkreg(of,sz,tp,sc) long of; {
 	return(rvlp);
 }
 
-tryreg(rvlp,typ) register struct regvar *rvlp; {
+void tryreg(struct regvar *rvlp, int typ)
+{
 	int score;
-	register i;
-	register struct regassigned *ra;
+	int i;
+	struct regassigned *ra;
 	struct regvar *save;
 
 	if (typ != reg_any && nregvar[typ]!=0) {
@@ -85,10 +86,11 @@ tryreg(rvlp,typ) register struct regvar *rvlp; {
 	}
 }
 
-fixregvars(saveall) {
-	register struct regvar *rv;
-	register rvtyp,i;
-	
+void fixregvars(int saveall)
+{
+	struct regvar *rv;
+	int rvtyp,i;
+
 	swtxt();
 	i_regsave();	/* machine dependent initialization */
 	for (rvtyp=reg_any;rvtyp<=reg_float;rvtyp++) {
@@ -108,8 +110,9 @@ fixregvars(saveall) {
 	f_regsave();
 }
 
-isregvar(off) long off; {
-	register struct regvar *rvlp;
+int isregvar(long off)
+{
+	struct regvar *rvlp;
 
 	for(rvlp=rvlist;rvlp!=0;rvlp=rvlp->rv_next)
 		if(rvlp->rv_off == off)
@@ -117,8 +120,9 @@ isregvar(off) long off; {
 	return(-1);
 }
 
-isregtyp(off) long off; {
-	register struct regvar *rvlp;
+int isregtyp(long off)
+{
+	struct regvar *rvlp;
 
 	for(rvlp=rvlist;rvlp!=0;rvlp=rvlp->rv_next)
 		if(rvlp->rv_off == off)
@@ -126,9 +130,10 @@ isregtyp(off) long off; {
 	return(-1);
 }
 
-unlinkregs() {
-	register struct regvar *rvlp,*t;
-	register struct regassigned *ra;
+void unlinkregs()
+{
+	struct regvar *rvlp,*t;
+	struct regassigned *ra;
 	int rvtyp,i;
 
 	for(rvlp=rvlist;rvlp!=0;rvlp=t) {

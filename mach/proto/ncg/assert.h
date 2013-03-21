@@ -4,8 +4,13 @@
  */
 /* $Id$ */
 
+#ifndef MACH_PROTO_NCG_ASSERT_H
+#define MACH_PROTO_NCG_ASSERT_H
+
 #ifndef NDEBUG
 #define assert(x) if(!(x)) badassertion("x",__FILE__,__LINE__)
 #else
 #define assert(x)	/* nothing */
 #endif
+
+#endif /* MACH_PROTO_NCG_ASSERT_H */

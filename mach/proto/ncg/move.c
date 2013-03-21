@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "assert.h"
 #include "param.h"
 #include "tables.h"
@@ -10,21 +12,20 @@ static char rcsid[] = "$Id$";
 #include "data.h"
 #include "result.h"
 #include "extern.h"
+#include "subr.h"
+#include "reg.h"
+#include "utils.h"
+#include "codegen.h"
 
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
+#include "move.h"
 
-move(tp1,tp2,ply,toplevel,maxcost) token_p tp1,tp2; unsigned maxcost; {
-	register move_p mp;
-	unsigned t;
-	register struct reginfo *rp;
-	register byte *tdpb;
+int move(token_p tp1, token_p tp2, int ply, int toplevel, unsigned int maxcost)
+{
+	move_p mp;
+	unsigned int t;
+	struct reginfo *rp;
+	byte *tdpb;
 	int i;
-	unsigned codegen();
 
 	if (eqtoken(tp1,tp2))
 		return(0);
@@ -95,15 +96,15 @@ move(tp1,tp2,ply,toplevel,maxcost) token_p tp1,tp2; unsigned maxcost; {
 
 #define cocoreg machregs[0].r_contents
 
-setcc(tp) token_p tp; {
-
+void setcc(token_p tp)
+{
 	cocoreg = *tp;
 }
 
-test(tp,ply,toplevel,maxcost) token_p tp; unsigned maxcost; {
-	register test_p mp;
-	unsigned t;
-	unsigned codegen();
+int test(token_p tp, int ply, int toplevel, unsigned int maxcost)
+{
+	test_p mp;
+	unsigned int t;
 
 	if (cocoreg.t_token!=0) {
 		if (eqtoken(tp,&cocoreg))

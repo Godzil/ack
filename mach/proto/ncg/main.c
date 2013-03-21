@@ -1,31 +1,47 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
-#include "param.h"
-#include "tables.h"
-#include "mach.h"
-
 /*
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  *
  * Author: Hans van Staveren
  */
+#include <stdlib.h>
+#include "mach.h"
+#include "param.h"
+#include "tables.h"
+#include "types.h"
+#include "param.h"
+#include "data.h"
+#include <cgg_cg.h>
+#include "tables.h"
+#include "mach.h"
+#include "fillem.h"
+#include "gencode.h"
+#include "codegen.h"
+#include "subr.h"
+#include "utils.h"
 
 char *progname;
 extern char startupcode[];
-extern unsigned codegen();
 int maxply=1;
 #ifndef NDEBUG
 int Debug=0;
 char *strtdebug="";
 #endif
 
-main(argc,argv) char **argv; {
-	register unsigned n;
+static unsigned int ggd(unsigned int a, unsigned int b)
+{
+	unsigned int c;
+
+	do {
+		c = a%b; a=b; b=c;
+	} while (c!=0);
+	return(a);
+}
+
+int main(int argc, char *argv[])
+{
+	unsigned n;
 	extern unsigned cc1,cc2,cc3,cc4;
-	unsigned ggd();
 
 	progname = argv[0];
 	while (--argc && **++argv == '-') {
@@ -82,13 +98,4 @@ main(argc,argv) char **argv; {
 	in_start();
 	codegen(startupcode,maxply,TRUE,MAXINT,0);
 	error("Bombed out of codegen");
-}
-
-unsigned ggd(a,b) register unsigned a,b; {
-	register unsigned c;
-
-	do {
-		c = a%b; a=b; b=c;
-	} while (c!=0);
-	return(a);
 }

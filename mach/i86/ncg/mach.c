@@ -4,17 +4,12 @@
  *
  */
 
-#ifndef NORCSID
-static char rcs_m[]= "$Id$" ;
-static char rcs_mh[]= ID_MH ;
-#endif
-
 /*
  * machine dependent back end routines for the Intel 8086
  */
 
-con_part(sz,w) register sz; word w; {
-
+void con_part(int sz, word w)
+{
 	while (part_size % sz)
 		part_size++;
 	if (part_size == TEM_WSIZE)
@@ -31,7 +26,8 @@ con_part(sz,w) register sz; word w; {
 	part_size += sz;
 }
 
-con_mult(sz) word sz; {
+void con_mult(word sz)
+{
 	long l;
 
 	if (sz != 4)
@@ -61,8 +57,8 @@ string holstr(n) word n; {
 full lbytes;
 #endif
 
-prolog(nlocals) full nlocals; {
-
+void prolog(full nlocals)
+{
 	fputs("\tpush\tbp\n\tmov\tbp,sp\n", codefile);
 #ifdef REGVARS
 	lbytes = nlocals;
@@ -82,8 +78,7 @@ long si_off;
 long di_off;
 int firstreg;
 
-regscore(off, size, typ, score, totyp)
-	long off;
+int regscore(long off, int size, int typ, int score, int totyp)
 {
 	if (size != 2) return -1;
 	score -= 1;
@@ -94,14 +89,14 @@ regscore(off, size, typ, score, totyp)
 	return score;
 }
 
-i_regsave()
+void i_regsave()
 {
 	si_off = -1;
 	di_off = -1;
 	firstreg = 0;
 }
 
-f_regsave()
+void f_regsave()
 {
 	if (si_off != di_off) {
 		if (di_off == -lbytes) lbytes -= 2;
@@ -129,9 +124,7 @@ f_regsave()
 		fprintf(codefile, "mov si,%ld(bp)\n", si_off);
 }
 
-regsave(regstr, off, size)
-	char *regstr;
-	long off;
+void regsave(char *regstr, long off, int size)
 {
 	if (strcmp(regstr, "si") == 0) {
 		if (! firstreg) firstreg = -1;
@@ -143,7 +136,7 @@ regsave(regstr, off, size)
 	}
 }
 
-regreturn()
+void regreturn()
 {
 	if (firstreg == 1) {
 		if (si_off != -1) fputs("jmp .sdret\n", codefile);
@@ -157,7 +150,8 @@ regreturn()
 }
 #endif /* REGVARS */
 
-mes(type) word type ; {
+void mes(word type)
+{
 	int argt ;
 
 	switch ( (int)type ) {

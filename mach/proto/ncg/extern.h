@@ -4,6 +4,9 @@
  */
 /* $Id$ */
 
+#ifndef MACH_PROTO_NCG_EXTERN_H
+#define MACH_PROTO_NCG_EXTERN_H
+
 extern int maxply;                      /* amount of lookahead allowed */
 extern int stackheight;                 /* # of tokens on fakestack */
 extern token_t fakestack[];             /* fakestack itself */
@@ -52,3 +55,5 @@ extern struct reginfo **reglist[];	/* lists of registers per property */
 extern int nregvar[];			/* # of register variables per type */
 extern int *rvnumbers[];		/* lists of numbers */
 #endif
+
+#endif /* MACH_PROTO_NCG_EXTERN_H */

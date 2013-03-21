@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid2[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,18 +20,20 @@ static char rcsid2[] = "$Id$";
 #include <cgg_cg.h>
 #include "data.h"
 #include "result.h"
+#include "salloc.h"
+#include "utils.h"
 #ifdef REGVARS
 #include "regvar.h"
 #include <em_reg.h>
 #endif
+#include "fillem.h"
+#include "gencode.h"
+#include "glosym.h"
+#include "label.h"
+#include "reg.h"
+#include "mach_dep.h"
+#include "compute.h"
 #include "extern.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
 
 #ifndef newplb			/* retrofit for older mach.h */
 #define newplb newilb
@@ -37,15 +41,13 @@ static char rcsid2[] = "$Id$";
 
 #ifdef fmt_id
 #ifdef id_first
-It is an error to define both fmt_id and id_first.
-Read the documentation.
+#error It is an error to define both fmt_id and id_first. Read the documentation.
 #endif
 #endif
 
 #ifdef fmt_ilb
 #ifdef ilb_fmt
-It is an error to define both fmt_ilb and ilb_fmt.
-Read the documentation.
+#error It is an error to define both fmt_ilb and ilb_fmt. Read the documentation.
 #endif
 #endif
 
@@ -55,13 +57,10 @@ Read the documentation.
 #define SEGROM          2
 #define SEGBSS          3
 
-long con();
-
 #define get8()  getc(emfile)
 
 FILE *emfile;
 extern FILE *codefile;
-extern FILE *freopen();
 
 int nextispseu,savetab1;
 int opcode;
@@ -82,16 +81,14 @@ int regallowed=0;
 
 extern char em_flag[];
 extern short em_ptyp[];
-extern double atof();
 
 /* Own version of atol that continues computing on overflow.
    We don't know that about the ANSI C one.
 */
-long our_atol(s)
-register char *s;
+long our_atol(char *s)
 {
-  register long total = 0;
-  register unsigned digit;
+  long total = 0;
+  unsigned digit;
   int minus = 0;
 
   while (*s == ' ' || *s == '\t') s++;
@@ -110,15 +107,8 @@ register char *s;
 
 #define sp_cstx sp_cst2
 
-string tostring();
-string holstr();
-string strarg();
-string mystrcpy();
-string myalloc();
-long get32();
-
-in_init(filename) char *filename; {
-
+void in_init(char *filename)
+{
 	emfile = stdin;
 	if (filename && (emfile=freopen(filename,"r",stdin))==NULL)
 		error("Can't open %s",filename);
@@ -127,18 +117,21 @@ in_init(filename) char *filename; {
 	str = myalloc(maxstrsiz=256);
 }
 
-in_start() {
+void in_start()
+{
 #ifdef modhead
 	fprintf(codefile,"%s",modhead) ;
 #endif
 }
 
-in_finish() {
+void in_finish()
+{
 }
 
-fillemlines() {
-	register int t,i;
-	register struct emline *lp;
+void fillemlines()
+{
+	int t,i;
+	struct emline *lp;
 
 	while ((emlines+nemlines)-emp<MAXEMLINES-5) {
 		assert(nemlines<MAXEMLINES);
@@ -226,14 +219,13 @@ fillemlines() {
 	}
 }
 
-dopseudo() {
-	register b,t;
-	register full n;
-	register long save;
+void dopseudo() {
+	int b,t;
+	full n;
+	long save;
 	word romcont[MAXROM+1];
 	int nromwords;
 	int rombit,rommask;
-	unsigned stackupto();
 
 	if (nextispseu==0 || nemlines>0)
 		error("No table entry for %d",emlines[0].em_instr);
@@ -445,8 +437,9 @@ int getarg(int typset)
 	return(argtyp);
 }
 
-int table1() {
-	register i;
+int table1()
+{
+	int i;
 
 	i = get8();
 	if (i < sp_fmnem+sp_nmnem && i >= sp_fmnem) {
@@ -464,8 +457,9 @@ int table1() {
 	return(table3(i));
 }
 
-int table2() {
-	register i;
+int table2()
+{
+	int i;
 
 	i = get8();
 	if (i < sp_fcst0+sp_ncst0 && i >= sp_fcst0) {
@@ -475,7 +469,8 @@ int table2() {
 	return(table3(i));
 }
 
-int table3(i) {
+int table3(int i)
+{
 	word consiz;
 
 	switch(i) {
@@ -518,8 +513,9 @@ int table3(i) {
 	return(i);
 }
 
-int get16() {
-	register int l_byte, h_byte;
+int get16()
+{
+	int l_byte, h_byte;
 
 	l_byte = get8();
 	h_byte = get8();
@@ -527,9 +523,10 @@ int get16() {
 	return l_byte | (h_byte*256) ;
 }
 
-long get32() {
-	register long l;
-	register int h_byte;
+long get32()
+{
+	long l;
+	int h_byte;
 
 	l = get8();
 	l |= ((unsigned) get8())*256 ;
@@ -539,9 +536,10 @@ long get32() {
 	return l | (h_byte*256L*256*256L) ;
 }
 
-getstring() {
-	register char *p;
-	register n;
+void getstring()
+{
+	char *p;
+	int n;
 
 	getarg(cst_ptyp);
 	if (argval < 0)
@@ -558,8 +556,9 @@ getstring() {
 	*p++ = '\0';
 }
 
-char *strarg(t) {
-	register char *p;
+char *strarg(int t)
+{
+	char *p;
 
 	switch (t) {
 	case sp_ilb1:
@@ -606,8 +605,9 @@ char *strarg(t) {
 	return(mystrcpy(argstr));
 }
 
-bss(n,t,b) full n; {
-	register long s = 0;
+void bss(full n, int t, int b)
+{
+	long s = 0;
 
 	if (n % TEM_WSIZE)
 		fatal("bad BSS size");
@@ -629,8 +629,9 @@ bss(n,t,b) full n; {
 		fatal("bad BSS initializer");
 }
 
-long con(t) {
-	register i;
+long con(int t)
+{
+	int i;
 
 	strarg(t);
 	switch (t) {
@@ -670,16 +671,18 @@ long con(t) {
 	}
 	assert(FALSE);
 	/* NOTREACHED */
+	return 0;
 }
 
 extern char *segname[];
 
-swtxt() {
+void swtxt()
+{
 	switchseg(SEGTXT);
 }
 
-switchseg(s) {
-
+void switchseg(int s)
+{
 	if (s == curseg)
 		return;
 	part_flush();
@@ -687,8 +690,9 @@ switchseg(s) {
 		fprintf(codefile,"%s\n",segname[s]);
 }
 
-savelab() {
-	register char *p,*q;
+void savelab()
+{
+	char *p,*q;
 
 	part_flush();
 	if (labstr[0]) {
@@ -697,12 +701,12 @@ savelab() {
 	}
 	p = argstr;
 	q = labstr;
-	while (*q++ = *p++)
+	while ( (*q++ = *p++) )
 		;
 }
 
-dumplab() {
-
+void dumplab()
+{
 	if (labstr[0] == 0)
 		return;
 	assert(part_size == 0);
@@ -710,16 +714,16 @@ dumplab() {
 	labstr[0] = 0;
 }
 
-xdumplab() {
-
+void xdumplab()
+{
 	if (labstr[0] == 0)
 		return;
 	assert(part_size == 0);
 	newdlb(labstr);
 }
 
-part_flush() {
-
+void part_flush()
+{
 	/*
 	 * Each new data fragment and each data label starts at
 	 * a new target machine word
@@ -731,8 +735,8 @@ part_flush() {
 	part_word = 0;
 }
 
-string holstr(n) word n; {
-
+string holstr(word n)
+{
 	sprintf(str,hol_off,n,holno);
 	return(mystrcpy(str));
 }

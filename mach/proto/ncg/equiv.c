@@ -1,9 +1,10 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "assert.h"
-#include "equiv.h"
 #include "param.h"
 #include "tables.h"
 #include "types.h"
@@ -11,15 +12,11 @@ static char rcsid[] = "$Id$";
 #include "data.h"
 #include "result.h"
 #include "extern.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-
-extern string myalloc();
+#include "salloc.h"
+#include "reg.h"
+#include "subr.h"
+#include "utils.h"
+#include "equiv.h"
 
 int rar[MAXCREG];
 rl_p *lar;
@@ -27,11 +24,11 @@ int maxindex;
 int regclass[NREGS];
 struct perm *perms;
 
-struct perm *
-tuples(regls,nregneeded) rl_p *regls; {
+struct perm *tuples(rl_p *regls, int nregneeded)
+{
 	int class=0;
-	register i,j;
-	register struct reginfo *rp;
+	int i,j;
+	struct reginfo *rp;
 
 	/*
 	 * First compute equivalence classes of registers.
@@ -62,10 +59,11 @@ tuples(regls,nregneeded) rl_p *regls; {
 	return(perms);
 }
 
-permute(index) {
-	register struct perm *pp;
-	register rl_p rlp;
-	register i,j;
+void permute(int index)
+{
+	struct perm *pp;
+	rl_p rlp;
+	int i,j;
 
 	if (index == maxindex) {
 		for (pp=perms; pp != 0; pp=pp->p_next) {

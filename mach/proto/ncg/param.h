@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef MACH_PROTO_NCG_PARAM_H
+#define MACH_PROTO_NCG_PARAM_H
 
 #define BMASK 0377
 #define BSHIFT 8
@@ -24,3 +26,5 @@
 #define MAXEMLINES 20
 #define MAXFSTACK 20
 #define MAXTDBUG 32
+
+#endif /* MACH_PROTO_NCG_PARAM_H */

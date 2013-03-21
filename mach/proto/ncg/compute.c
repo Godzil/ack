@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,16 +16,13 @@ static char rcsid[] = "$Id$";
 #include "result.h"
 #include "glosym.h"
 #include "extern.h"
+#include "salloc.h"
+#include "utils.h"
+#include "regvar.h"
 #ifdef USE_TES
 #include "label.h"
 #endif
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
+#include "compute.h"
 
 #define LLEAF 01
 #define LDEF  02
@@ -70,24 +69,23 @@ char opdesc[] = {
 	LLDEF,                  /* EX_TOSTRING */
 	LLDEF,                  /* EX_UMINUS */
 	0,                      /* EX_REG */
-	0,			/* EX_LOWW */
-	0,			/* EX_HIGHW */
-	LLDEF,			/* EX_INREG */
-	LLDEF,			/* EX_REGVAR */
-	LLDEF|RLDEF,		/* EX_OR */
-	LLDEF|RLDEF,		/* EX_XOR */
-	LLDEF|RLDEF,		/* EX_AND */
-	0,			/* EX_ISROM */
+	0,                      /* EX_LOWW */
+	0,                      /* EX_HIGHW */
+	LLDEF,                  /* EX_INREG */
+	LLDEF,                  /* EX_REGVAR */
+	LLDEF|RLDEF,            /* EX_OR */
+	LLDEF|RLDEF,            /* EX_XOR */
+	LLDEF|RLDEF,            /* EX_AND */
+	0,                      /* EX_ISROM */
 #ifdef USE_TES
-	0,			/* EX_TOPELTSIZE */
-	0,			/* EX_FALLTHROUGH */
+	0,                      /* EX_TOPELTSIZE */
+	0,                      /* EX_FALLTHROUGH */
 #endif
 };
 
-string salloc(),strcpy(),strcat();
-
-string mycat(s1,s2) register string s1,s2; {
-	register string s;
+string mycat(string s1, string s2)
+{
+	string s;
 
 	if (s1==0 || *s1=='\0') return(s2);
 	if (s2==0 || *s2=='\0') return(s1);
@@ -98,8 +96,9 @@ string mycat(s1,s2) register string s1,s2; {
 	return(s);
 }
 
-string mystrcpy(s) register string s; {
-	register string r;
+string mystrcpy(string s)
+{
+	string r;
 
 	r=salloc(strlen(s));
 	strcpy(r,s);
@@ -108,7 +107,8 @@ string mystrcpy(s) register string s; {
 
 char digstr[21][15];
 
-string tostring(n) register word n; {
+string tostring(word n)
+{
 	char buf[25];
 
 	if (n>=-20 && n<=20 && (n&1)==0) {
@@ -120,9 +120,10 @@ string tostring(n) register word n; {
 	return(mystrcpy(buf));
 }
 
-compute(node, presult) register node_p node; register result_t *presult; {
+void compute(node_p node, result_t *presult)
+{
 	result_t leaf1,leaf2;
-	register token_p tp;
+	token_p tp;
 	int desc;
 	long mask,tmp;
 	int i,tmpreg;

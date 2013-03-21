@@ -1,17 +1,3 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
-#include <stdlib.h>
-#include "assert.h"
-#include "param.h"
-#include "tables.h"
-#include "types.h"
-#include <cgg_cg.h>
-#include "data.h"
-#include "result.h"
-#include "extern.h"
-
 /*
  * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
  * See the copyright notice in the ACK home directory, in the file "Copyright".
@@ -24,6 +10,18 @@ static char rcsid[] = "$Id$";
  * Call salloc(size) to get room for string.
  * Every now and then call garbage_collect() from toplevel.
  */
+#include <stdlib.h>
+#include "assert.h"
+#include "param.h"
+#include "tables.h"
+#include "types.h"
+#include <cgg_cg.h>
+#include "data.h"
+#include "result.h"
+#include "extern.h"
+#include "utils.h"
+
+#include "salloc.h"
 
 #define MAXSTAB         1500
 #define THRESHOLD       200
@@ -31,8 +29,9 @@ static char rcsid[] = "$Id$";
 char *stab[MAXSTAB];
 int nstab=0;
 
-string myalloc(size) {
-	register string p;
+string myalloc(int size)
+{
+	string p;
 
 	p = (string) malloc((unsigned)size);
 	if (p==0)
@@ -40,21 +39,23 @@ string myalloc(size) {
 	return(p);
 }
 
-myfree(p) string p; {
-
+void myfree(string p)
+{
 	free(p);
 }
 
-popstr(nnstab) {
-	register i;
+void popstr(int nnstab)
+{
+	int i;
 
 	for (i=nnstab;i<nstab;i++)
 		myfree(stab[i]);
 	nstab = nnstab;
 }
 
-char *salloc(size) {
-	register char *p;
+char *salloc(int size)
+{
+	char *p;
 
 	if (nstab==MAXSTAB)
 		fatal("String table overflow");
@@ -63,21 +64,24 @@ char *salloc(size) {
 	return(p);
 }
 
-compar(p1,p2) char **p1,**p2; {
-
+int compar(const void *vp1, const void *vp2)
+{
+	char **p1 = (char **)vp1;
+	char **p2 = (char **)vp2;
 	assert(*p1 != *p2);
 	if (*p1 < *p2)
 		return(-1);
 	return(1);
 }
 
-garbage_collect() {
-	register i;
+void garbage_collect()
+{
+	int i;
 	struct emline *emlp;
 	token_p tp;
 	tkdef_p tdp;
 	struct reginfo *rp;
-	register char **fillp,**scanp;
+	char **fillp,**scanp;
 	char used[MAXSTAB];     /* could be bitarray */
 
 	if (nstab<THRESHOLD)
@@ -115,8 +119,9 @@ garbage_collect() {
 	nstab = fillp-stab;
 }
 
-chkstr(str,used) string str; char used[]; {
-	register low,middle,high;
+void chkstr(string str, char used[])
+{
+	int low,middle,high;
 
 	low=0; high=nstab-1;
 	while (high>low) {

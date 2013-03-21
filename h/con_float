@@ -55,10 +55,7 @@
 		+ (FL_MSB_AT_LOW_ADDRESS ? 1 : 0))
 
 #ifndef USE_FLT
-static int
-float_cst(str, sz, buf)
-	char *str, *buf;
-	int sz;
+static int float_cst(char *str, int sz, char *buf)
 {
 	int i;
 	char *p;
@@ -87,10 +84,7 @@ float_cst(str, sz, buf)
 #include <ctype.h>
 #include <flt_arith.h>
 
-int
-float_cst(str, sz, buf)
-	char *str, *buf;
-	int sz;
+int float_cst(char *str, int sz, char *buf)
 {
 	int overflow = 0;
 	flt_arith e;
@@ -237,7 +231,7 @@ float_cst(str, sz, buf)
 #endif /* USE_FLT */
 
 #ifdef CODE_GENERATOR
-con_float()
+void con_float()
 {
 	char buf[8];
 	int rval = float_cst(str, (int)argval, buf);
@@ -260,9 +254,7 @@ con_float()
 #endif /* CODE_GENERATOR */
 
 #ifdef CODE_EXPANDER
-con_float(str, argval)
-	char *str;
-	arith argval;
+void con_float(char *str, arith argval)
 {
 	char buf[8];
 	int rval = float_cst(str, (int)argval, buf);

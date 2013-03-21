@@ -1,8 +1,11 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "assert.h"
+#include <unistd.h>
 #include <stdio.h>
 #include "param.h"
 #include "tables.h"
@@ -11,24 +14,17 @@ static char rcsid[] = "$Id$";
 #include "data.h"
 #include "result.h"
 #include "extern.h"
+#include "compute.h"
+#include "utils.h"
+#include "gencode.h"
 #ifdef USE_TES
 #include "mach.h"
 #endif
 
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
-
-string mystrcpy();
-
 FILE *codefile;
-extern FILE *freopen();
 
-out_init(filename) char *filename; {
-
+void out_init(char *filename)
+{
 #ifndef NDEBUG
 	static char stderrbuff[BUFSIZ];
 
@@ -48,8 +44,8 @@ out_init(filename) char *filename; {
 #endif
 }
 
-out_finish() {
-
+void out_finish()
+{
 #ifndef NDEBUG
 	if (Debug)
 		fflush(stderr);
@@ -61,18 +57,19 @@ out_finish() {
 #endif
 }
 
-tstoutput() {
-
+void tstoutput()
+{
 	if (ferror(codefile))
 		error("Write error on output");
 }
 
-genstr(stringno) {
-
+void genstr(int stringno)
+{
 	fputs(codestrings[stringno],codefile);
 }
 
-string ad2str(ad) addr_t ad; {
+string ad2str(addr_t ad)
+{
 	static char buf[100];
 
 	if (ad.ea_str==0)
@@ -87,8 +84,8 @@ string ad2str(ad) addr_t ad; {
 	return(mystrcpy(buf));
 }
 
-praddr(ad) addr_t ad; {
-
+void praddr(addr_t ad)
+{
 	if (ad.ea_str==0 || *(ad.ea_str) == '\0')
 		fprintf(codefile,WRD_FMT,ad.ea_off);
 	else {
@@ -104,14 +101,16 @@ praddr(ad) addr_t ad; {
 	}
 }
 
-gennl() {
+void gennl()
+{
 	putc('\n',codefile);
 }
 
-prtoken(tp,leadingchar) token_p tp; {
-	register c;
-	register char *code;
-	register tkdef_p tdp;
+void prtoken(token_p tp, int leadingchar)
+{
+	int c;
+	char *code;
+	tkdef_p tdp;
 
 	putc(leadingchar,codefile);
 	if (tp->t_token == -1) {
@@ -144,8 +143,7 @@ prtoken(tp,leadingchar) token_p tp; {
 }
 
 #ifdef USE_TES
-printlabel(labnum)
-int labnum;
+void printlabel(int labnum)
 {
 	newilb(dollar[labnum].e_v.e_addr.ea_str);
 }

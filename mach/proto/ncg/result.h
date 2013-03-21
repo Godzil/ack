@@ -4,6 +4,9 @@
  */
 /* $Id$ */
 
+#ifndef MACH_PROTO_NCG_RESULT_H
+#define MACH_PROTO_NCG_RESULT_H
+
 struct result {
 	int	e_typ;		/* EV_INT,EV_REG,EV_STR */
 	union {
@@ -19,3 +22,5 @@ struct result {
 #define EV_ADDR	3
 
 typedef struct result result_t;
+
+#endif /* MACH_PROTO_NCG_RESULT_H */

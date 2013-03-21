@@ -1,7 +1,9 @@
-#ifndef NORCSID
-static char rcsid[] = "$Id$";
-#endif
-
+/*
+ * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
+ * See the copyright notice in the ACK home directory, in the file "Copyright".
+ *
+ * Author: Hans van Staveren
+ */
 #include "assert.h"
 #include "param.h"
 #include "tables.h"
@@ -12,25 +14,23 @@ static char rcsid[] = "$Id$";
 #include "state.h"
 #include "equiv.h"
 #include "extern.h"
-
-/*
- * (c) copyright 1987 by the Vrije Universiteit, Amsterdam, The Netherlands.
- * See the copyright notice in the ACK home directory, in the file "Copyright".
- *
- * Author: Hans van Staveren
- */
+#include "codegen.h"
+#include "utils.h"
+#include "salloc.h"
+#include "subr.h"
+#include "nextem.h"
+#include "fillem.h"
+#include "reg.h"
+#include "move.h"
+#include "gencode.h"
+#include "compute.h"
+#include "codegen.h"
+#include "mach_dep.h"
 
 #define ALLOW_NEXTEM	/* code generator is allowed new try of NEXTEM
 			   in exceptional cases */
 
 byte startupcode[] = { DO_NEXTEM };
-
-byte *nextem();
-unsigned costcalc();
-unsigned docoerc();
-unsigned stackupto();
-string tostring();
-string ad2str();
 
 #ifdef NDEBUG
 #define DEBUG(string)
@@ -50,7 +50,8 @@ short *set_val;
 char *set_flag;
 #endif
 
-unsigned codegen(codep,ply,toplevel,costlimit,forced) byte *codep; unsigned costlimit; {
+unsigned codegen(byte *codep, int ply, int toplevel, unsigned int costlimit, int forced)
+{
 #ifndef NDEBUG
 	byte *origcp=codep;
 	static int level=0;
@@ -102,7 +103,7 @@ unsigned codegen(codep,ply,toplevel,costlimit,forced) byte *codep; unsigned cost
 	byte *bp;
 	int n;
 	unsigned mindistance,dist;
-	register i;
+	int i;
 	int cindex;
 	int npos,pos[MAXRULE];
 	unsigned mincost,t;
@@ -243,7 +244,7 @@ if (Debug)
     case DO_XXMATCH:
 	DEBUG("XXMATCH");
     case DO_XMATCH: {
-	register i;
+	int i;
 	int temp;
 
 	DEBUG("XMATCH");
@@ -253,7 +254,7 @@ if (Debug)
 	break;	/* match already checked by distance() */
     }
     case DO_MATCH: {
-	register i;
+	int i;
 	int j;
 	unsigned mincost,t;
 	token_p tp;
@@ -263,12 +264,12 @@ if (Debug)
 	token_p regtp[MAXCREG];
 	c3_p regcp[MAXCREG];
 	rl_p regls[MAXCREG];
-	c3_p cp,findcoerc();
+	c3_p cp;
 #ifdef MAXSPLIT
 	int sret;
 #endif
 	int stackpad = 0;
-	struct perm *tup,*ntup,*besttup,*tuples();
+	struct perm *tup,*ntup,*besttup;
 
 	DEBUG("MATCH");
 	tokpatlen=(codep[-1]>>5)&07;
@@ -500,7 +501,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
     }
     case DO_KILLREG:
     case DO_RREMOVE: {	/* register remove */
-	register i;
+	int i;
 	int nodeno;
 	token_p tp;
 	tkdef_p tdp;
@@ -542,7 +543,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	break;
     }
     case DO_DEALLOCATE: {
-	register i;
+	int i;
 	tkdef_p tdp;
 	int tinstno;
 	token_t token;
@@ -572,7 +573,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	break;
     }
     case DO_ALLOCATE: {
-	register i;
+	int i;
 	int j;
 	int tinstno;
 	int npos,npos2,pos[NREGS],pos2[NREGS];
@@ -596,7 +597,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	if (!forced) {
 		do {
 			npos=exactmatch=0;
-			for(rpp=reglist[propno];rp= *rpp; rpp++)
+			for(rpp=reglist[propno] ; (rp= *rpp) ; rpp++)
 				if (getrefcount((int)(rp-machregs), FALSE)==0) {
 					pos[npos++] = rp-machregs;
 					if (eqtoken(&rp->r_contents,&token))
@@ -705,7 +706,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	break;
     }
     case DO_INSTR: {
-	register i;
+	int i;
 	int n;
 	int tinstno;
 	token_t token;
@@ -782,7 +783,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	break;
     }
     case DO_TOKREPLACE: {
-	register i;
+	int i;
 	int tinstno;
 	int repllen;
 	token_t reptoken[MAXREPLLEN];
@@ -814,7 +815,7 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	break;
     }
     case DO_EMREPLACE: {
-	register i;
+	int i;
 	int j;
 	int nodeno;
 	result_t result[MAXEMREPLLEN];
@@ -927,9 +928,10 @@ normalfailed:	if (stackpad!=tokpatlen) {
 	return(totalcost);
 }
 
-readcodebytes() {
+void readcodebytes()
+{
 #ifndef CODEINC
-	register fd;
+	int fd;
 	extern int ncodebytes;
 
 	if ((fd=open("code",0))<0) {
@@ -943,9 +945,8 @@ readcodebytes() {
 }
 
 #ifdef TABLEDEBUG
-initlset(f) char *f; {
-	extern char *myalloc();
-
+void initlset(char *f)
+{
 	set_flag = f;
 	if ((set_fd=open(f+1,2))<0)
 		error("Can't open %s rw",f+1);
@@ -954,14 +955,14 @@ initlset(f) char *f; {
 	read(set_fd,set_val,set_size);
 }
 
-termlset() {
-
+void termlset()
+{
 	if (set_fd) {
 		lseek(set_fd,(long) sizeof(int),0);
 		write(set_fd,set_val,set_size);
 		close(set_fd);
 		if (set_flag[0]=='u') {
-			register i;
+			int i;
 			
 			fprintf(stderr,"Unused code rules:\n\n");
 			for(i=0;i<8*set_size;i++)

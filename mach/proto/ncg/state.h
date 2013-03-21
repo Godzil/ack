@@ -3,6 +3,8 @@
  * See the copyright notice in the ACK home directory, in the file "Copyright".
  */
 /* $Id$ */
+#ifndef MACH_PROTO_NCG_STATE_H
+#define MACH_PROTO_NCG_STATE_H
 
 typedef struct state {
 	struct state *st_next;                  /* for linked list */
@@ -20,3 +22,9 @@ typedef struct state {
 	int st_tl;				/* tokpatlen */
 	int st_ns;				/* nstab */
 } state_t,*state_p;
+
+void savestatus(state_p sp);
+void restorestatus(state_p sp);
+void bmove(short *from, short *to, int nbytes);
+
+#endif /* MACH_PROTO_NCG_STATE_H */

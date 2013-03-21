@@ -4,6 +4,8 @@
  *
  * Author: Hans van Eck. 
  */
+#ifndef MACH_PROTO_NCG_LABEL_H
+#define MACH_PROTO_NCG_LABEL_H
 
 typedef struct label *label_p;
 
@@ -14,4 +16,8 @@ struct label {
 	short	lb_fallthrough;
 };
 
-extern label_p get_label();
+void add_label(int num, int height, int flth);
+label_p get_label(word num);
+void kill_labels();
+
+#endif /* MACH_PROTO_NCG_LABEL_H */
