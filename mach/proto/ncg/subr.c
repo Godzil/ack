@@ -569,7 +569,7 @@ unsigned int stackupto(token_p limit, int ply, int toplevel)
 	int areg[MAXALLREG];
 	c1_p cp;
 	token_p tp;
-	int totalcost=0;
+	unsigned int totalcost=0;
 	struct reginfo *rp,**rpp;
 
 	for (tp=fakestack;tp<=limit;limit--) {
