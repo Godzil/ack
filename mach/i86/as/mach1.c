@@ -20,6 +20,21 @@ extern expr_t	exp_1,exp_2;
 extern int	rel_1, rel_2;
 #endif
 
+void branch(int opc, expr_t exp);
+void pushop(int opc);
+void addop(int opc);
+void incop(int opc);
+void rolop(int opc);
+void imul(int opc);
+void regsize(int sz);
+void ea_1(int param);
+void ea_2(int param);
+void callop(int opc);
+void xchg(int opc);
+void test(int opc);
+void mov(int opc);
+void indexed();
+
 #ifndef extern
 extern char	sr_m[8];
 #else
@@ -32,13 +47,13 @@ char	sr_m[8] = {
 extern char	dr_m[8][8];
 #else
 char	dr_m[8][8] = {
-	-1,	-1,	-1,	-1,	-1,	-1,	-1,	-1,
-	-1,	-1,	-1,	-1,	-1,	-1,	-1,	-1,
-	-1,	-1,	-1,	-1,	-1,	-1,	-1,	-1,
-	-1,	-1,	-1,	-1,	-1,	-1,	0,	1,
-	-1,	-1,	-1,	-1,	-1,	-1,	-1,	-1,
-	-1,	-1,	-1,	-1,	-1,	-1,	2,	3,
-	-1,	-1,	-1,	-1,	-1,	-1,	-1,	-1,
-	-1,	-1,	-1,	-1,	-1,	-1,	-1,	-1
+	{ -1,	-1,	-1,	-1,	-1,	-1,	-1,	-1 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	-1,	-1 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	-1,	-1 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	0,	1 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	-1,	-1 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	2,	3 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	-1,	-1 },
+	{ -1,	-1,	-1,	-1,	-1,	-1,	-1,	-1 }
 };
 #endif
