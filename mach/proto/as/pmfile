@@ -6,10 +6,14 @@ local d = ROOTDIR.."mach/proto/as/"
 local parser = yacc {
 	simple {
 		outputs = {"%U%-%I%.y"},
-		command = {
-			"cd %out[1]:dirname% && "..
-			  "%BINDIR%%PLATDEP%/cpp.ansi -P -I%ROOTDIR%mach/%ARCH%/as -I"..d.." %CINCLUDES:cincludes% %in[1]% > %out[1]%"
-		},
+--		command = {
+--			"cd %out[1]:dirname% && "..
+--			  "%BINDIR%%PLATDEP%/cpp.ansi -P -I%ROOTDIR%mach/%ARCH%/as -I"..d.." %CINCLUDES:cincludes% %in[1]% > %out[1]%"
+--		},
+      command = {
+         "cd %out[1]:dirname% && "..
+         "cpp -P -I%ROOTDIR%mach/%ARCH%/as -I"..d.." %CINCLUDES:cincludes% %in[1]% > %out[1]%"
+      },
 		
 		file (d.."comm2.y"),
 	}

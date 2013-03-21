@@ -61,7 +61,7 @@ ncgg = simple {
 	
 	outputs = {"%U%/tables.c", "%U%/tables.h"},
 	command = {
-		"cd %out[1]:dirname% && (%BINDIR%%PLATDEP%/cpp.ansi -P -I%NCGGINCLUDEDIR% %in% | %TOOLDIR%ncgg)",
+		"cd %out[1]:dirname% && (cpp -P -I%NCGGINCLUDEDIR% %in% | %TOOLDIR%ncgg)",
 		"mv %out[1]:dirname%/tables.H %out[2]%"
 	},
 }
