@@ -20,6 +20,7 @@ void do_if(void);
 void do_ifdef(int how);
 void do_undef(struct idf *argidf);
 void do_error(void);
+void do_warning(void);
 int getparams(char *buf[], char parbuf[]);
 void macro_def(struct idf *id, char *text, int nformals, int length, int flags);
 int find_name(char *nm, char *index[]);

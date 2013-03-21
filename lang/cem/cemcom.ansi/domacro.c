@@ -136,6 +136,9 @@ void domacro()
 		case K_ERROR:				/* "error"	*/
 			do_error();
 			break;
+		case K_WARNING:				/* "warning" */
+			do_warning();
+			break;
 		case K_PRAGMA:				/* "pragma"	*/
 			do_pragma();
 			break;
@@ -518,6 +521,17 @@ void do_error()
 	char *bp = get_text((char **) 0, &len);
 
 	lexerror("user error: %s", bp);
+	free(bp);
+	LineNumber++;
+}
+
+void do_warning()
+{
+	int len;
+	char *get_text();
+	char *bp = get_text((char **) 0, &len);
+
+	lexwarning("user warning: %s", bp);
 	free(bp);
 	LineNumber++;
 }
