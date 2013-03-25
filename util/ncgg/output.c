@@ -671,7 +671,7 @@ void outars()
 
 void finishio() 
 {
-	int nregs = 0;
+	extern int nregs;
 
 	finishcode();
 	hashpatterns();
