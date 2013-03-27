@@ -26,6 +26,8 @@ tool_LLgen = cprogram {
 	cfile (d.."src/Lpars.c"),
 	cfile (d.."src/tokens.c"),
 
+	lib_sbrk,
+
 	outputs = {"%U%/LLgen"},
 	install = pm.install("%TOOLDIR%LLgen")
 }

@@ -20,7 +20,8 @@ tool_led = cprogram {
 
 	lib_string,
 	lib_object,
-	
+	lib_sbrk,
+
 	outputs = {"%U%/led"},
 	install = {
 		-- FIXME lib.bin in next line needs removing --- pm bug?

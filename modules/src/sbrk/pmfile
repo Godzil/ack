@@ -1,0 +1,20 @@
+-- $Source$
+-- $State$
+
+local d = "modules/src/sbrk/"
+lib_sbrk = file (LIBDIR.."libsbrk.a")
+
+module_sbrk = clibrary {
+	cfile (d.."sbrk_emu.c"),
+	
+	outputs = {"%U%/libsbrk.a"},
+	install = {
+		pm.install(LIBDIR.."libsbrk.a"),
+	}
+}
+
+-- Revision history
+-- $Log$
+-- Revision 1.1  2013/03/27 godzil
+-- First version.
+--

@@ -6,6 +6,7 @@
 
 #include "system.h"
 #include <unistd.h>
+#include <missing_proto.h>
 
 char *sys_break(int incr)
 {

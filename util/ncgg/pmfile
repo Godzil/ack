@@ -51,7 +51,8 @@ tool_ncgg = cprogram {
 	},
 	
 	lib_em_data,
-	
+	lib_sbrk,
+
 	outputs = {"%U%-ncgg"},
 	install = pm.install(TOOLDIR.."ncgg")
 }

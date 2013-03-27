@@ -19,6 +19,8 @@ CINCLUDES = {
 
 include "util/data/pmfile"
 
+include "modules/src/sbrk/pmfile"
+
 include "util/LLgen/pmfile-ack"
 
 include "modules/src/alloc/pmfile"
@@ -103,7 +105,10 @@ include "plat/nes/pmfile"	            -- NES
 
 default = group {
 	-- Lots of things use LLgen, so we need to build it first.
-	
+
+	-- Need it before anything else! (even LLgen depends on it)
+	module_sbrk,
+
 	tool_LLgen,
 	
 	-- Some of the dependency management across modules isn't entirely
@@ -181,8 +186,8 @@ default = group {
 	-- Build the platforms.
 	
 	platform_pc86,
-	platform_linux386,
-	platform_cpm,
+--	platform_linux386,
+--	platform_cpm,
 --	platform_nes,
 }
 
