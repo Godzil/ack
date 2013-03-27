@@ -38,7 +38,7 @@ EXTERN  int             n_error;        /* Number of errors encountered */
 EXTERN  char            *progname;      /* The program call name */
 
 EXTERN  char            *outfile;       /* The result file e.g. a.out */
-EXTERN  char            template[20];   /* The template for temporary file
+EXTERN  char            template[512];   /* The template for temporary file
 						names */
 
 EXTERN  trf             *linker;	/* Pointer to the Loader/Linker */

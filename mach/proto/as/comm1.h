@@ -53,7 +53,7 @@ extern short	bflag;		/* -b option (no optimizations) */
 #endif
 
 extern char	*aoutpath INIT("a.out");
-extern char	temppath[50];
+extern char	temppath[512];
 
 extern FILE	*input;
 extern FILE	*tempfile;
