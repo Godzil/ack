@@ -299,7 +299,7 @@ line_p readoperand(short instr)
 	/* Read the operand of the given instruction.
 	 * Create a line struct and return a pointer to it.
 	 */
-	line_p lnp;
+	line_p lnp = NULL;
 	short flag;
 
 	VI(instr);

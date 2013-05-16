@@ -166,7 +166,7 @@ void dblockdef(dblock_p db, int n, line_p lnp)
 {
 	/* Process a data block defining occurrence */
 
-	byte m;
+	byte m = 0;
 
 	switch(n) {
 		case ps_hol:

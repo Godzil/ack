@@ -70,7 +70,7 @@ void substitute(FILE *lf, call_p c, line_p cal, line_p firstline)
 	 * up to date.
 	 */
 
-	line_p l, text, lab;
+	line_p l, text = NULL, lab = NULL;
 	offset ab_off, lb_off;
 	line_p startscan, ncal;
 	short lastcid;

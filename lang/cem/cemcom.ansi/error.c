@@ -530,7 +530,7 @@ fatal(va_alist)				/* fmt, args */
 
 static void _error(int class, char *fn, unsigned int ln, char *fmt, va_list ap)
 {
-	char *remark;
+	char *remark = NULL;
 	
 	/* check visibility of message */
 	switch (class)	{

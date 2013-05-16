@@ -54,7 +54,7 @@ bool value_known(line_p def, offset *val_out)
 	 */
 
 	short sz1, sz2;
-	offset v;
+	offset v = 0;
 	line_p l;
 
 	sz1 = ws;

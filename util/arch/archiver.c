@@ -705,16 +705,17 @@ void do_object(int f, long size)
  * name table and read and write the names one by one. Update the ranlib table
  * accordingly.
  */
+#define NNAMES 100
+
 void do_names(struct outhead	*headp)
 {
-	register char	*strings;
-	register int	nnames = headp->oh_nname;
-#define NNAMES 100
+ 	char	*strings = NULL;
+	int	nnames = headp->oh_nname;
 	struct outname	namebuf[NNAMES];
 	long xxx = OFF_CHAR(*headp);
 
-	if (	headp->oh_nchar != (unsigned int)headp->oh_nchar ||
-		(strings = malloc((unsigned int)headp->oh_nchar)) == (char *)0
+	if ( (headp->oh_nchar != (unsigned int)headp->oh_nchar) ||
+		 (strings = malloc((unsigned int)headp->oh_nchar)) == (char *)0
 	   ) {
 		error(TRUE, "string table too big\n", NULL, NULL, NULL);
 	}

@@ -78,7 +78,7 @@ static line_p newcode(code_p code, offset tmp)
 	 *	  a[iv]    ->   *tmp
 	 */
 
-	line_p l;
+	line_p l = NULL;
 
 	switch(code->co_instr) {
 		case op_mli:
@@ -245,7 +245,8 @@ static void incr_code(code_p code, offset tmp)
 	 * the induction variable.
 	 */
 
-	line_p load_tmp, loc, add, store_tmp, l;
+	line_p load_tmp = NULL, loc = NULL, add = NULL,
+	       store_tmp = NULL, l = NULL;
 
 	add = newline(OPSHORT);
 	SHORT(add) = ws;  /* the add instruction, can be ADI,ADU or ADS */

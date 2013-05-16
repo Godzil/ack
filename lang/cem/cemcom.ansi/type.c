@@ -77,7 +77,7 @@ struct type *construct_type(int fund, struct type *tp, int qual, arith count, st
 	/*	fund must be a type constructor: FIELD, FUNCTION, POINTER or
 		ARRAY. The pointer to the constructed type is returned.
 	*/
-	struct type *dtp;
+	struct type *dtp = NULL;
 
 	switch (fund)	{
 #ifndef NOBITFIELD
