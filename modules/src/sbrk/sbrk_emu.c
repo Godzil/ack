@@ -27,14 +27,14 @@ extern char *calloc();
 static void *bottom = NULL;             /* bottom of calloc()ed pseudo-heap */
 static void *brkval = NULL;             /* current value of simulated break */
 
-int brk_emu( void *endds )
+void *brk_emu(const void *endds )
 {
 	int offset;
 	if ( bottom == NULL )
 	{
 		if ( (bottom = calloc( HEAP_SIZE, 1 )) == 0 )
 		{
-			return BRK_ERR; /* unable to set up pseudo-heap */
+			return (void *)BRK_ERR; /* unable to set up pseudo-heap */
 		}
 		else
 		{
@@ -45,12 +45,12 @@ int brk_emu( void *endds )
 	if ( (offset = endds - bottom) < 0 || offset > HEAP_SIZE )
 	{
 		errno = ENOMEM;
-		return BRK_ERR; /* attempt to set break out of heap */
+		return (void *)BRK_ERR; /* attempt to set break out of heap */
 	}
 	else
 	{
-		brkval = endds;
-		return BRK_OK;
+		brkval = (void *)endds;
+		return (void *)BRK_OK;
 	}
 }
 

@@ -3,7 +3,7 @@
 
 #ifdef NOSBRK
 void *sbrk(__intptr_t increment);
-int   brk(void * addr);
+void *brk(void * addr);
 #endif
 
 #ifdef NOMKTEMP
@@ -12,7 +12,7 @@ char *mktemp(char *template);
 
 #ifdef EMULATE_BRK
 void *sbrk_emu(int increment);
-int   brk_emu(void * addr);
+void *brk_emu(const void * addr);
 
 #ifdef sbrk
 #undef sbrk
