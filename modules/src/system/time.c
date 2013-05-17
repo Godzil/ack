@@ -4,12 +4,10 @@
  */
 /* $Id$ */
 
+#include <time.h>
 #include "system.h"
 
-long time();
-
-long
-sys_time()
+long sys_time()
 {
 	return time((long *) 0);
 }

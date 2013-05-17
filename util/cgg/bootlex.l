@@ -19,7 +19,9 @@
 #include "y.tab.h"
 
 /* fileno is not C89 and can be missing sometimes. */
+#ifdef __LINUX__
 int fileno(FILE *stream);
+#endif
 
 int lineno = 1;
 extern char *iname;

@@ -34,7 +34,9 @@ int	nerrors=0;
 char	patid[128];
 
 /* fileno is not C89 and can be missing sometimes. */
+#ifdef __LINUX__
 int fileno(FILE *stream);
+#endif
 
 int CBO_instrs[] = {
 	op_adi,
