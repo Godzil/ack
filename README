@@ -2,7 +2,7 @@ THE AMSTERDAM COMPILER KIT V6.0pre4
 ===================================
 
 © 1987-2005 Vrije Universiteit, Amsterdam 2010-08-08
-© 2013      Manoel Trapier, Paris
+© 2013-2014 Manoel Trapier, Paris
 
 INTRODUCTION
 ============
@@ -180,6 +180,8 @@ You can find the ACK mailing list and the original project's web site:
 	http://tack.sourceforge.net/
 
 Please enjoy.
+
+Manoel Trapier (aka godzil) for the ANSI-fication port
 
 David Given (dtrg on Sourceforge)
 dg@cowlark.com
